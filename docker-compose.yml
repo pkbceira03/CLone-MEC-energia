@@ -1,0 +1,21 @@
+version: '3.5'
+services:
+    mec-energia-db:
+        container_name: mec-energia-db
+        restart: always
+        image: postgres:12.2
+        ports:
+            - 5432:5432
+        env_file: .env
+        networks:
+            - mec-energia-network
+        volumes:
+            - mec-pg-data:/var/lib/postgresql/data
+
+volumes:
+  mec-pg-data: {}
+
+networks:
+  mec-energia-network:
+    name: mec-energia-network
+    driver: bridge
