@@ -3,7 +3,7 @@ services:
     mec-energia-db:
         container_name: mec-energia-db
         restart: always
-        image: postgres:12.2
+        image: "postgres:${POSTGRES_VERSION}"
         ports:
             - 5432:5432
         env_file: .env
