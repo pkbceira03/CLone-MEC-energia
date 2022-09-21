@@ -12,7 +12,7 @@ Copie o arquivo `.env.dev` para `.env`:
 cp .env.dev .env 
 ```
 
-Então levante o container do banco de dados com:
+Então levante os containeres da API e do banco de dados com:
 
 ```sh
 docker-compose up -d
