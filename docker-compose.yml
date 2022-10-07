@@ -25,7 +25,7 @@ services:
     depends_on:
       - mec-energia-db
     volumes:
-      - .:/mec-energia-api
+      - .:/home/dev/mec-energia-api
 
 
 volumes:
