@@ -13,7 +13,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('ENVIRONMENT') != 'production'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'users',
+    'universities',
 ]
 
 MIDDLEWARE = [
@@ -61,11 +62,11 @@ WSGI_APPLICATION = 'mec_energia.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-POSTGRES_USER=os.getenv('POSTGRES_USER')
-POSTGRES_PASSWORD=os.getenv('POSTGRES_PASSWORD')
-POSTGRES_DB=os.getenv('POSTGRES_DB')
-POSTGRES_PORT=os.getenv('POSTGRES_PORT')
-POSTGRES_HOST=os.getenv('POSTGRES_HOST')
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
+POSTGRES_PORT = os.getenv('POSTGRES_PORT')
+POSTGRES_HOST = os.getenv('POSTGRES_HOST')
 
 DATABASES = {
     'default': {
