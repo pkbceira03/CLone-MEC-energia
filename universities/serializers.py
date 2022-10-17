@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from universities.utils import CnpjValidator
 
-from .models import University
+from .models import ConsumerUnit, University
 
 
 class UniversitySerializer(serializers.HyperlinkedModelSerializer):
@@ -16,3 +16,9 @@ class UniversitySerializer(serializers.HyperlinkedModelSerializer):
         except Exception as e:
             raise serializers.ValidationError(str(e.args))
         return cnpj
+
+
+class ConsumerUnitSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = ConsumerUnit
+        fields = ['id', 'url', 'name', 'code', 'is_active', 'university']
