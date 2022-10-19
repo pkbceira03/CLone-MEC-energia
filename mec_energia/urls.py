@@ -14,6 +14,7 @@ router.registry.extend(contracts_router.registry)
 
 urlpatterns = [
     path('api/admin/', admin.site.urls),
+    path('api-auth/', include('rest_framework.urls')),
     path(r'api/token/', views.obtain_auth_token),
     path(r'api/', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
