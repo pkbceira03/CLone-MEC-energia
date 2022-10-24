@@ -5,6 +5,36 @@ from universities.utils import CnpjValidator
 from .models import ConsumerUnit, University
 
 
+class ConsumerUnitInRetrieveUniversitySerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = ConsumerUnit
+        fields = [
+            'id', 'url', 'name', 'code', 'is_active'
+        ]
+
+
+class RetrieveUniversitySerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+
+    consumer_units = ConsumerUnitInRetrieveUniversitySerializer(
+        read_only=True,
+        many=True,
+    )
+
+    class Meta:
+        model = University
+        fields = '__all__'
+
+    def validate_cnpj(self, cnpj: str):
+        try:
+            CnpjValidator.validate(cnpj)
+        except Exception as e:
+            raise serializers.ValidationError(str(e.args))
+        return cnpj
+
+
 class UniversitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = University
