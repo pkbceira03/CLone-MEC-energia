@@ -41,6 +41,7 @@ class ConsumerUnit(models.Model):
         null=False,
         on_delete=models.PROTECT,
         verbose_name='Universidade',
+        related_name='consumer_units',
         help_text=_('Uma Unidade Consumidora deve estar ligada a uma Universidade')
     )
 
