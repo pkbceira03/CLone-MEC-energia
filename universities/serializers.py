@@ -38,7 +38,7 @@ class RetrieveUniversitySerializer(serializers.HyperlinkedModelSerializer):
 class UniversitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = University
-        fields = ['id', 'name', 'cnpj']
+        fields = ['url', 'id', 'name', 'acronym', 'cnpj']
 
     def validate_cnpj(self, cnpj: str):
         try:
