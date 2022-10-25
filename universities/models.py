@@ -10,6 +10,14 @@ class University(models.Model):
         help_text=_('Nome da universidade por extenso')
     )
 
+    acronym = models.CharField(
+        null=True,
+        max_length=50,
+        unique=True,
+        verbose_name=_('Sigla'),
+        help_text=_('Exemplo: UnB, UFSC, UFB')
+    )
+
     cnpj = models.CharField(
         max_length=14,
         unique=True,
@@ -30,7 +38,8 @@ class ConsumerUnit(models.Model):
         max_length=15,
         unique=True,
         verbose_name=_('Código da Unidade Consumidora'),
-        help_text=_('Cheque a conta de luz para obter o código da Unidade Consumidora. Insira apenas números')
+        help_text=_(
+            'Cheque a conta de luz para obter o código da Unidade Consumidora. Insira apenas números')
     )
 
     is_active = models.BooleanField(default=True)
@@ -42,7 +51,8 @@ class ConsumerUnit(models.Model):
         on_delete=models.PROTECT,
         verbose_name='Universidade',
         related_name='consumer_units',
-        help_text=_('Uma Unidade Consumidora deve estar ligada a uma Universidade')
+        help_text=_(
+            'Uma Unidade Consumidora deve estar ligada a uma Universidade')
     )
 
     created_on = models.DateField(auto_now_add=True)
