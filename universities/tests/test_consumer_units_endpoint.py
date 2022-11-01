@@ -2,30 +2,29 @@ import json
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
+
+from users.models import UniversityUser
 
 from universities.models import University, ConsumerUnit
 
 TESTSERVER_ADDR = 'http://testserver/api/universities/'
 ENDPOINT = '/api/consumer-units/'
-USERNAME = 'admin'
 EMAIL = 'admin@admin.com'
 PASSWORD = 'admin@admin.com'
 
 
 @pytest.mark.django_db
 class TestConsumerUnitsEndpoint:
-    def setup(self):
+    def setup_method(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(
-            username=USERNAME, email=EMAIL, password=PASSWORD)
-        self.client.login(username=USERNAME, password=PASSWORD)
         university_dict = {
             'name': 'Universidade de Brasília',
             'cnpj': '00038174000143'
         }
         self.university = University(**university_dict)
         self.university.save()
+        self.user = UniversityUser.objects.create_user(email=EMAIL, password=PASSWORD, university=self.university)
+        self.client.login(email=EMAIL, password=PASSWORD)
         self.existing_consumer_unit_dict = {
             'name': 'Darcy Ribeiro',
             'code': '000000000',

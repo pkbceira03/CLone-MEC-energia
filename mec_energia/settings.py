@@ -60,6 +60,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'mec_energia.wsgi.application'
 
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -120,6 +121,11 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+if os.getenv('ENVIRONMENT') != 'production':
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.MD5PasswordHasher'
+    ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
