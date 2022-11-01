@@ -2,28 +2,19 @@ import json
 import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
 
+from users.models import UniversityUser
 from universities.models import University
 
 ENDPOINT = '/api/universities/'
-USERNAME = 'admin'
 EMAIL = 'admin@admin.com'
-PASSWORD = 'admin@admin.com'
+PASSWORD = 'password'
 
 
 @pytest.mark.django_db
 class TestUniversitiesEndpoint:
-    def setup(self):
+    def setup_method(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(
-            username=USERNAME, email=EMAIL, password=PASSWORD)
-        self.client.login(username=USERNAME, password=PASSWORD)
-        self.university_to_be_created = {
-            'name': 'Universidade de Brasília',
-            'cnpj': '00038174000143'
-        }
-
         self.existing_university_dict = {
             'name': 'Universidade de São Paulo',
             'cnpj': '63025530000104'
@@ -31,7 +22,13 @@ class TestUniversitiesEndpoint:
         self.existing_university = University(**self.existing_university_dict)
         self.existing_university.save()
 
-
+        self.user = UniversityUser.objects.create_user(
+            email=EMAIL, password=PASSWORD, university=self.existing_university)
+        self.client.login(email=EMAIL, password=PASSWORD)
+        self.university_to_be_created = {
+            'name': 'Universidade de Brasília',
+            'cnpj': '00038174000143'
+        }
 
     def test_creates_university(self):
         response = self.client.post(ENDPOINT, self.university_to_be_created)
