@@ -11,7 +11,7 @@ class ConsumerUnitInRetrieveUniversitySerializer(serializers.HyperlinkedModelSer
     class Meta:
         model = ConsumerUnit
         fields = [
-            'id', 'url', 'name', 'code', 'is_active'
+            'id', 'url', 'name', 'code', 'is_active', 'date', 'is_current_energy_bill_filled', 'pending_energy_bills_number'
         ]
 
 
@@ -51,4 +51,4 @@ class UniversitySerializer(serializers.HyperlinkedModelSerializer):
 class ConsumerUnitSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = ConsumerUnit
-        fields = ['id', 'url', 'name', 'code', 'is_active', 'university']
+        fields = ['id', 'url', 'name', 'code', 'is_active', 'date', 'university']

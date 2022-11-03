@@ -15,6 +15,12 @@ DEBUG = os.getenv('ENVIRONMENT') != 'production'
 
 ALLOWED_HOSTS = ['*']
 
+
+# Global variables
+MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION = 6
+IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION = 12
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

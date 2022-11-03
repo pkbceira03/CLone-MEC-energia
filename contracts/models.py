@@ -19,7 +19,11 @@ class Contract(models.Model):
 
     # TODO: - OneToOneField:
     # - Operadora
-    # - UC
+
+    consumer_unit = models.ForeignKey(
+        'universities.ConsumerUnit',
+        on_delete=models.PROTECT
+    )
 
     start_date = models.DateField(
         default=datetime.date.today,
@@ -76,6 +80,11 @@ class EnergyBill(models.Model):
         on_delete=models.PROTECT
     )
 
+    consumer_unit = models.ForeignKey(
+        'universities.ConsumerUnit',
+        on_delete=models.PROTECT
+    )
+
     date = models.DateField(
         null=True,
         blank=True
@@ -119,3 +128,12 @@ class EnergyBill(models.Model):
         null=True,
         blank=True
     )
+
+    @classmethod
+    def get_energy_bill(cls, consumer_unit_id, month, year):
+        energy_bill = cls.objects.all().filter(
+            consumer_unit=consumer_unit_id,
+            date__month=month,
+            date__year=year)
+
+        return energy_bill
