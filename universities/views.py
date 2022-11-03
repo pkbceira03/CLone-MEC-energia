@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
 from .models import ConsumerUnit, University
-from .serializers import ConsumerUnitSerializer, UniversitySerializer, RetrieveUniversitySerializer
+from .serializers import ConsumerUnitSerializer, UniversitySerializer, RetrieveUniversitySerializer, ConsumerUnitInRetrieveUniversitySerializer
 
 class UniversityViewSet(viewsets.ModelViewSet):
     queryset = University.objects.all()
@@ -18,3 +18,8 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
     queryset = ConsumerUnit.objects.all()
     serializer_class = ConsumerUnitSerializer
     http_method_names = ['get', 'post', 'put']
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return ConsumerUnitInRetrieveUniversitySerializer
+        return ConsumerUnitSerializer

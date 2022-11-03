@@ -1,6 +1,10 @@
 from django.db import models
+from mec_energia import settings
 from django.utils.translation import gettext_lazy as _
+from datetime import date
 
+from .utils import EnergyBillsDates
+from contracts.models import EnergyBill
 
 class University(models.Model):
     name = models.CharField(
@@ -56,6 +60,47 @@ class ConsumerUnit(models.Model):
     )
 
     created_on = models.DateField(auto_now_add=True)
+
+
+    @property
+    def oldest_contract(self):
+        return self.contract_set.all().order_by('start_date').first()
+
+    @property
+    def date(self):
+        if not self.oldest_contract:
+            return 'Unidade Consumidora sem Contrato'
+        
+        return self.oldest_contract.start_date
+
+    @property
+    def is_current_energy_bill_filled(self):
+        if EnergyBill.get_energy_bill(
+            self.id,
+            date.today().month,
+            date.today().year):
+            
+            return True
+        return False
+
+    @property
+    def pending_energy_bills_number(self):
+        if not self.oldest_contract:
+            return 'Unidade Consumidora sem Contrato'
+
+        energy_bills = EnergyBillsDates.generate_dates_of_consumer_unit(self.date)
+
+        pending_bills_number = 0
+        for energy_bill in energy_bills:
+            if not EnergyBill.get_energy_bill(
+                self.id,
+                energy_bill['month'], 
+                energy_bill['year']):
+                
+                pending_bills_number += 1
+
+        return pending_bills_number
+
 
     def __repr__(self) -> str:
         return f'UC {self.name}'
