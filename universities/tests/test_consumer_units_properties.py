@@ -23,7 +23,8 @@ class TestConsumerUnitsProperties:
         assert 10 == consumer_unit['pending_energy_bills_number']
         assert status.HTTP_200_OK == response.status_code
 
-    #FIX
+    # FIXME: Teste travando na primeira linha
+    
     """ def test_reads_consumer_unit_properties_current_energy_bill_filled(self):
         response = self.client.get(f'{ENDPOINT}{self.consumer_unit_2.id}/')
         geted_consumer_unit = json.loads(response.content)
