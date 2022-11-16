@@ -3,7 +3,7 @@ from mec_energia import settings
 from django.utils.translation import gettext_lazy as _
 from datetime import date
 
-from .utils import EnergyBillsDates
+from .recommendation import Recommendation
 from contracts.models import EnergyBill
 
 class University(models.Model):
@@ -61,6 +61,9 @@ class ConsumerUnit(models.Model):
 
     created_on = models.DateField(auto_now_add=True)
 
+    @property
+    def current_contract(self):
+        return self.contract_set.all().order_by('start_date').last()
 
     @property
     def oldest_contract(self):
@@ -68,7 +71,7 @@ class ConsumerUnit(models.Model):
 
     @property
     def date(self):
-        if not self.oldest_contract:
+        if not self.current_contract:
             return 'Unidade Consumidora sem Contrato'
         
         return self.oldest_contract.start_date
@@ -85,22 +88,25 @@ class ConsumerUnit(models.Model):
 
     @property
     def pending_energy_bills_number(self):
-        if not self.oldest_contract:
+        if not self.current_contract:
             return 'Unidade Consumidora sem Contrato'
 
-        energy_bills = EnergyBillsDates.generate_dates_of_consumer_unit(self.date)
-
         pending_bills_number = 0
+        energy_bills = self.get_energy_bills_for_recommendation()
+        
         for energy_bill in energy_bills:
-            if not EnergyBill.get_energy_bill(
-                self.id,
-                energy_bill['month'], 
-                energy_bill['year']):
-                
+            if energy_bill['energy_bill'] == None:
                 pending_bills_number += 1
 
         return pending_bills_number
 
+    def get_energy_bills_for_recommendation(self):
+        if not self.current_contract:
+            return 'Unidade Consumidora sem Contrato'
+
+        energy_bills = Recommendation.get_energy_bills_for_recommendation(self.id)
+
+        return energy_bills
 
     def __repr__(self) -> str:
         return f'UC {self.name}'
