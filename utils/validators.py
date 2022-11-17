@@ -36,4 +36,3 @@ class CnpjValidator:
             verifier_digit = 11 - sum_mod_11
 
         return verifier_digit
-

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from universities.utils.cnpj_validator import CnpjValidator
+from utils.validators import CnpjValidator
 
 from .models import ConsumerUnit, University
 
