@@ -20,7 +20,7 @@ class TestConsumerUnitsProperties:
 
         assert self.contract_1.start_date == consumer_unit['date']
         assert False == consumer_unit['is_current_energy_bill_filled']
-        assert 10 == consumer_unit['pending_energy_bills_number']
+        assert 12 == consumer_unit['pending_energy_bills_number']
         assert status.HTTP_200_OK == response.status_code
 
     # FIXME: Teste travando na primeira linha
