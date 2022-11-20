@@ -2,7 +2,7 @@ from rest_framework.serializers import HyperlinkedModelSerializer, Serializer, M
 from rest_framework import serializers
 
 
-from utils.validators import CnpjValidator
+from utils.cnpj_validator_util import CnpjValidator
 
 from .models import Distributor
 from universities.models import University
@@ -58,7 +58,6 @@ class BlueAndGreenTariffsSerializer(Serializer):
     green = GreenTariffSerializer()
 
     def validate(self, data):
-        print('>>>', self.initial_data)
         if data['start_date'] >= data['end_date']:
             raise serializers.ValidationError('Start date must be before end date')
         return data

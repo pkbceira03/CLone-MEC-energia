@@ -1,6 +1,6 @@
 from datetime import date
 
-from .utils.energy_bill import EnergyBillUtils
+from utils.energy_bill_util import EnergyBillUtils
 from contracts.models import EnergyBill
 
 class Recommendation:

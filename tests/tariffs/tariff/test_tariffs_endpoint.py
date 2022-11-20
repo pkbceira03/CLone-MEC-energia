@@ -1,34 +1,26 @@
 import pytest
 import json
-
 from datetime import date, timedelta
-
 from rest_framework.test import APIClient
 from rest_framework import status
 
-from universities.models import University
-from tariffs.models import Distributor
-
-from users.models import UniversityUser
-from universities.models import University
 from tariffs.models import Distributor, Tariff
 
+from tests.test_utils.create_objects_util import CreateObjectsUtil
 
 ENDPOINT = '/api/tariffs/'
-EMAIL = 'admin@admin.com'
-PASSWORD = 'password'
 DATE_FORMAT = '%Y-%m-%d'
 TODAY = date.today()
 
 @pytest.mark.django_db
 class TestTariffEndpoints:
     def setup_method(self):
-        university_dict = {
-            'name': 'Universidade de São Paulo',
-            'cnpj': '63025530000104'
-        }
+        self.university, self.user = CreateObjectsUtil.create_university_and_user()
 
-        self.university = University.objects.create(**university_dict)
+        self.client = APIClient()
+        self.client.login(
+            email = CreateObjectsUtil.login_university_user['email'], 
+            password = CreateObjectsUtil.login_university_user['password'])
 
         self.distributor1 = Distributor.objects.create(
             name='Distribuidora de Energia',
@@ -42,11 +34,7 @@ class TestTariffEndpoints:
             university_id=self.university.id
         )
 
-        self.user = UniversityUser.objects.create_user(
-            email=EMAIL, password=PASSWORD, university=self.university)
-        self.client = APIClient()
-        assert self.client.login(email=EMAIL, password=PASSWORD)
-
+        
     def test_creates_tariff(self):
         tariff_dict = self._create_tariff_dict()
         
@@ -174,8 +162,8 @@ class TestTariffEndpoints:
             assert self.distributor1.id == t['distributor']
             assert t['blue'] != None
             assert t['green'] != None        
-        
-    
+
+
     def _create_tariff_dict(self, 
         start_date: date=None, 
         end_date: date=None, 

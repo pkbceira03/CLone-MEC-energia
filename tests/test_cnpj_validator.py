@@ -1,5 +1,5 @@
 import pytest
-from utils.validators import CnpjValidator
+from utils.cnpj_validator_util import CnpjValidator
 
 valid_cnpjs_as_params = pytest.mark.parametrize('cnpj', [
     ('58577114000189'),

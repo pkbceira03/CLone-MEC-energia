@@ -1,8 +1,8 @@
 import json
 import pytest
+from datetime import date
 from rest_framework import status
 from rest_framework.test import APIClient
-from datetime import date
 
 from users.models import UniversityUser
 from universities.models import ConsumerUnit, University
