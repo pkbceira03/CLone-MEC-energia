@@ -130,40 +130,6 @@ class TestTariffEndpoints:
         assert status.HTTP_404_NOT_FOUND == response.status_code
         assert 'Could not find tariffs' in error['error'][0]
     
-    def test_list_tariffs(self):
-        self._create_3_tariffs_from_dist1_2_tariffs_from_dist2()
-        response = self.client.get(ENDPOINT)
-        tariffs: list = json.loads(response.content)
-
-        assert 5 == len(tariffs)
-        
-        tariffs_from_distributor1 = list(filter(lambda t: t['distributor'] == self.distributor1.id, tariffs))
-        assert 3 == len(tariffs_from_distributor1)
-        for t in tariffs_from_distributor1:
-            assert self.distributor1.id == t['distributor']
-            assert t['blue'] != None
-            assert t['green'] != None
-    
-        tariffs_from_distributor2 = list(filter(lambda t: t['distributor'] == self.distributor2.id, tariffs))
-        assert 2 == len(tariffs_from_distributor2)
-        for t in tariffs_from_distributor2:
-            assert self.distributor2.id == t['distributor']
-            assert t['blue'] != None
-            assert t['green'] != None
-        
-    def test_list_tariffs_with_distributor_in_query_params(self):
-        self._create_3_tariffs_from_dist1_2_tariffs_from_dist2()
-
-        response = self.client.get(f'{ENDPOINT}?distributor={self.distributor1.id}')
-        tariffs: list = json.loads(response.content)
-
-        assert 3 == len(tariffs)
-        for t in tariffs:
-            assert self.distributor1.id == t['distributor']
-            assert t['blue'] != None
-            assert t['green'] != None        
-
-
     def _create_tariff_dict(self, 
         start_date: date=None, 
         end_date: date=None, 
@@ -196,24 +162,3 @@ class TestTariffEndpoints:
         }
         return t
     
-    def _create_3_tariffs_from_dist1_2_tariffs_from_dist2(self) -> None:
-        t1_d1 = self._create_tariff_dict(subgroup='A3')
-        Tariff.objects.create(subgroup=t1_d1['subgroup'], flag=Tariff.BLUE, distributor=self.distributor1, **t1_d1['blue'], start_date=t1_d1['start_date'], end_date=t1_d1['end_date'])
-        Tariff.objects.create(subgroup=t1_d1['subgroup'], flag=Tariff.GREEN, distributor=self.distributor1, **t1_d1['green'], start_date=t1_d1['start_date'], end_date=t1_d1['end_date'])
-
-        t2_d1 = self._create_tariff_dict(subgroup='A4')
-        Tariff.objects.create(subgroup=t2_d1['subgroup'], flag=Tariff.BLUE, distributor=self.distributor1, **t2_d1['blue'], start_date=t2_d1['start_date'], end_date=t2_d1['end_date'])
-        Tariff.objects.create(subgroup=t2_d1['subgroup'], flag=Tariff.GREEN, distributor=self.distributor1, **t2_d1['green'], start_date=t2_d1['start_date'], end_date=t2_d1['end_date'])
-
-        t3_d1 = self._create_tariff_dict(subgroup='AS')
-        Tariff.objects.create(subgroup=t3_d1['subgroup'], flag=Tariff.BLUE, distributor=self.distributor1, **t3_d1['blue'], start_date=t3_d1['start_date'], end_date=t3_d1['end_date'])
-        Tariff.objects.create(subgroup=t3_d1['subgroup'], flag=Tariff.GREEN, distributor=self.distributor1, **t3_d1['green'], start_date=t3_d1['start_date'], end_date=t3_d1['end_date'])
-
-        t1_d2 = self._create_tariff_dict(subgroup='A3', distributor_id=self.distributor2.id)
-        Tariff.objects.create(subgroup=t1_d2['subgroup'], flag=Tariff.BLUE, distributor=self.distributor2, **t1_d2['blue'], start_date=t1_d2['start_date'], end_date=t1_d2['end_date'])
-        Tariff.objects.create(subgroup=t1_d2['subgroup'], flag=Tariff.GREEN, distributor=self.distributor2, **t1_d2['green'], start_date=t1_d2['start_date'], end_date=t1_d2['end_date'])
-
-        t2_d2 = self._create_tariff_dict(subgroup='A4', distributor_id=self.distributor2.id)
-        Tariff.objects.create(subgroup=t2_d2['subgroup'], flag=Tariff.BLUE, distributor=self.distributor2, **t2_d2['blue'], start_date=t2_d2['start_date'], end_date=t2_d2['end_date'])
-        Tariff.objects.create(subgroup=t2_d2['subgroup'], flag=Tariff.GREEN, distributor=self.distributor2, **t2_d2['green'], start_date=t2_d2['start_date'], end_date=t2_d2['end_date'])
-        return

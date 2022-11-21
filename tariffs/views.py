@@ -6,7 +6,7 @@ from rest_framework import status
 from drf_yasg.utils import swagger_auto_schema
 
 from .models import Distributor, Tariff
-from .serializers import DistributorSerializer, BlueAndGreenTariffsSerializer
+from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer
 
 
 class DistributorViewSet(ModelViewSet):
@@ -22,6 +22,32 @@ class DistributorViewSet(ModelViewSet):
         Distributor.objects.filter(pk=distributor.id).delete()
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+    @swagger_auto_schema(responses={200: DistributorSerializerForDocs()})
+    def list(self, request: Request, *args, **kwargs):
+        # Essa parte do ID da universidade é temporária
+        university_id = 1
+        distributors = Distributor.objects.filter(university_id=university_id).order_by('name')
+        ser = DistributorSerializer(distributors, many=True, context={'request': request})
+        for dist in ser.data:
+            dist['consumer_units'] = 0 # valor temporário
+            tariffs = dist['tariffs']
+            dist['tariffs'] = []
+            for i in range(0, len(tariffs), 2):
+                t = tariffs[i]
+                blue = tariffs[i]
+                green = tariffs[i+1]
+                dist['tariffs'].append({
+                    'start_date': t['start_date'],
+                    'end_date': t['end_date'],
+                    'overdue': t['overdue'],
+                    'subgroup': t['subgroup'],
+                    'distributor': t['distributor'],
+                    'blue': BlueTariffSerializer(blue).data,
+                    'green': GreenTariffSerializer(green).data,
+                })
+        
+        return Response(ser.data)
 
 class TariffViewSet(ViewSet):
     queryset = Tariff.objects.all()
@@ -84,32 +110,6 @@ class TariffViewSet(ViewSet):
             'blue': blue_tariff,
             'green': green_tariff
         })
-        return Response(ser.data)
-
-    @swagger_auto_schema(responses={200: BlueAndGreenTariffsSerializer(many=True)})
-    def list(self, request: Request):
-        distributor_id = request.query_params.get('distributor', None)
-        if distributor_id:
-            tariffs = list(Tariff.objects.filter(distributor_id=distributor_id).order_by('subgroup', 'flag'))
-        else:
-            tariffs = list(Tariff.objects.all().order_by('distributor', 'subgroup', 'flag'))
-        assert len(tariffs) % 2 == 0
-
-        tariffs_data = []
-        for i in range(0, len(tariffs), 2):
-            t = tariffs[i]
-            blue = tariffs[i]
-            green = tariffs[i+1]
-            tariffs_data.append({
-                'start_date': t.start_date,
-                'end_date': t.end_date,
-                'subgroup': t.subgroup,
-                'distributor': t.distributor,
-                'blue': blue,
-                'green': green,
-            })
-        
-        ser = BlueAndGreenTariffsSerializer(tariffs_data, many=True)
         return Response(ser.data)
         
         

@@ -8,21 +8,6 @@ from .models import Distributor
 from universities.models import University
 from tariffs.models import Tariff
 
-class DistributorSerializer(HyperlinkedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    # https://www.django-rest-framework.org/api-guide/relations/#serializer-relations
-    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
-
-    class Meta:
-        model = Distributor
-        fields = '__all__'
-    
-    def validate_cnpj(self, cnpj: str):
-        try:
-            CnpjValidator.validate(cnpj)
-        except Exception as e:
-            raise serializers.ValidationError(str(e.args))
-        return cnpj
 
 class BlueTariffSerializer(ModelSerializer):
     peak_tusd_in_reais_per_kw = serializers.FloatField()
@@ -53,6 +38,7 @@ class BlueAndGreenTariffsSerializer(Serializer):
     end_date = serializers.DateField()
     subgroup = serializers.ChoiceField(allow_blank=False, choices=Tariff.subgroups)
     distributor = serializers.PrimaryKeyRelatedField(queryset=Distributor.objects.all())
+    overdue = serializers.BooleanField(read_only=True)
 
     blue = BlueTariffSerializer()
     green = GreenTariffSerializer()
@@ -64,3 +50,33 @@ class BlueAndGreenTariffsSerializer(Serializer):
 
     class Meta:
         fields = '__all__'
+
+class TariffSerializer(ModelSerializer):
+    overdue = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        fields = '__all__'
+        model = Tariff
+
+class DistributorSerializer(HyperlinkedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    # https://www.django-rest-framework.org/api-guide/relations/#serializer-relations
+    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
+    tariffs = TariffSerializer(many=True, read_only=True)
+    consumer_units = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Distributor
+        fields = '__all__'
+    
+    def validate_cnpj(self, cnpj: str):
+        try:
+            CnpjValidator.validate(cnpj)
+        except Exception as e:
+            raise serializers.ValidationError(str(e.args))
+        return cnpj
+
+
+class DistributorSerializerForDocs(DistributorSerializer):
+    '''Esse serializer é usado apenas para documentação no Swagger'''
+    tariffs = BlueAndGreenTariffsSerializer(many=True)
