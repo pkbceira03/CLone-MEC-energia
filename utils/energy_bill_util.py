@@ -1,4 +1,5 @@
 from mec_energia import settings
+from datetime import date
 
 class EnergyBillUtils:
 
@@ -6,7 +7,7 @@ class EnergyBillUtils:
     def generate_dates_for_recommendation(cls, date):
         energy_bills_list = []
 
-        month = date.month - 1
+        month = date.month
         year = date.year
 
         for i in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
@@ -46,5 +47,42 @@ class EnergyBillUtils:
             'year': year,
             'energy_bill': None
         }
+
+        return (energy_bill, month, year)
+
+    @classmethod
+    def generate_latest_dates_for_recommendation(cls):
+        energy_bills_list = []
+
+        month = date.today().month
+        year = date.today().year
+
+        for i in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
+            energy_bill, month, year = cls._create_energy_bill_date(month, year)
+            energy_bills_list.append(energy_bill)
+
+        return energy_bills_list
+
+    @classmethod
+    def generate_dates_by_year(cls, year):
+        energy_bills_list = []
+
+        month = 12
+        year = year
+
+        for i in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
+            energy_bill, month, year = cls._create_energy_bill_date(month, year)
+            energy_bills_list.append(energy_bill)
+
+        return energy_bills_list
+
+    @staticmethod
+    def _create_energy_bill_date(month, year):
+        energy_bill = {
+            'month': month,
+            'year': year,
+        }
+
+        month, year = (month - 1, year) if month != 1 else (12, year - 1)
 
         return (energy_bill, month, year)

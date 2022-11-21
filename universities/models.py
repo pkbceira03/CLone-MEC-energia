@@ -5,6 +5,7 @@ from datetime import date
 
 from .recommendation import Recommendation
 from contracts.models import EnergyBill
+from utils.energy_bill_util import EnergyBillUtils
 
 class University(models.Model):
     name = models.CharField(
@@ -107,6 +108,40 @@ class ConsumerUnit(models.Model):
         energy_bills = Recommendation.get_energy_bills_for_recommendation(self.id)
 
         return energy_bills
+
+    def get_energy_bills_by_year(self, year):
+        if year < self.date.year or year > date.today().year:
+            raise Exception('Consumer User do not have Energy Bills this year')
+
+        energy_bills_dates = EnergyBillUtils.generate_dates_by_year(year)
+        
+        for object in energy_bills_dates:
+            object['energy_bill'] = None
+
+            energy_bill = EnergyBill.get_energy_bill(
+                self.id,
+                object['month'], 
+                object['year'])
+            
+            if energy_bill:
+                object['energy_bill'] = EnergyBillUtils.energy_bill_dictionary(energy_bill)
+
+        return list(energy_bills_dates)
+    
+    def get_energy_bills_pending(self):
+        if not self.current_contract:
+            return 'Unidade Consumidora sem Contrato'
+
+        energy_bills_pending = []
+            
+        energy_bills = self.get_energy_bills_for_recommendation()
+
+        for energy_bill in energy_bills:
+            if energy_bill['energy_bill'] == None:
+                energy_bills_pending.append(energy_bill)
+
+        return list(energy_bills_pending)
+
 
     def __repr__(self) -> str:
         return f'UC {self.name}'
