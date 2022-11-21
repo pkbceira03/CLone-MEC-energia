@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from django.db import models
 
+from datetime import date
+
 from django.utils.translation import gettext_lazy as _
 
 from universities.models import University
@@ -25,6 +27,8 @@ class Distributor(models.Model):
         null=False,
         blank=False,
     )
+
+    is_active = models.BooleanField(default=True)
 
 @dataclass
 class BlueTariff:
@@ -63,6 +67,7 @@ class Tariff(models.Model):
 
     distributor = models.ForeignKey(
         Distributor,
+        related_name='tariffs',
         on_delete=models.PROTECT,    
         null=False,
         blank=False,
@@ -98,6 +103,10 @@ class Tariff(models.Model):
         null=False,
         blank=False,
     )
+
+    @property
+    def overdue(self) -> bool:
+        return self.end_date < date.today()
 
     peak_tusd_in_reais_per_kw = models.DecimalField(
         decimal_places=2,
