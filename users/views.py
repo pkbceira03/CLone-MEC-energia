@@ -36,8 +36,8 @@ class UniversityUsersViewSet(ModelViewSet):
         try:
             user.add_or_remove_favorite_consumer_unit(consumer_unit_id, action)
         except ConsumerUnit.DoesNotExist:
-            return Response({'error': ['Consumer unit not found']}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'errors': ['Consumer unit not found']}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({'error': e.args}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'errors': e.args}, status=status.HTTP_403_FORBIDDEN)
 
         return Response(data)

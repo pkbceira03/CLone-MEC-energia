@@ -1,7 +1,10 @@
+import re
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework import status
+
+from django.db import IntegrityError
 
 from drf_yasg.utils import swagger_auto_schema
 
@@ -17,7 +20,7 @@ class DistributorViewSet(ModelViewSet):
         distributor: Distributor = self.get_object()
         dependent_tariffs = Tariff.objects.all().filter(distributor_id=distributor.id)
         if len(dependent_tariffs) != 0:
-            return Response({'error': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'errors': ['There are tariffs associated to this distributor']}, status=status.HTTP_400_BAD_REQUEST)
 
         Distributor.objects.filter(pk=distributor.id).delete()
 
@@ -60,20 +63,29 @@ class TariffViewSet(ViewSet):
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
         
         data = ser.validated_data
-        try:
-            Tariff.objects.get(subgroup=data['subgroup'], distributor_id=data['distributor'])
-        except Tariff.MultipleObjectsReturned:
-            return Response({'error': ['There is already a tariff with given the subgroup and distributor']}, status=status.HTTP_403_FORBIDDEN)
-        except Tariff.DoesNotExist:
-            pass
-
         start_date = data['start_date']
         end_date = data['end_date']
         distributor = data['distributor']
         subgroup = data['subgroup']
-        Tariff.objects.create(**data['blue'], subgroup=subgroup, flag=Tariff.BLUE, start_date=start_date, end_date=end_date, distributor=distributor)
-        Tariff.objects.create(**data['green'], subgroup=subgroup, flag=Tariff.GREEN, start_date=start_date, end_date=end_date, distributor=distributor)
+        try:
+            Tariff.objects.bulk_create([
+                Tariff(**data['blue'], subgroup=subgroup, flag=Tariff.BLUE, start_date=start_date, end_date=end_date, distributor=distributor),
+                Tariff(**data['green'], subgroup=subgroup, flag=Tariff.GREEN, start_date=start_date, end_date=end_date, distributor=distributor)
+            ])
+        except IntegrityError as error:
+            return self._handle_integrity_error(error)
+        except Exception as e:
+            raise e
         return Response(ser.data, status=status.HTTP_201_CREATED)
+    
+    def _handle_integrity_error(self, error: IntegrityError):
+        error_message = str(error)
+        if 'duplicate key value violates unique constraint' in error_message:
+            duplicate_key = re.search('\)=(\(.*\))', error_message).groups(0)[0]
+            formatted_error = f'There is already a tariff with given (subgroup, distributor, flag)={duplicate_key}'
+            return Response({'errors': [formatted_error]}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            raise error
     
     @swagger_auto_schema(request_body=BlueAndGreenTariffsSerializer)
     def update(self, request: Request, pk=None):
@@ -89,7 +101,7 @@ class TariffViewSet(ViewSet):
         data = ser.validated_data
         tariffs = Tariff.objects.filter(subgroup=data['subgroup'], distributor=data['distributor'])
         if 0 == tariffs.count():
-            return Response({'error': [f'Could not find tariffs with '
+            return Response({'errors': [f'Could not find tariffs with '
             f'subgroup={data["subgroup"]} and distributor_id={data["distributor"].id}']}, status=status.HTTP_404_NOT_FOUND)
         assert 2 == tariffs.count()
 

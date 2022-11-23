@@ -34,7 +34,6 @@ class TestTariffEndpoints:
             university_id=self.university.id
         )
 
-        
     def test_creates_tariff(self):
         tariff_dict = self._create_tariff_dict()
         
@@ -58,19 +57,17 @@ class TestTariffEndpoints:
         assert 'Start date must be before' in error['non_field_errors'][0]
     
     def test_rejects_tariffs_with_the_same_subgroup_for_the_same_distributor(self):
-        tariff_dict = self._create_tariff_dict()
-        response = self.client.post(ENDPOINT, tariff_dict, format='json')
-        assert status.HTTP_201_CREATED == response.status_code
+        t = self._create_tariff_dict()
+        tariff = Tariff.objects.create(subgroup=t['subgroup'], flag=Tariff.BLUE, distributor=self.distributor1, **t['blue'], start_date=t['start_date'], end_date=t['end_date'])
+        assert 1 == Tariff.objects.all().count()
 
-        new_tariff = tariff_dict.copy()
-        new_tariff['peak_tusd_in_reais_per_mwh'] = 100
-
-        response = self.client.post(ENDPOINT, new_tariff, format='json')
+        response = self.client.post(ENDPOINT, t, format='json')
         error = json.loads(response.content)
 
         assert status.HTTP_403_FORBIDDEN == response.status_code
-        assert 'There is already a tariff with given the subgroup and distributor' in error['error'][0]
-    
+        formatted_error = f'There is already a tariff with given (subgroup, distributor, flag)=({tariff.subgroup}, {tariff.distributor.id}, {tariff.flag})'
+        assert formatted_error in error['errors'][0]
+        
     @pytest.mark.skip
     def test_rejects_blue_tariff_creation_with_green_tariff_fields(self):
         '''Esse teste ainda não passa. O serializer aceita outros campos não
@@ -79,7 +76,7 @@ class TestTariffEndpoints:
         tariff_dict['na_tusd_in_reais_per_kw'] = 8080
         
         response = self.client.post(ENDPOINT, tariff_dict, format='json')
-        error = json.loads(response.content)
+        json.loads(response.content)
 
         assert status.HTTP_400_BAD_REQUEST == response.status_code
 
@@ -128,7 +125,7 @@ class TestTariffEndpoints:
         error = json.loads(response.content)
 
         assert status.HTTP_404_NOT_FOUND == response.status_code
-        assert 'Could not find tariffs' in error['error'][0]
+        assert 'Could not find tariffs' in error['errors'][0]
     
     def _create_tariff_dict(self, 
         start_date: date=None, 
