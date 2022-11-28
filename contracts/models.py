@@ -3,18 +3,11 @@ import datetime
 
 from utils.subgroup_util import Subgroup
 
-class ContractManager(models.Manager):
-    def create(self, *args, **kwargs):
-        try:
-            kwargs['subgroup'] = Subgroup.get_subgroup(kwargs['supply_voltage'])
-            obj = super().create(*args, **kwargs)
-            
-            return obj
-        except Exception as error:
-            raise Exception(str(error))
-
 class Contract(models.Model):
-    objects = ContractManager()
+    def save(self, *args, **kwargs):
+        self.subgroup = Subgroup.get_subgroup(self.supply_voltage)
+
+        super().save(*args, **kwargs)
 
     tariff_flag_choices = (
         ('V', 'Verde'),
