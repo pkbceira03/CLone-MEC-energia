@@ -11,49 +11,45 @@ class Subgroup:
             "name": AS,
             "min": 0,
             "max": 2.3,
-            "equals": None,
         },
         {
             "name": A4,
             "min": 2.3,
             "max": 25,
-            "equals": None,
         },
         {
             "name": A3A,
             "min": 30,
             "max": 44,
-            "equals": None,
         },
         {
             "name": A3,
-            "min": None,
-            "max": None,
-            "equals": 69,
+            "min": 69,
+            "max": 69,
         },
         {
             "name": A2,
             "min": 88,
             "max": 138,
-            "equals": None,
         },
         {
             "name": A1,
             "min": 230,
-            "max": 999999,
-            "equals": None,
+            "max": None,
         }
     ]
 
 
     def get_subgroup(supply_voltage_in_kv: float):
         for subgroup in Subgroup.subgroups:
-            if subgroup['min'] and subgroup['max']:
-                if supply_voltage_in_kv >= subgroup['min'] and supply_voltage_in_kv < subgroup['max']:
+            if supply_voltage_in_kv >= subgroup['min']:
+                if not subgroup['max']:
                     return subgroup['name']
-            
-            if subgroup['equals']:
-                if supply_voltage_in_kv == subgroup['equals']:
+                    
+                if supply_voltage_in_kv < subgroup['max']:
+                    return subgroup['name']
+
+                if subgroup['min'] == subgroup['max'] and subgroup['min'] == supply_voltage_in_kv:
                     return subgroup['name']
         
         raise Exception('Subgroup not found for this supply voltage')
