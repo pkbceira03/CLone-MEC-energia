@@ -11,6 +11,8 @@ ENDPOINT = '/api/users/'
 EMAIL = 'user@user.com'
 PASSWORD = 'password'
 
+TOKEN_ENDPOINT = '/api/token/'
+
 @pytest.mark.django_db
 class TestUsersEndpoint:
     def setup_method(self):
@@ -32,6 +34,19 @@ class TestUsersEndpoint:
                 created_on=date.today()
             ))
         ConsumerUnit.objects.bulk_create(self.consumer_units)
+
+    def test_create_university_user(self):
+        assert type(self.user) == UniversityUser
+        assert self.user.email == EMAIL
+        assert self.user.university == self.university
+
+    def test_login_university_user(self):
+        response = self.client.post(TOKEN_ENDPOINT, {
+                        "username": EMAIL,
+                        "password": PASSWORD
+                    })
+
+        assert status.HTTP_200_OK == response.status_code
 
     def test_university_user_starts_0_favorite_consumer_units(self):
         endpoint = f'{ENDPOINT}{self.user.id}/'
