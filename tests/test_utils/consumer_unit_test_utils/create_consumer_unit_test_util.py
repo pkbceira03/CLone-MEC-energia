@@ -20,7 +20,7 @@ class CreateConsumerUnitTestUtil:
     ]
     
     def create_consumer_unit(index, university):
-        consumer_unit_dict = CreateConsumerUnitTestUtil.consumer_unit_dicts[index]
+        consumer_unit_dict = CreateConsumerUnitTestUtil.get_consumer_unit_dict(index)
         
         consumer_unit = ConsumerUnit.objects.create(
             name = consumer_unit_dict['name'],
@@ -29,4 +29,7 @@ class CreateConsumerUnitTestUtil:
             university = university
         )
 
-        return (consumer_unit_dict, consumer_unit)
+        return consumer_unit
+
+    def get_consumer_unit_dict(index):
+        return CreateConsumerUnitTestUtil.consumer_unit_dicts[index]

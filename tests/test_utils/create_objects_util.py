@@ -24,8 +24,9 @@ class CreateObjectsUtil:
         if not consumer_unit_dict_index:
             consumer_unit_dict_index = 0
 
-        consumer_unit_dict, consumer_unit = CreateConsumerUnitTestUtil.create_consumer_unit(consumer_unit_dict_index, university)
-
+        consumer_unit_dict = CreateConsumerUnitTestUtil.get_consumer_unit_dict(consumer_unit_dict_index)
+        consumer_unit = CreateConsumerUnitTestUtil.create_consumer_unit(consumer_unit_dict_index, university)
+        
         return (consumer_unit_dict, consumer_unit)
     
     def create_distributor_object(university, distributor_dict_index=None):
@@ -41,6 +42,15 @@ class CreateObjectsUtil:
         contract = CreateContractTestUtil.create_contract(contract_dict_index, consumer_unit, distributor)
 
         return contract
+
+    def create_contract_object_and_get_dict(consumer_unit, contract_dict_index = None):
+        if not contract_dict_index:
+            contract_dict_index = 0
+        
+        contract_dict = CreateContractTestUtil.get_contract_dict(contract_dict_index)
+        contract = CreateContractTestUtil.create_contract(contract_dict_index, consumer_unit)
+
+        return (contract_dict, contract)
 
     def create_energy_bill_object(energy_bill_dict_index, contract, consumer_unit):
         energy_bill = CreateEnergyBillTestUtil.create_energy_bill(energy_bill_dict_index, contract, consumer_unit)

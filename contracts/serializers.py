@@ -4,6 +4,7 @@ from . import models
 class ContractSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     subgroup = serializers.CharField(read_only=True)
+    end_date = serializers.DateField(read_only=True)
     
     class Meta:
         model = models.Contract

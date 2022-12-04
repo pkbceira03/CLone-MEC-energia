@@ -2,9 +2,22 @@ from django.db import models
 import datetime
 
 from utils.subgroup_util import Subgroup
+from utils.date_util import DateUtils
+
+
+class ContractManager(models.Manager):
+    def create(self, *args, **kwargs):
+        obj = super().create(*args, **kwargs)
+
+        obj.set_last_contract_end_date()
+        
+        return obj
 
 class Contract(models.Model):
+    objects = ContractManager()
+
     def save(self, *args, **kwargs):
+        self.check_start_date_is_valid()
         self.subgroup = Subgroup.get_subgroup(self.supply_voltage)
 
         super().save(*args, **kwargs)
@@ -70,6 +83,27 @@ class Contract(models.Model):
         null=True,
         blank=True
     )
+
+    def check_start_date_is_valid(self):
+        if self.end_date:
+            return
+
+        consumer_unit = self.consumer_unit
+
+        if consumer_unit.current_contract:
+            if self.start_date >= consumer_unit.oldest_contract.start_date and self.start_date <= consumer_unit.current_contract.start_date:
+                raise Exception('Already have the contract in this date')
+
+    def set_last_contract_end_date(self):
+        day_before_start_date = DateUtils.get_yesterday_date(self.start_date)
+
+        contract = Contract.objects.filter(
+                        consumer_unit = self.consumer_unit).exclude(start_date__gt = day_before_start_date).last()
+
+        if contract:
+            if not contract.end_date:
+                contract.end_date = day_before_start_date
+                contract.save()
 
 
 class EnergyBill(models.Model):
