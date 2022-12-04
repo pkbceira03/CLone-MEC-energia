@@ -1,4 +1,5 @@
 import re
+from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -8,8 +9,10 @@ from django.db import IntegrityError
 
 from drf_yasg.utils import swagger_auto_schema
 
+from users.models import UniversityUser
+from universities.models import ConsumerUnit
 from .models import Distributor, Tariff
-from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer
+from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs
 
 
 class DistributorViewSet(ModelViewSet):
@@ -28,12 +31,16 @@ class DistributorViewSet(ModelViewSet):
 
     @swagger_auto_schema(responses={200: DistributorSerializerForDocs()})
     def list(self, request: Request, *args, **kwargs):
-        # Essa parte do ID da universidade é temporária
-        university_id = 1
+        '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.
+        Essa rota é exclusivamente para usuários de universidade, por isso
+        o filtro é por essa classe.'''
+        user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
+        university_id = user.university.id
         distributors = Distributor.objects.filter(university_id=university_id).order_by('name')
+        units_count_by_distributor = self._get_consumer_units_count_by_distributor(university_id)
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
         for dist in ser.data:
-            dist['consumer_units'] = 0 # valor temporário
+            dist['consumer_units'] = units_count_by_distributor[dist['id']]
             tariffs = dist['tariffs']
             dist['tariffs'] = []
             for i in range(0, len(tariffs), 2):
@@ -49,8 +56,56 @@ class DistributorViewSet(ModelViewSet):
                     'blue': BlueTariffSerializer(blue).data,
                     'green': GreenTariffSerializer(green).data,
                 })
-        
         return Response(ser.data)
+    
+    def _get_consumer_units_count_by_distributor(self, university_id: int) -> dict[int, int]:
+        consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
+        units_count_by_distributor = {}
+
+        for unit in consumer_units:
+            contract = unit.current_contract
+            distributor = contract.distributor
+            if distributor.id in units_count_by_distributor:
+                units_count_by_distributor[distributor.id] += 1
+            else:
+                units_count_by_distributor[distributor.id] = 1
+        return units_count_by_distributor
+
+    @swagger_auto_schema(responses={200: ConsumerUnitsBySubgroupByDistributorSerializerForDocs(many=True)})
+    @action(detail=False, methods=['get'], url_path='with-subgroups-with-consumer-units')
+    def with_subgroups_with_consumer_units(self, request: Request):
+        '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.'''
+        user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
+        university_id = user.university.id
+        distributors = Distributor.objects.filter(university_id=university_id)
+        consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
+        units_with_subgroup_with_distributor: list[dict] = []
+        
+        for units in consumer_units:
+            contract = units.current_contract
+            distributor: Distributor = contract.distributor
+            sub = contract.subgroup
+            units_with_subgroup_with_distributor.append({'id': units.id, 'name': units.name, 'distributor': distributor.id, 'subgroup': sub})
+
+        TMP_UNITS_FIELD = 'tmp_units_field'
+        distributors_list: list[dict] = []
+        for dist in distributors:
+            distributors_list.append({'id': dist.id, 'subgroups': [], TMP_UNITS_FIELD: []})
+            distributors_list[-1][TMP_UNITS_FIELD] = list(filter(lambda unit: unit['distributor'] == dist.id, units_with_subgroup_with_distributor))
+
+        for dist in distributors_list:
+            for unit in dist[TMP_UNITS_FIELD]:
+                del unit['distributor']
+        
+        for dist in distributors_list:
+            subgroups_for_current_dist = set(map(lambda unit: unit['subgroup'], dist[TMP_UNITS_FIELD])) 
+            for subgroup in subgroups_for_current_dist:
+                units_for_current_subgroup = list(filter(lambda unit: unit['subgroup'] == subgroup, dist[TMP_UNITS_FIELD]))  
+                units_without_subgroup_field = list(map(lambda unit: {'id': unit['id'], 'name': unit['name']}, units_for_current_subgroup))
+                dist['subgroups'].append({'subgroup': subgroup, 'consumer_units': units_without_subgroup_field})
+            del dist[TMP_UNITS_FIELD]
+
+        return Response(distributors_list, status=status.HTTP_200_OK)
 
 class TariffViewSet(ViewSet):
     queryset = Tariff.objects.all()

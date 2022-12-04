@@ -80,3 +80,16 @@ class DistributorSerializer(HyperlinkedModelSerializer):
 class DistributorSerializerForDocs(DistributorSerializer):
     '''Esse serializer é usado apenas para documentação no Swagger'''
     tariffs = BlueAndGreenTariffsSerializer(many=True)
+
+
+class _ConsumerUnitSerializerForDocs(Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(read_only=True)
+
+class _SubgroupSerializerForDocs(Serializer):
+    subgroup = serializers.CharField(read_only=True)
+    consumer_units = _ConsumerUnitSerializerForDocs(many=True)
+    
+class ConsumerUnitsBySubgroupByDistributorSerializerForDocs(Serializer):
+    id = serializers.IntegerField(read_only=True)
+    subgroups = _SubgroupSerializerForDocs(many=True, read_only=True)

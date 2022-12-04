@@ -1,16 +1,26 @@
 from tariffs.models import Distributor
+from universities.models import University
+
 
 class CreateDistributorTestUtil:
-    distributor_dict = {
-        'name': 'Distribuidora de Energia',
-        'cnpj': '63025530000104'
-    }
-    
-    def create_distributor(university):
+    distributors_dict = [
+        {
+            'name': 'Neoenergia',
+            'cnpj': '01083200000118'
+        },
+        {
+            'name': 'CEB',
+            'cnpj': '07522669000192'
+        }
+    ]
+
+    @classmethod
+    def create_distributor(cls, index: int, university: University):
+        dist_dict = cls.distributors_dict[index]
         distributor = Distributor.objects.create(
-            name = CreateDistributorTestUtil.distributor_dict['name'],
-            cnpj = CreateDistributorTestUtil.distributor_dict['cnpj'],
-            university = university
+            name=dist_dict['name'],
+            cnpj=dist_dict['cnpj'],
+            university=university
         )
 
-        return distributor
+        return dist_dict, distributor

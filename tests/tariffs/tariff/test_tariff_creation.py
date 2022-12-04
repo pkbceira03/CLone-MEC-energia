@@ -8,7 +8,7 @@ from tests.test_utils.distributors_test_utils.create_distributors_test_util impo
 class TestTariff:
     def setup_method(self):
         self.university = CreateUniversityTestUtil.create_university()
-        self.distributor = CreateDistributorTestUtil.create_distributor(self.university)
+        _, self.distributor = CreateDistributorTestUtil.create_distributor(0, self.university)
 
 
     def test_creates_blue_tariff(self):

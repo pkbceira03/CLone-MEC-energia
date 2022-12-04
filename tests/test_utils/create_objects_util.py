@@ -3,6 +3,7 @@ from tests.test_utils.users_test_utils.create_university_user_test_util import C
 from tests.test_utils.consumer_unit_test_utils.create_consumer_unit_test_util import CreateConsumerUnitTestUtil
 from tests.test_utils.contract_test_utils.create_contract_unit_test_util import CreateContractTestUtil
 from tests.test_utils.energy_bill_test_utils.create_energy_bill_unit_test_util import CreateEnergyBillTestUtil
+from tests.test_utils.distributors_test_utils.create_distributors_test_util import CreateDistributorTestUtil
 
 class CreateObjectsUtil:
     login_university_user = CreateUniversityUserTestUtil.login_university_user_dict
@@ -26,12 +27,18 @@ class CreateObjectsUtil:
         consumer_unit_dict, consumer_unit = CreateConsumerUnitTestUtil.create_consumer_unit(consumer_unit_dict_index, university)
 
         return (consumer_unit_dict, consumer_unit)
+    
+    def create_distributor_object(university, distributor_dict_index=None):
+        if not distributor_dict_index:
+            distributor_dict_index = 0
+        distributor_dict, distributor = CreateDistributorTestUtil.create_distributor(distributor_dict_index, university)
+        return (distributor_dict, distributor)
 
-    def create_contract_object(consumer_unit, contract_dict_index = None):
+    def create_contract_object(consumer_unit, distributor, contract_dict_index = None):
         if not contract_dict_index:
             contract_dict_index = 0
 
-        contract = CreateContractTestUtil.create_contract(contract_dict_index, consumer_unit)
+        contract = CreateContractTestUtil.create_contract(contract_dict_index, consumer_unit, distributor)
 
         return contract
 
