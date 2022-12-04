@@ -48,7 +48,6 @@ class TestConsumerUnitsProperties:
         response = self.client.get(f'{ENDPOINT}{self.consumer_unit_test_1.id}/')
         consumer_unit = json.loads(response.content)
 
-        assert self.contract_test_1.start_date == consumer_unit['date']
         assert False == consumer_unit['is_current_energy_bill_filled']
         assert 12 == consumer_unit['pending_energy_bills_number']
         assert status.HTTP_200_OK == response.status_code
@@ -57,7 +56,6 @@ class TestConsumerUnitsProperties:
         response = self.client.get(f'{ENDPOINT}{self.consumer_unit_test_2.id}/')
         consumer_unit = json.loads(response.content)
 
-        assert self.contract_test_2.start_date == consumer_unit['date']
         assert True == consumer_unit['is_current_energy_bill_filled']
         assert 12 == consumer_unit['pending_energy_bills_number']
         assert status.HTTP_200_OK == response.status_code
