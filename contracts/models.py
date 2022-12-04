@@ -10,16 +10,20 @@ class Contract(models.Model):
         super().save(*args, **kwargs)
 
     tariff_flag_choices = (
-        ('V', 'Verde'),
-        ('A', 'Azul'),
+        ('G', 'Verde'),
+        ('B', 'Azul'),
     )
-
-    # TODO: - OneToOneField:
-    # - Operadora
 
     consumer_unit = models.ForeignKey(
         'universities.ConsumerUnit',
         on_delete=models.PROTECT
+    )
+
+    distributor = models.ForeignKey(
+        'tariffs.Distributor',
+        related_name='contracts',
+        on_delete=models.PROTECT,
+        null=True,
     )
 
     start_date = models.DateField(

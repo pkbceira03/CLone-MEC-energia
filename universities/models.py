@@ -89,7 +89,7 @@ class ConsumerUnit(models.Model):
     created_on = models.DateField(auto_now_add=True)
 
     @property
-    def current_contract(self):
+    def current_contract(self) -> Contract:
         return self.contract_set.all().order_by('start_date').last()
 
     @property

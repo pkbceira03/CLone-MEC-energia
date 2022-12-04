@@ -11,6 +11,11 @@ class CreateConsumerUnitTestUtil:
             'name': 'Faculdade do Gama',
             'code': '111111111',
             'is_active': True,
+        },
+        {
+            'name': 'Faculdade de Planaltina',
+            'code': '222222222',
+            'is_active': True,
         }
     ]
     

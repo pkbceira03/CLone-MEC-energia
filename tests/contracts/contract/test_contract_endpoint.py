@@ -18,21 +18,23 @@ class TestContractEndpoint:
             'cnpj': '00038174000143'
         }
 
+        _, self.distributor = CreateObjectsUtil.create_distributor_object(self.university, 0)
+
         (self.consumer_unit_test_dict,
         self.consumer_unit_test) = CreateObjectsUtil.create_consumer_unit_object(
                                         consumer_unit_dict_index = 0,
                                         university = self.university)
 
         self.contract_test_1 = CreateObjectsUtil.create_contract_object(
-                                contract_dict_index = 0,
+                                contract_dict_index = 0, distributor=self.distributor,
                                 consumer_unit = self.consumer_unit_test)
 
         self.contract_test_2 = CreateObjectsUtil.create_contract_object(
-                                contract_dict_index = 1,
+                                contract_dict_index = 1, distributor=self.distributor,
                                 consumer_unit = self.consumer_unit_test)
 
         self.contract_test_3 = CreateObjectsUtil.create_contract_object(
-                                contract_dict_index = 2,
+                                contract_dict_index = 2, distributor=self.distributor,
                                 consumer_unit = self.consumer_unit_test)
 
 
