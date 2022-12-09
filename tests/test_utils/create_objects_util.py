@@ -6,13 +6,26 @@ from tests.test_utils.energy_bill_test_utils.create_energy_bill_unit_test_util i
 from tests.test_utils.distributors_test_utils.create_distributors_test_util import CreateDistributorTestUtil
 
 class CreateObjectsUtil:
-    login_university_user = CreateUniversityUserTestUtil.login_university_user_dict
+    login_university_user = CreateUniversityUserTestUtil.university_user_dicts[0]
 
     def create_university_object():
         return CreateUniversityTestUtil.create_university()
 
-    def create_university_user_object(university):
-        return CreateUniversityUserTestUtil.create_university_user(university)
+    def create_university_user_object(university, index = None):
+        if not index:
+            index = 0
+            
+        return CreateUniversityUserTestUtil.create_university_user(index, university)
+
+    def get_university_user_dict(index = None):
+        if not index:
+            index = 0
+
+        return CreateUniversityUserTestUtil.get_university_user_dict(index)
+
+    def create_university_and_user(index = None):
+        if not index:
+            index = 0
 
     def create_university_and_user():
         university = CreateObjectsUtil.create_university_object()

@@ -15,7 +15,7 @@ university = University.objects.create(
     cnpj='63025530000104'
 )
 
-university_user = UniversityUser.objects.create_user(
+university_user = UniversityUser.objects.create(
     university=university,
     password='user',
     email='user@user.com',
