@@ -1,24 +1,29 @@
-from rest_framework.serializers import HyperlinkedModelSerializer, Serializer
+from rest_framework.serializers import HyperlinkedModelSerializer, Serializer, ModelSerializer
 from rest_framework import serializers
 
 from universities.serializers import ConsumerUnitSerializer
 
 from .models import UniversityUser
+from .models import University
 
 
 class UniversityUserSerializer(HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     password = serializers.CharField(write_only=True)
+    type = serializers.CharField(read_only=True)
+    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
 
     class Meta:
         model = UniversityUser
         fields = ['id', 'url', 'first_name', 'last_name', 'password',
-                  'email', 'university']
+                  'email', 'type', 'university']
 
 
 class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     password = serializers.CharField(write_only=True)
+    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
+    type = serializers.CharField(read_only=True)
 
     favorite_consumer_units = ConsumerUnitSerializer(
         read_only=True,
@@ -28,8 +33,23 @@ class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = UniversityUser
         fields = ['id', 'url', 'first_name', 'last_name', 'password',
-                  'email', 'university', 'favorite_consumer_units']
+                  'email', 'type', 'university', 'favorite_consumer_units']
 
 class FavoriteConsumerUnitActionSerializer(Serializer):
     action = serializers.ChoiceField(allow_blank=False, choices=['remove', 'add'])
     consumer_unit_id = serializers.IntegerField()
+
+class UniversityUserAuthenticatedSerializerForDocs(ModelSerializer):
+    email = serializers.CharField(read_only=True)
+    name = serializers.CharField(read_only=True)
+    type = serializers.CharField(read_only=True)
+    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
+
+    class Meta:
+        model = UniversityUser
+        fields = ['email','name','type', 'university']
+
+class AuthenticationTokenSerializerForDocs(Serializer):
+    token = serializers.Field()
+    user = UniversityUserAuthenticatedSerializerForDocs()
+    
