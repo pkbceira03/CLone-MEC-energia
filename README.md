@@ -1,6 +1,6 @@
 # MEC Energia API
 
-## Ferramentas
+## Começando
 
 Para acessar o banco, é recomendado que você tenha 
 [Docker Compose](https://docs.docker.com/compose/install/) instalado em
@@ -17,3 +17,22 @@ Então levante os containeres da API e do banco de dados com:
 ```sh
 docker-compose up -d
 ```
+
+Se tudo deu certo, a API do Django REST deve estar acessível em 
+http://localhost:8080.
+
+Além disso, a API também tem seus endpoints documentados no Swagger em
+http://localhost:8080/api/swagger/schema/.
+
+Para ter acesso completo dos dados nos dois links, você precisa criar um 
+usuário. Leia sobre como fazer isso em [seed](docs/seed.md#usuário).
+
+## Documentação
+
+Para saber mais sobre como configurar o seu ambiente de desenvolvimento e 
+outras coisas, acesse os seguintes links:
+
+- **Comece aqui:** [ambiente de desenvolvimento](docs/ambiente-desenvolvimento.md)
+- [Seed/popular](docs/seed.md)
+- [Testes](docs/testes.md)
+- [Depuração](docs/depuracao.md)
