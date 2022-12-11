@@ -3,21 +3,17 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.request import Request
 from django.http import JsonResponse
+from drf_yasg.utils import swagger_auto_schema
 
 from .models import ConsumerUnit, University
 from users.requests_permissions import RequestsPermissions
 from utils.user_type_util import UserType
-from .serializers import ConsumerUnitSerializer, UniversitySerializer, RetrieveUniversitySerializer, ConsumerUnitInRetrieveUniversitySerializer
+from . import serializers
 
 class UniversityViewSet(viewsets.ModelViewSet):
     queryset = University.objects.all()
-    serializer_class = UniversitySerializer
+    serializer_class = serializers.UniversitySerializer
     http_method_names = ['get', 'post', 'put']
-
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return RetrieveUniversitySerializer
-        return UniversitySerializer
 
     @action(detail=True, methods=['post'])
     def create_consumer_unit_and_contract(self, request, pk=None):
@@ -39,29 +35,27 @@ class UniversityViewSet(viewsets.ModelViewSet):
 
 
 class ConsumerUnitViewSet(viewsets.ModelViewSet):
-    users_type_with_permission = [
-        UserType.super_user,
-        UserType.university_user
-    ]
-
     queryset = ConsumerUnit.objects.all()
-    serializer_class = ConsumerUnitSerializer
+    serializer_class = serializers.ConsumerUnitSerializer
     http_method_names = ['get', 'post', 'put']
 
+    @swagger_auto_schema(query_serializer=serializers.ConsumerUnitParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions      
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        
+        params_serializer = serializers.ConsumerUnitParamsSerializer(data=request.GET)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
         request_university_id = request.GET.get('university_id')
-        if not request_university_id:
-            return Response({'error': 'Is necessary the query params - university_id.'}, status.HTTP_422_UNPROCESSABLE_ENTITY)
-            
+
         try:
             RequestsPermissions.check_request_permissions(request_university_id, request.user, user_types_with_permission)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
         
         queryset = ConsumerUnit.objects.filter(university = request_university_id)
-        serializer = ConsumerUnitSerializer(queryset, many=True, context={'request': request})
+        serializer = serializers.ConsumerUnitSerializer(queryset, many=True, context={'request': request})
 
         return Response(serializer.data, status.HTTP_200_OK)
 
@@ -76,8 +70,3 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
             energy_bills = consumer_unit.get_energy_bills_pending()
 
         return JsonResponse(energy_bills, safe=False)
-
-    def get_serializer_class(self):
-        if self.action == 'retrieve':
-            return ConsumerUnitInRetrieveUniversitySerializer
-        return ConsumerUnitSerializer
