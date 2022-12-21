@@ -4,11 +4,12 @@ from utils.cnpj_validator_util import CnpjValidator
 
 from .models import ConsumerUnit, University
 
+from contracts.models import Contract
 
 class UniversitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = University
-        fields = ['url', 'id', 'name', 'acronym', 'cnpj']
+        fields = ['url', 'id', 'name', 'acronym', 'cnpj', 'created_on']
 
     def validate_cnpj(self, cnpj: str):
         try:
@@ -19,9 +20,33 @@ class UniversitySerializer(serializers.HyperlinkedModelSerializer):
 
 
 class ConsumerUnitSerializer(serializers.HyperlinkedModelSerializer):
+    name = serializers.CharField()
+    code = serializers.CharField()
+    is_active = serializers.BooleanField()
+    university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
+
     class Meta:
         model = ConsumerUnit
-        fields = ['id', 'url', 'name', 'code', 'is_active', 'date', 'is_current_energy_bill_filled', 'pending_energy_bills_number', 'university']
+        fields = ['id', 'url', 'name', 'code', 'is_active', 'date', 'is_current_energy_bill_filled', 'pending_energy_bills_number', 'university', 'created_on']
 
 class ConsumerUnitParamsSerializer(serializers.Serializer):
     university_id = serializers.IntegerField()
+
+class UniversityUserAuthenticatedSerializerForDocs(serializers.ModelSerializer):
+    name = serializers.CharField()
+    code = serializers.CharField()
+    is_active = serializers.BooleanField()
+
+class CreateContractSerializerForDocs(serializers.ModelSerializer):
+    start_date = serializers.DateField()
+    tariff_flag =serializers.CharField()
+    peak_contracted_demand_in_kw = serializers.DecimalField(decimal_places=2, max_digits=10)
+    off_peak_contracted_demand_in_kw = serializers.DecimalField(decimal_places=2, max_digits=10)
+
+    class Meta:
+        model = Contract
+        exclude = ('consumer_unit', 'end_date', 'subgroup', 'distributor', )
+
+class CreateConsumerUnitAndContractSerializerForDocs(serializers.Serializer):
+    consumer_unit = ConsumerUnitSerializer()
+    contract = CreateContractSerializerForDocs()

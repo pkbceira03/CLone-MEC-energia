@@ -1,6 +1,7 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
+from . import models
 from utils.user_type_util import UserType
 
 class CustomUserManager(BaseUserManager):
@@ -14,6 +15,8 @@ class CustomUserManager(BaseUserManager):
         
         if not user.type:
             user.type = UserType.get_user_type_by_model(self.model)
+        else:
+            UserType.get_user_type(user.type)
         
         user.save()
 
@@ -23,7 +26,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('type', UserType.super_user)
+        extra_fields.setdefault('type', models.CustomUser.super_user_type)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError(_('Superuser must have is_staff=True'))

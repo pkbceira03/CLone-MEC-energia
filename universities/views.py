@@ -7,37 +7,87 @@ from drf_yasg.utils import swagger_auto_schema
 
 from .models import ConsumerUnit, University
 from users.requests_permissions import RequestsPermissions
-from utils.user_type_util import UserType
 from . import serializers
 
 class UniversityViewSet(viewsets.ModelViewSet):
     queryset = University.objects.all()
     serializer_class = serializers.UniversitySerializer
-    http_method_names = ['get', 'post', 'put']
+    http_method_names = ['post', 'put', 'get']
 
-    @action(detail=True, methods=['post'])
-    def create_consumer_unit_and_contract(self, request, pk=None):
-        obj = self.get_object()
-        data = request.data
-
-        if not data.get("consumer_unit"):
-            raise Exception("Is necessary the data for create Consumer Unit")
-
-        if not data.get("contract"):
-            raise Exception("Is necessary the data for create Contract")
+    def create(self, request, *args, **kwargs):
+        user_types_with_permission = RequestsPermissions.super_user_permissions
 
         try:
-            obj.create_consumer_unit_and_contract(data['consumer_unit'], data['contract'])
-            
-            return Response({'Consumer Unit and Contract created'})
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, None)
         except Exception as error:
-            raise Exception(str(error))
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+            
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        user_types_with_permission = RequestsPermissions.super_user_permissions
+        university = self.get_object()
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university.id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        return super().update(request, *args, **kwargs)
+
+    def list(self, request):
+        user_types_with_permission = RequestsPermissions.super_user_permissions
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, None)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        queryset = University.objects.all()
+        serializer = serializers.UniversitySerializer(queryset, many=True, context={'request': request})
+
+        return Response(serializer.data, status.HTTP_200_OK)
+
+    def retrieve(self, request, pk=None):
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        university = self.get_object()
+        
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university.id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        serializer = self.get_serializer(university)
+        return Response(serializer.data)
 
 
 class ConsumerUnitViewSet(viewsets.ModelViewSet):
     queryset = ConsumerUnit.objects.all()
     serializer_class = serializers.ConsumerUnitSerializer
     http_method_names = ['get', 'post', 'put']
+
+    def create(self, request, *args, **kwargs):
+        user_types_with_permission = RequestsPermissions.university_user_permissions
+
+        body_university_id = request.data['university']
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, body_university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+            
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        user_types_with_permission = RequestsPermissions.university_user_permissions
+        university = self.get_object()
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university.id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        return super().update(request, *args, **kwargs)
 
     @swagger_auto_schema(query_serializer=serializers.ConsumerUnitParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
@@ -50,7 +100,7 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
         request_university_id = request.GET.get('university_id')
 
         try:
-            RequestsPermissions.check_request_permissions(request_university_id, request.user, user_types_with_permission)
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
         
@@ -59,14 +109,39 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status.HTTP_200_OK)
 
-    @action(detail=True, methods=['get'], url_path='energy-bills-list')
-    def list_energy_bills(self, request: Request, pk=None):
+    def retrieve(self, request, pk=None):
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
         consumer_unit = self.get_object()
-        year = request.GET.get('year')
+        
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, consumer_unit.university.id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
-        if year:
-            energy_bills = consumer_unit.get_energy_bills_by_year(int(year))
-        else:
-            energy_bills = consumer_unit.get_energy_bills_pending()
+        serializer = self.get_serializer(consumer_unit)
+        return Response(serializer.data)
 
-        return JsonResponse(energy_bills, safe=False)
+    @swagger_auto_schema(request_body=serializers.CreateConsumerUnitAndContractSerializerForDocs)
+    @action(detail=False, methods=['post'])
+    def create_consumer_unit_and_contract(self, request, pk=None):
+        user_types_with_permission = RequestsPermissions.university_user_permissions
+
+        data = request.data
+
+        params_serializer = serializers.CreateConsumerUnitAndContractSerializerForDocs(data=request.data)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            body_university_id = data['consumer_unit']['university']
+
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, body_university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            ConsumerUnit.create_consumer_unit_and_contract(data['consumer_unit'], data['contract'])
+            
+            return Response({'Consumer Unit and Contract created'})
+        except Exception as error:
+            raise Exception(str(error))

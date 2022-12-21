@@ -3,10 +3,17 @@ from rest_framework import serializers
 
 from universities.serializers import ConsumerUnitSerializer
 
-from .models import UniversityUser
+from .models import CustomUser, UniversityUser
 from .models import University
 
 
+class CustomUserSerializer(HyperlinkedModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'url', 'first_name', 'last_name',
+                  'email', 'type', 'created_on']
+
+        
 class UniversityUserSerializer(HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     password = serializers.CharField(write_only=True)
@@ -16,7 +23,7 @@ class UniversityUserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = UniversityUser
         fields = ['id', 'url', 'first_name', 'last_name', 'password',
-                  'email', 'type', 'university']
+                  'email', 'type', 'created_on', 'university']
 
 
 class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
