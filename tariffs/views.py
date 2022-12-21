@@ -10,17 +10,24 @@ from django.db import IntegrityError
 from drf_yasg.utils import swagger_auto_schema
 
 from users.models import UniversityUser
+from users.requests_permissions import RequestsPermissions
 from universities.models import ConsumerUnit
 from .models import Distributor, Tariff
-from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs
-
+from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs, DistributorListParamsSerializer
 
 class DistributorViewSet(ModelViewSet):
     queryset = Distributor.objects.all()
     serializer_class = DistributorSerializer
 
     def destroy(self, request, *args, **kwargs):
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
         distributor: Distributor = self.get_object()
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, distributor.university.id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
         dependent_tariffs = Tariff.objects.all().filter(distributor_id=distributor.id)
         if len(dependent_tariffs) != 0:
             return Response({'errors': ['There are tariffs associated to this distributor']}, status=status.HTTP_400_BAD_REQUEST)
@@ -29,15 +36,25 @@ class DistributorViewSet(ModelViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-    @swagger_auto_schema(responses={200: DistributorSerializerForDocs()})
+    @swagger_auto_schema(responses={200: DistributorSerializerForDocs()},
+                        query_serializer=DistributorListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.
-        Essa rota é exclusivamente para usuários de universidade, por isso
-        o filtro é por essa classe.'''
-        user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
-        university_id = user.university.id
-        distributors = Distributor.objects.filter(university_id=university_id).order_by('name')
-        units_count_by_distributor = self._get_consumer_units_count_by_distributor(university_id)
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        
+        params_serializer = DistributorListParamsSerializer(data=request.GET)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        request_university_id = request.GET.get('university_id')
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        distributors = Distributor.objects.filter(university_id=request_university_id).order_by('name')
+        units_count_by_distributor = self._get_consumer_units_count_by_distributor(request_university_id)
+
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
         for dist in ser.data:
             dist['consumer_units'] = units_count_by_distributor[dist['id']]

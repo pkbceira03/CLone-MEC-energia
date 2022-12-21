@@ -8,13 +8,28 @@ from drf_yasg.utils import swagger_auto_schema
 
 from universities.models import ConsumerUnit
 
-from .models import UniversityUser
-from .serializers import RetrieveUniversityUserSerializer, UniversityUserSerializer, FavoriteConsumerUnitActionSerializer
+from .models import CustomUser, UniversityUser
+from .serializers import RetrieveUniversityUserSerializer, UniversityUserSerializer, FavoriteConsumerUnitActionSerializer, CustomUserSerializer
+from .requests_permissions import RequestsPermissions
 
+
+class CustomUserViewSet(ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
 class UniversityUsersViewSet(ModelViewSet):
     queryset = UniversityUser.objects.all()
     serializer_class = UniversityUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        user_types_with_permission = RequestsPermissions.super_user_permissions
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, None)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+            
+        return super().create(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'retrieve':

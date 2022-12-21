@@ -16,6 +16,29 @@ class EnergyBillUtils:
         return energy_bills_list
 
     @classmethod
+    def generate_dates(cls, start_date, end_date):
+        years = {}
+
+        month = end_date.month
+        year = end_date.year
+
+        start_date_month = start_date.month
+        start_date_year = start_date.year
+
+        years[str(year)] = []
+
+        while (month != start_date_month or year != start_date_year):
+            aux_year = year
+            
+            if month == 1:
+                aux_year = year - 1
+                years[str(aux_year)] = []
+
+            years[str(aux_year)], month, year = cls.update_date_and_insert_energy_bill_on_list(years[str(aux_year)], month, year)
+
+        return years
+
+    @classmethod
     def energy_bill_dictionary(cls, energy_bill):
         if energy_bill == None:
             return None

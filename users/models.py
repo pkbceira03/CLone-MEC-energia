@@ -8,11 +8,23 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
+    ### User types
+    super_user_type = 'super_user'
+    university_admin_user_type = 'university_admin'
+    university_user_type = 'university_user'
+
+    user_types = [
+        super_user_type,
+        university_admin_user_type,
+        university_user_type
+    ]
+
     username = None
     first_name = models.CharField(max_length=25)
     last_name = models.CharField(max_length=25)
     email = models.EmailField(_('Email is required'), unique=True, null=False)
     type = models.CharField(max_length=25, null=False, editable=False)
+    created_on = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

@@ -91,7 +91,7 @@ class Contract(models.Model):
         consumer_unit = self.consumer_unit
 
         if consumer_unit.current_contract:
-            if self.start_date >= consumer_unit.oldest_contract.start_date and self.start_date <= consumer_unit.current_contract.start_date:
+            if self.start_date >= consumer_unit.oldest_contract.start_date and self.start_date < consumer_unit.current_contract.start_date:
                 raise Exception('Already have the contract in this date')
 
     def set_last_contract_end_date(self):

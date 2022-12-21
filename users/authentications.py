@@ -24,6 +24,8 @@ class AuthenticationToken(ObtainAuthToken):
             return Response({'datail': 'Unable to log in with provided credentials'}, status.HTTP_401_UNAUTHORIZED)
 
         try:
+            UserType.get_user_type(user.type)
+            
             response = {
                 'token': token.key,
                 'user': {
@@ -33,7 +35,7 @@ class AuthenticationToken(ObtainAuthToken):
                 }
             }
 
-            if user.type == UserType.university_user:
+            if user.type in RequestsPermissions.university_user_permissions:
                 response['user']['university_id'] = RequestsPermissions.get_university_user_object(user.id).university.id
 
             return Response(response)

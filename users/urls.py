@@ -1,6 +1,7 @@
 from rest_framework import routers
 
-from .views import UniversityUsersViewSet
+from . import views
 
 router = routers.DefaultRouter()
-router.register('users', UniversityUsersViewSet)
+router.register('users', views.CustomUserViewSet)
+router.register('university-user', views.UniversityUsersViewSet)

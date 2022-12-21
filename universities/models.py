@@ -9,6 +9,8 @@ from utils.energy_bill_util import EnergyBillUtils
 class University(models.Model):
     name = models.CharField(
         max_length=50,
+        blank=False,
+        null=False,
         unique=True,
         verbose_name=_('Nome'),
         help_text=_('Nome da universidade por extenso')
@@ -24,38 +26,14 @@ class University(models.Model):
 
     cnpj = models.CharField(
         max_length=14,
+        blank=False,
+        null=False,
         unique=True,
         verbose_name=_('CNPJ'),
         help_text=_('14 números sem caracteres especiais')
     )
 
-    def create_consumer_unit_and_contract(self, data_consumer_unit, data_contract):
-        created_consumer_unit = None
-
-        try:
-            created_consumer_unit = ConsumerUnit.objects.create(
-                university = self,
-                name = data_consumer_unit['name'],
-                code = data_consumer_unit['code'],
-                is_active = data_consumer_unit['is_active'],
-            )
-
-            Contract.objects.create(
-                consumer_unit = created_consumer_unit,
-                start_date = data_contract['start_date'],
-                end_date = data_contract['end_date'],
-                tariff_flag = data_contract['tariff_flag'],
-                subgroup = data_contract['subgroup'],
-                supply_voltage = data_contract['supply_voltage'],
-                peak_contracted_demand_in_kw = data_contract['peak_contracted_demand_in_kw'],
-                off_peak_contracted_demand_in_kw = data_contract['off_peak_contracted_demand_in_kw'],
-            )
-        except Exception as error:
-            if created_consumer_unit:
-                created_consumer_unit.delete()
-
-            raise Exception(str(error))
-
+    created_on = models.DateTimeField(auto_now_add=True)
 
 class ConsumerUnit(models.Model):
     name = models.CharField(
@@ -86,7 +64,7 @@ class ConsumerUnit(models.Model):
             'Uma Unidade Consumidora deve estar ligada a uma Universidade')
     )
 
-    created_on = models.DateField(auto_now_add=True)
+    created_on = models.DateTimeField(auto_now_add=True)
 
     @property
     def current_contract(self) -> Contract:
@@ -126,6 +104,32 @@ class ConsumerUnit(models.Model):
                 pending_bills_number += 1
 
         return pending_bills_number
+
+    @classmethod
+    def create_consumer_unit_and_contract(cls, data_consumer_unit, data_contract):
+        created_consumer_unit = None
+
+        try:
+            created_consumer_unit = ConsumerUnit(
+                university = University.objects.get(id = data_consumer_unit['university']),
+                name = data_consumer_unit['name'],
+                code = data_consumer_unit['code'],
+                is_active = data_consumer_unit['is_active'],
+            )
+
+            created_contract = Contract(
+                consumer_unit = created_consumer_unit,
+                start_date = data_contract['start_date'],
+                tariff_flag = data_contract['tariff_flag'],
+                supply_voltage = data_contract['supply_voltage'],
+                peak_contracted_demand_in_kw = data_contract['peak_contracted_demand_in_kw'],
+                off_peak_contracted_demand_in_kw = data_contract['off_peak_contracted_demand_in_kw'],
+            )
+        except Exception as error:
+            raise Exception('error create consumer unit and contract: ' + str(error))
+
+        created_consumer_unit.save()
+        created_contract.save()
 
     def get_energy_bills_for_recommendation(self):
         if not self.current_contract:
@@ -168,6 +172,13 @@ class ConsumerUnit(models.Model):
 
         return list(energy_bills_pending)
 
+    def get_all_energy_bills(self):
+        if not self.current_contract:
+            return 'Unidade Consumidora sem Contrato'
+
+        energy_bills = Recommendation.get_all_energy_bills_by_consumer_unit(self.id, self.date)
+
+        return energy_bills
 
     def __repr__(self) -> str:
         return f'UC {self.name}'

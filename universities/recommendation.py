@@ -25,5 +25,26 @@ class Recommendation:
 
             return energy_bills
         except Exception as e:
-            raise Exception('Error get Energy Bills for recommendation: ' + str(e))
+            raise Exception('Error get energy bills for recommendation: ' + str(e))
 
+    @classmethod
+    def get_all_energy_bills_by_consumer_unit(cls, consumer_unit_id, start_date):
+        try:
+            energy_bills_lists = EnergyBillUtils.generate_dates(start_date, date.today())
+            
+            for years in energy_bills_lists:
+                for energy_bill_object in energy_bills_lists[str(years)]:
+                    energy_bill_object['is_pending'] = True
+
+                    energy_bill = EnergyBill.get_energy_bill(
+                        consumer_unit_id,
+                        energy_bill_object['month'], 
+                        energy_bill_object['year'])
+
+                    if energy_bill:
+                        energy_bill_object['is_pending'] = False
+                        energy_bill_object['energy_bill'] = EnergyBillUtils.energy_bill_dictionary(energy_bill)
+
+            return energy_bills_lists
+        except Exception as e:
+            raise Exception('Error get all energy bills by consumer unit: ' + str(e))
