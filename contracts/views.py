@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
+from django.core.exceptions import ObjectDoesNotExist
 
 from . import models
 from . import serializers
@@ -23,7 +24,11 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         body_consumer_unit_id = request.data['consumer_unit']
 
-        consumer_unit = ConsumerUnit.objects.get(id = body_consumer_unit_id)
+        try:
+            consumer_unit = ConsumerUnit.objects.get(id = body_consumer_unit_id)
+        except ObjectDoesNotExist:
+            return Response({'error': 'consumer unit does not exist'}, status.HTTP_400_BAD_REQUEST)
+
         university_id = consumer_unit.university.id
 
         try:    
@@ -56,7 +61,11 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         request_consumer_unit_id = request.GET.get('consumer_unit_id')
         
-        consumer_unit = ConsumerUnit.objects.get(id = request_consumer_unit_id)
+        try:
+            consumer_unit = ConsumerUnit.objects.get(id = request_consumer_unit_id)
+        except ObjectDoesNotExist:
+            return Response({'error': 'consumer unit does not exist'}, status.HTTP_400_BAD_REQUEST)
+
         university_id = consumer_unit.university.id
 
         try:
@@ -109,7 +118,11 @@ class EnergyBillViewSet(viewsets.ModelViewSet):
 
         request_consumer_unit_id = request.GET.get('consumer_unit_id')
 
-        consumer_unit = ConsumerUnit.objects.get(id = request_consumer_unit_id)
+        try:
+            consumer_unit = ConsumerUnit.objects.get(id = request_consumer_unit_id)
+        except ObjectDoesNotExist:
+            return Response({'error': 'consumer unit does not exist'}, status.HTTP_400_BAD_REQUEST)
+
         university_id = consumer_unit.university.id
 
         try:
