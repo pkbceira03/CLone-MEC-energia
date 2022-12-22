@@ -2,11 +2,11 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.request import Request
-from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 
 from .models import ConsumerUnit, University
 from users.requests_permissions import RequestsPermissions
+from users.models import UniversityUser
 from . import serializers
 
 class UniversityViewSet(viewsets.ModelViewSet):
@@ -89,10 +89,12 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
 
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(query_serializer=serializers.ConsumerUnitParamsSerializer)
+    @swagger_auto_schema(
+        query_serializer=serializers.ConsumerUnitParamsSerializer,
+        responses={200: serializers.ListConsumerUnitSerializerForDocs})
     def list(self, request: Request, *args, **kwargs):
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
-        
+
         params_serializer = serializers.ConsumerUnitParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
             return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
@@ -104,10 +106,17 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
         
+        user: UniversityUser = UniversityUser.objects.get(pk=request.user.id)
+        favorite_consumer_units = set(user.favorite_consumer_units.all())
         queryset = ConsumerUnit.objects.filter(university = request_university_id)
         serializer = serializers.ConsumerUnitSerializer(queryset, many=True, context={'request': request})
-
-        return Response(serializer.data, status.HTTP_200_OK)
+        units_with_is_favorite = []
+        # Esse loop assume que  UCs em queryset e em serializer.data
+        # estão ordenadas igualmente
+        for unit, unit_dict in zip(queryset, serializer.data):
+            is_favorite = unit in favorite_consumer_units
+            units_with_is_favorite.append({**unit_dict, 'is_favorite': is_favorite})
+        return Response(units_with_is_favorite, status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
         user_types_with_permission = RequestsPermissions.defaut_users_permissions

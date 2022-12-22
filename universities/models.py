@@ -33,7 +33,7 @@ class University(models.Model):
         help_text=_('14 números sem caracteres especiais')
     )
 
-    created_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateField(auto_now_add=True)
 
 class ConsumerUnit(models.Model):
     name = models.CharField(
