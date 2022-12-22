@@ -29,6 +29,13 @@ class ConsumerUnitSerializer(serializers.HyperlinkedModelSerializer):
         model = ConsumerUnit
         fields = ['id', 'url', 'name', 'code', 'is_active', 'date', 'is_current_energy_bill_filled', 'pending_energy_bills_number', 'university', 'created_on']
 
+class ListConsumerUnitSerializerForDocs(ConsumerUnitSerializer):
+    is_favorite = serializers.BooleanField()
+    
+    class Meta:
+        model = ConsumerUnit
+        fields = ['is_favorite', 'id', 'url', 'name', 'code', 'is_active', 'date', 'is_current_energy_bill_filled', 'pending_energy_bills_number', 'university', 'created_on']
+
 class ConsumerUnitParamsSerializer(serializers.Serializer):
     university_id = serializers.IntegerField()
 
