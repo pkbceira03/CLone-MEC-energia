@@ -46,10 +46,9 @@ class EnergyBillListObjectAttributesSerializerForDocs(serializers.Serializer):
     off_peak_measured_demand_in_kw = serializers.DecimalField(decimal_places=2, max_digits=10)
 
 class EnergyBillListObjectSerializerForDocs(serializers.Serializer):
-    month = serializers.CharField(read_only=True)
-    year = serializers.CharField(read_only=True)
-    is_pending = serializers.BooleanField()
+    month = serializers.IntegerField()
+    year = serializers.IntegerField()
     energy_bill = EnergyBillListObjectAttributesSerializerForDocs()
 
 class EnergyBillListSerializerForDocs(serializers.Serializer):
-    consumer_unit_year = EnergyBillListObjectSerializerForDocs(many=True, read_only=True)
+    year = EnergyBillListObjectSerializerForDocs(many=True, read_only=True)
