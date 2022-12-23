@@ -16,7 +16,6 @@ class Distributor(models.Model):
 
     cnpj = models.CharField(
         max_length=14,
-        unique=True,
         verbose_name=_('CNPJ'),
         help_text=_('14 números sem caracteres especiais')
     )
@@ -29,6 +28,9 @@ class Distributor(models.Model):
     )
 
     is_active = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ['university', 'cnpj']
 
 @dataclass
 class BlueTariff:
@@ -68,7 +70,7 @@ class Tariff(models.Model):
     distributor = models.ForeignKey(
         Distributor,
         related_name='tariffs',
-        on_delete=models.PROTECT,    
+        on_delete=models.CASCADE,    
         null=False,
         blank=False,
     )
