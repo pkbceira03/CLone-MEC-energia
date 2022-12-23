@@ -21,16 +21,27 @@ class DistributorViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
-        distributor: Distributor = self.get_object()
-
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, distributor.university.id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+        distributor: Distributor = self.get_object()
+        
+        units = ConsumerUnit.objects.filter(university=distributor.university)
 
-        dependent_tariffs = Tariff.objects.all().filter(distributor_id=distributor.id)
-        if len(dependent_tariffs) != 0:
-            return Response({'errors': ['There are tariffs associated to this distributor']}, status=status.HTTP_400_BAD_REQUEST)
+        blocking_units_ids = []
+        for unit in units:
+            current_contract = unit.current_contract
+            if current_contract != None:
+                if current_contract.distributor.id == distributor.id:
+                    blocking_units_ids.append(unit.id)
+
+        if len(blocking_units_ids) != 0:
+            return Response(
+                {
+                    'errors': ['There are active contracts associated to this distributor'],
+                    'consumer_units_ids': blocking_units_ids,
+                }, status=status.HTTP_400_BAD_REQUEST)
 
         Distributor.objects.filter(pk=distributor.id).delete()
 

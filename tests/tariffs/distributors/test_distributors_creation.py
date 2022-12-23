@@ -1,9 +1,10 @@
 import pytest
 import json
-from rest_framework import status
+from django.db.utils import IntegrityError
 from rest_framework.test import APIClient
 
 from tariffs.models import Distributor
+from universities.models import University
 
 from tests.test_utils.create_objects_util import CreateObjectsUtil
 
@@ -31,12 +32,23 @@ class TestTariff:
         created_distributor = json.loads(response.content)
 
         assert 'Distribuidora' == created_distributor['name']
+    
+    def test_can_create_the_same_distributor_for_different_unitversities(self):
+        dis_1 = {'name': 'Dis 1', 'cnpj': '00038174000143', 'university_id': self.university.id}
+        dis_2 = {'name': 'Dis 2', 'cnpj': '00038174000143', 'university_id': self.university.id}
+        univ_2 = {'name': 'Universidade de Brasília', 'cnpj': '00038174000143'}
 
-    def test_cannot_create_distributors_with_same_cnpj(self):
-        dis_1 = {'name': 'Dis 1', 'cnpj': '00038174000143', 'university': self.university}
-        dis_2 = {'name': 'Dis 2', 'cnpj': '00038174000143', 'university': self.university.id}
+        University.objects.create(**univ_2)
 
         Distributor.objects.create(**dis_1)
-        response = self.client.post(ENDPOINT, dis_2)
+        with pytest.raises(IntegrityError):
+            Distributor.objects.create(**dis_2)
 
-        assert status.HTTP_400_BAD_REQUEST == response.status_code
+    def test_can_create_distributors_for_different_universities(self):
+        university_2 = University.objects.create(name='Universidade de Brasília', cnpj='00038174000143')
+        
+        dis_1 = {'name': 'Dis 1', 'cnpj': '01083200000118', 'university': self.university}
+        dis_2 = {'name': 'Dis 2', 'cnpj': '01083200000118', 'university': university_2}
+
+        Distributor.objects.create(**dis_1)
+        Distributor.objects.create(**dis_2)
