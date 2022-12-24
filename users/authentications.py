@@ -3,6 +3,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
+from django.core.exceptions import ObjectDoesNotExist
 
 from . import serializers
 from .requests_permissions import RequestsPermissions
@@ -41,3 +42,19 @@ class AuthenticationToken(ObtainAuthToken):
             return Response(response)
         except Exception as error:
             return Response({'authentication error': f'{error}'}, status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(responses={200: serializers.AuthenticationGetTokenParamsSerializerForDocs()},
+                         query_serializer=serializers.AuthenticationGetTokenParamsSerializer)
+    def get(self, request, *args, **kwargs):
+        try:
+            Token.objects.get(pk=request.data['token'])
+
+            valid_token = True
+        except ObjectDoesNotExist:
+            valid_token = False
+
+        response = {
+            'is_valid_token': valid_token
+        }
+
+        return Response(response)
