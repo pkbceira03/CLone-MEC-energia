@@ -43,9 +43,13 @@ class AuthenticationToken(ObtainAuthToken):
         except Exception as error:
             return Response({'authentication error': f'{error}'}, status.HTTP_400_BAD_REQUEST)
 
-    @swagger_auto_schema(responses={200: serializers.AuthenticationGetTokenParamsSerializerForDocs()},
-                         query_serializer=serializers.AuthenticationGetTokenParamsSerializer)
+    @swagger_auto_schema(query_serializer=serializers.AuthenticationGetTokenParamsSerializer,
+                        responses={200: serializers.AuthenticationGetTokenSerializerForDocs()})
     def get(self, request, *args, **kwargs):
+        params_serializer = serializers.AuthenticationGetTokenParamsSerializer(data=request.data)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
         try:
             Token.objects.get(pk=request.data['token'])
 

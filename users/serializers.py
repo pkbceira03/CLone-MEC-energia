@@ -61,7 +61,7 @@ class AuthenticationTokenSerializerForDocs(Serializer):
     user = UniversityUserAuthenticatedSerializerForDocs()
     
 class AuthenticationGetTokenParamsSerializer(Serializer):
-    token = serializers.Field()
+    token = serializers.ReadOnlyField()
 
-class AuthenticationGetTokenParamsSerializerForDocs(Serializer):
+class AuthenticationGetTokenSerializerForDocs(Serializer):
     is_valid_token = serializers.BooleanField()
