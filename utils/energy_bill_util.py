@@ -22,19 +22,18 @@ class EnergyBillUtils:
         month = end_date.month
         year = end_date.year
 
-        start_date_month = start_date.month
         start_date_year = start_date.year
 
-        years[str(year)] = []
+        while (year >= start_date_year):
+            years[str(year)] = []
 
-        while (month != start_date_month or year != start_date_year):
-            aux_year = year
-            
-            if month == 1:
-                aux_year = year - 1
-                years[str(aux_year)] = []
+            for i in range(12, 0, -1):
+                month = i
 
-            years[str(aux_year)], month, year = cls.update_date_and_insert_energy_bill_on_list(years[str(aux_year)], month, year)
+                date, month, year = cls.create_energy_bill_date(month, year)
+                years[str(year)].append(date)
+
+            year -= 1
 
         return years
 
@@ -56,6 +55,8 @@ class EnergyBillUtils:
 
     @classmethod
     def update_date_and_insert_energy_bill_on_list(cls, energy_bills_list, month, year):
+        month, year = (month - 1, year) if month != 1 else (12, year - 1)
+
         energy_bill, month, year = cls.create_energy_bill_date(month, year)
         energy_bills_list.append(energy_bill)
 
@@ -63,8 +64,6 @@ class EnergyBillUtils:
 
     @classmethod
     def create_energy_bill_date(cls, month, year):
-        month, year = (month - 1, year) if month != 1 else (12, year - 1)
-
         energy_bill = {
             'month': month,
             'year': year,
