@@ -13,6 +13,8 @@ class EnergyBillUtils:
         for i in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
             energy_bills_list, month, year = cls.update_date_and_insert_energy_bill_on_list(energy_bills_list, month, year)
 
+        print(energy_bills_list)    
+
         return energy_bills_list
 
     @classmethod
@@ -30,7 +32,7 @@ class EnergyBillUtils:
             for i in range(12, 0, -1):
                 month = i
 
-                date, month, year = cls.create_energy_bill_date(month, year)
+                date = cls.create_energy_bill_date(month, year)
                 years[str(year)].append(date)
 
             year -= 1
@@ -57,7 +59,7 @@ class EnergyBillUtils:
     def update_date_and_insert_energy_bill_on_list(cls, energy_bills_list, month, year):
         month, year = (month - 1, year) if month != 1 else (12, year - 1)
 
-        energy_bill, month, year = cls.create_energy_bill_date(month, year)
+        energy_bill = cls.create_energy_bill_date(month, year)
         energy_bills_list.append(energy_bill)
 
         return (energy_bills_list, month, year)
@@ -70,7 +72,7 @@ class EnergyBillUtils:
             'energy_bill': None
         }
 
-        return (energy_bill, month, year)
+        return energy_bill
 
     @classmethod
     def generate_latest_dates_for_recommendation(cls):

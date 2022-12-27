@@ -23,6 +23,19 @@ class Recommendation:
                 
                 energy_bills.append(energy_bill_object)
 
+            # A Conta de Luz do mês atual somente é considerada para a recomendação caso seja preechida
+            current_energy_bill = EnergyBill.get_energy_bill(
+                    consumer_unit_id,
+                    date.today().month, 
+                    date.today().year)
+
+            if current_energy_bill:
+                energy_bill = EnergyBillUtils.create_energy_bill_date(current_energy_bill.date.month, current_energy_bill.date.year)
+                energy_bill['energy_bill'] = EnergyBillUtils.energy_bill_dictionary(current_energy_bill)
+
+                energy_bills.insert(0, energy_bill)
+                energy_bills.pop()
+
             return energy_bills
         except Exception as e:
             raise Exception('Error get energy bills for recommendation: ' + str(e))

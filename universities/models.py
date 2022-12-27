@@ -97,7 +97,7 @@ class ConsumerUnit(models.Model):
             return 'Unidade Consumidora sem Contrato'
 
         pending_bills_number = 0
-        energy_bills = self.get_energy_bills_for_recommendation()
+        energy_bills = Recommendation.get_energy_bills_for_recommendation(self.id)
         
         for energy_bill in energy_bills:
             if energy_bill['energy_bill'] == None:
@@ -130,14 +130,6 @@ class ConsumerUnit(models.Model):
 
         created_consumer_unit.save()
         created_contract.save()
-
-    def get_energy_bills_for_recommendation(self):
-        if not self.current_contract:
-            return 'Unidade Consumidora sem Contrato'
-
-        energy_bills = Recommendation.get_energy_bills_for_recommendation(self.id)
-
-        return energy_bills
 
     def get_energy_bills_by_year(self, year):
         if year < self.date.year or year > date.today().year:
