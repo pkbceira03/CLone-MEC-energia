@@ -6,7 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 from .models import ConsumerUnit, University
 from users.requests_permissions import RequestsPermissions
-from users.models import UniversityUser
+from users.models import UniversityUser, CustomUser
 from . import serializers
 
 class UniversityViewSet(viewsets.ModelViewSet):
@@ -106,17 +106,24 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
         
-        user: UniversityUser = UniversityUser.objects.get(pk=request.user.id)
-        favorite_consumer_units = set(user.favorite_consumer_units.all())
         queryset = ConsumerUnit.objects.filter(university = request_university_id)
         serializer = serializers.ConsumerUnitSerializer(queryset, many=True, context={'request': request})
-        units_with_is_favorite = []
-        # Esse loop assume que  UCs em queryset e em serializer.data
-        # estão ordenadas igualmente
-        for unit, unit_dict in zip(queryset, serializer.data):
-            is_favorite = unit in favorite_consumer_units
-            units_with_is_favorite.append({**unit_dict, 'is_favorite': is_favorite})
-        return Response(units_with_is_favorite, status.HTTP_200_OK)
+
+        # Caso o usuário seja de universidade, buscamos se saber cada uc é uma de suas ucs favoritas ou não
+        # Caso sim, retornamos o atributo "is_favorite" como True. Caso não, "is_favorite" como False
+        if request.user.type in RequestsPermissions.university_user_permissions:
+            user: UniversityUser = UniversityUser.objects.get(pk=request.user.id)
+            favorite_consumer_units = set(user.favorite_consumer_units.all())
+            consumer_units = []
+            # Esse loop assume que  UCs em queryset e em serializer.data
+            # estão ordenadas igualmente
+            for unit, unit_dict in zip(queryset, serializer.data):
+                is_favorite = unit in favorite_consumer_units
+                consumer_units.append({**unit_dict, 'is_favorite': is_favorite})
+        else:
+            consumer_units = serializer.data
+            
+        return Response(consumer_units, status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
