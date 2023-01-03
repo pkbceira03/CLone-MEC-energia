@@ -53,10 +53,13 @@ class Recommendation:
                         energy_bill_object['month'], 
                         energy_bill_object['year'])
 
-                    energy_bill_object['is_energy_bill_pending'] = EnergyBillUtils.is_date_be_on_recommendation_list(energy_bills_recommendation_dates_list, energy_bill_object)
+                    is_date_be_on_recommendation_list = EnergyBillUtils.is_date_be_on_recommendation_list(energy_bills_recommendation_dates_list, energy_bill_object)
 
                     if energy_bill:
                         energy_bill_object['energy_bill'] = EnergyBillUtils.energy_bill_dictionary(energy_bill)
+                        energy_bill_object['is_energy_bill_pending'] = False
+                    else:
+                        energy_bill_object['is_energy_bill_pending'] = is_date_be_on_recommendation_list
 
             return energy_bills_lists
         except Exception as e:
