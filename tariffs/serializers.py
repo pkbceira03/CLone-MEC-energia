@@ -92,6 +92,7 @@ class _SubgroupSerializerForDocs(Serializer):
     
 class ConsumerUnitsBySubgroupByDistributorSerializerForDocs(Serializer):
     id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(read_only=True)
     subgroups = _SubgroupSerializerForDocs(many=True, read_only=True)
 
 class DistributorListParamsSerializer(Serializer):

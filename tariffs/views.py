@@ -118,7 +118,7 @@ class DistributorViewSet(ModelViewSet):
         TMP_UNITS_FIELD = 'tmp_units_field'
         distributors_list: list[dict] = []
         for dist in distributors:
-            distributors_list.append({'id': dist.id, 'subgroups': [], TMP_UNITS_FIELD: []})
+            distributors_list.append({'id': dist.id, 'name': dist.name, 'subgroups': [], TMP_UNITS_FIELD: []})
             distributors_list[-1][TMP_UNITS_FIELD] = list(filter(lambda unit: unit['distributor'] == dist.id, units_with_subgroup_with_distributor))
 
         for dist in distributors_list:
