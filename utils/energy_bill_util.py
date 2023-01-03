@@ -13,9 +13,14 @@ class EnergyBillUtils:
         for i in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
             energy_bills_list, month, year = cls.update_date_and_insert_energy_bill_on_list(energy_bills_list, month, year)
 
-        print(energy_bills_list)    
-
         return energy_bills_list
+
+    @classmethod
+    def is_date_be_on_recommendation_list(cls, energy_bills_recommendation_dates_list, search_energy_bill_date):
+        if search_energy_bill_date in energy_bills_recommendation_dates_list:
+            return True
+        
+        return False
 
     @classmethod
     def generate_dates(cls, start_date, end_date):

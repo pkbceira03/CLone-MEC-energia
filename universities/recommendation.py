@@ -43,6 +43,7 @@ class Recommendation:
     @classmethod
     def get_all_energy_bills_by_consumer_unit(cls, consumer_unit_id, start_date):
         try:
+            energy_bills_recommendation_dates_list = EnergyBillUtils.generate_dates_for_recommendation(date.today())
             energy_bills_lists = EnergyBillUtils.generate_dates(start_date, date.today())
             
             for years in energy_bills_lists:
@@ -51,6 +52,8 @@ class Recommendation:
                         consumer_unit_id,
                         energy_bill_object['month'], 
                         energy_bill_object['year'])
+
+                    energy_bill_object['is_energy_bill_pending'] = EnergyBillUtils.is_date_be_on_recommendation_list(energy_bills_recommendation_dates_list, energy_bill_object)
 
                     if energy_bill:
                         energy_bill_object['energy_bill'] = EnergyBillUtils.energy_bill_dictionary(energy_bill)

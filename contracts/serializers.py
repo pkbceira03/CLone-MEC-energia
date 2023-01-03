@@ -49,6 +49,7 @@ class EnergyBillListObjectAttributesSerializerForDocs(serializers.Serializer):
 class EnergyBillListObjectSerializerForDocs(serializers.Serializer):
     month = serializers.IntegerField()
     year = serializers.IntegerField()
+    is_energy_bill_pending = serializers.BooleanField()
     energy_bill = EnergyBillListObjectAttributesSerializerForDocs()
 
 class EnergyBillListSerializerForDocs(serializers.Serializer):
