@@ -36,6 +36,7 @@ class ListSubgroupsSerializerForDocs(serializers.Serializer):
     subgroups = SubgroupSerializerForDocs(many=True, read_only=True)
 
 class EnergyBillListObjectAttributesSerializerForDocs(serializers.Serializer):
+    id = serializers.IntegerField()
     date = serializers.DateField()
     invoice_in_reais = serializers.DecimalField(decimal_places=2, max_digits=10)
     is_atypical = serializers.BooleanField()

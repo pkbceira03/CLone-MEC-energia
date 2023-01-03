@@ -45,6 +45,7 @@ class EnergyBillUtils:
             return None
 
         dictionary = {}
+        dictionary["id"] = energy_bill.id
         dictionary["date"] = energy_bill.date
         dictionary["invoice_in_reais"] = energy_bill.invoice_in_reais
         dictionary["is_atypical"] = energy_bill.is_atypical
