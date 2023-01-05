@@ -52,7 +52,7 @@ class CreateContractSerializerForDocs(serializers.ModelSerializer):
 
     class Meta:
         model = Contract
-        exclude = ('consumer_unit', 'end_date', 'subgroup', 'distributor', )
+        exclude = ('consumer_unit', 'end_date', 'subgroup', )
 
 class CreateConsumerUnitAndContractSerializerForDocs(serializers.Serializer):
     consumer_unit = ConsumerUnitSerializer()
