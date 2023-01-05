@@ -111,7 +111,7 @@ class ConsumerUnit(models.Model):
 
         try:
             created_consumer_unit = ConsumerUnit(
-                university = University.objects.get(id = data_consumer_unit['university']),
+                university_id = data_consumer_unit['university'],
                 name = data_consumer_unit['name'],
                 code = data_consumer_unit['code'],
                 is_active = data_consumer_unit['is_active'],
@@ -119,6 +119,7 @@ class ConsumerUnit(models.Model):
 
             created_contract = Contract(
                 consumer_unit = created_consumer_unit,
+                distributor_id = data_contract['distributor'],
                 start_date = data_contract['start_date'],
                 tariff_flag = data_contract['tariff_flag'],
                 supply_voltage = data_contract['supply_voltage'],
@@ -130,6 +131,8 @@ class ConsumerUnit(models.Model):
 
         created_consumer_unit.save()
         created_contract.save()
+
+        return created_consumer_unit, created_contract
 
     def get_energy_bills_by_year(self, year):
         if year < self.date.year or year > date.today().year:
