@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from . import models
 from universities.models import ConsumerUnit
+from tariffs.models import Distributor
 
 class ContractSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -8,6 +9,7 @@ class ContractSerializer(serializers.HyperlinkedModelSerializer):
     end_date = serializers.DateField(read_only=True)
 
     consumer_unit = serializers.PrimaryKeyRelatedField(queryset=ConsumerUnit.objects.all())
+    distributor = serializers.PrimaryKeyRelatedField(queryset=Distributor.objects.all())
 
     class Meta:
         model = models.Contract
