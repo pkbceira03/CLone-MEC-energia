@@ -6,6 +6,7 @@ from rest_framework.request import Request
 from rest_framework import status
 
 from django.db import IntegrityError
+from django.db.models.manager import BaseManager
 
 from drf_yasg.utils import swagger_auto_schema
 
@@ -27,7 +28,7 @@ class DistributorViewSet(ModelViewSet):
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
         distributor: Distributor = self.get_object()
-        
+
         units = ConsumerUnit.objects.filter(university=distributor.university)
 
         blocking_units_ids = []
@@ -57,11 +58,11 @@ class DistributorViewSet(ModelViewSet):
         user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
         university_id = user.university.id
         distributors = Distributor.objects.filter(university_id=university_id).order_by('name')
-        
+
         params_serializer = DistributorListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
             return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-        
+
         request_university_id = request.GET.get('university_id')
 
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
@@ -71,8 +72,7 @@ class DistributorViewSet(ModelViewSet):
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
         distributors = Distributor.objects.filter(university_id=request_university_id).order_by('name')
-        units_count_by_distributor = self._get_consumer_units_count_by_distributor(request_university_id)
-
+        units_count_by_distributor = self._get_consumer_units_count_by_distributor(request_university_id, distributors)
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
         for dist in ser.data:
             dist['consumer_units'] = units_count_by_distributor[dist['id']]
@@ -92,8 +92,8 @@ class DistributorViewSet(ModelViewSet):
                     'green': GreenTariffSerializer(green).data,
                 })
         return Response(ser.data)
-    
-    def _get_consumer_units_count_by_distributor(self, university_id: int) -> dict[int, int]:
+
+    def _get_consumer_units_count_by_distributor(self, university_id: int, distributors: 'BaseManager[Distributor]') -> dict[int, int]:
         consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
         units_count_by_distributor = {}
 
@@ -104,6 +104,10 @@ class DistributorViewSet(ModelViewSet):
                 units_count_by_distributor[distributor.id] += 1
             else:
                 units_count_by_distributor[distributor.id] = 1
+
+        for dist in distributors:
+            if dist not in units_count_by_distributor:
+                units_count_by_distributor[dist.id] = 0
         return units_count_by_distributor
 
     @swagger_auto_schema(responses={200: ConsumerUnitsBySubgroupByDistributorSerializerForDocs(many=True)})
@@ -115,7 +119,7 @@ class DistributorViewSet(ModelViewSet):
         distributors = Distributor.objects.filter(university_id=university_id)
         consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
         units_with_subgroup_with_distributor: list[dict] = []
-        
+
         for units in consumer_units:
             contract = units.current_contract
             distributor: Distributor = contract.distributor
@@ -131,11 +135,11 @@ class DistributorViewSet(ModelViewSet):
         for dist in distributors_list:
             for unit in dist[TMP_UNITS_FIELD]:
                 del unit['distributor']
-        
+
         for dist in distributors_list:
-            subgroups_for_current_dist = set(map(lambda unit: unit['subgroup'], dist[TMP_UNITS_FIELD])) 
+            subgroups_for_current_dist = set(map(lambda unit: unit['subgroup'], dist[TMP_UNITS_FIELD]))
             for subgroup in subgroups_for_current_dist:
-                units_for_current_subgroup = list(filter(lambda unit: unit['subgroup'] == subgroup, dist[TMP_UNITS_FIELD]))  
+                units_for_current_subgroup = list(filter(lambda unit: unit['subgroup'] == subgroup, dist[TMP_UNITS_FIELD]))
                 units_without_subgroup_field = list(map(lambda unit: {'id': unit['id'], 'name': unit['name']}, units_for_current_subgroup))
                 dist['subgroups'].append({'subgroup': subgroup, 'consumer_units': units_without_subgroup_field})
             del dist[TMP_UNITS_FIELD]
@@ -151,7 +155,7 @@ class TariffViewSet(ViewSet):
         ser = BlueAndGreenTariffsSerializer(data=request.data)
         if not ser.is_valid():
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         data = ser.validated_data
         start_date = data['start_date']
         end_date = data['end_date']
@@ -167,7 +171,7 @@ class TariffViewSet(ViewSet):
         except Exception as e:
             raise e
         return Response(ser.data, status=status.HTTP_201_CREATED)
-    
+
     def _handle_integrity_error(self, error: IntegrityError):
         error_message = str(error)
         if 'duplicate key value violates unique constraint' in error_message:
@@ -176,18 +180,18 @@ class TariffViewSet(ViewSet):
             return Response({'errors': [formatted_error]}, status=status.HTTP_403_FORBIDDEN)
         else:
             raise error
-    
+
     @swagger_auto_schema(request_body=BlueAndGreenTariffsSerializer)
     def update(self, request: Request, pk=None):
-        '''Essa rota de fato foge um pouco do padrão REST: ```PUT /api/tariffs/id```. 
-        Nesse caso, `id` NÃO É USADO, de maneira que `id` pode ser setado para 
-        qualquer coisa. Ainda assim, é possível identificar as tarifas pelo 
+        '''Essa rota de fato foge um pouco do padrão REST: ```PUT /api/tariffs/id```.
+        Nesse caso, `id` NÃO É USADO, de maneira que `id` pode ser setado para
+        qualquer coisa. Ainda assim, é possível identificar as tarifas pelo
         _subgrupo_ e _distribuidora_.'''
-        
+
         ser = BlueAndGreenTariffsSerializer(data=request.data)
         if not ser.is_valid():
             return Response(ser.errors, status=status.HTTP_400_BAD_REQUEST)
-        
+
         data = ser.validated_data
         tariffs = Tariff.objects.filter(subgroup=data['subgroup'], distributor=data['distributor'])
         if 0 == tariffs.count():
@@ -213,5 +217,4 @@ class TariffViewSet(ViewSet):
             'green': green_tariff
         })
         return Response(ser.data)
-        
-        
+
