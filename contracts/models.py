@@ -36,7 +36,6 @@ class Contract(models.Model):
         'tariffs.Distributor',
         related_name='contracts',
         on_delete=models.PROTECT,
-        null=True,
     )
 
     start_date = models.DateField(
