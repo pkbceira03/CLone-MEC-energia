@@ -10,6 +10,7 @@ from universities.urls import router as universities_router
 from contracts.urls import router as contracts_router
 from users.urls import router as users_router
 from tariffs.urls import router as tariffs_router
+from recommendation.urls import router as recommendation_router
 
 from .schema import Schema
 
@@ -19,6 +20,7 @@ router.registry.extend(universities_router.registry)
 router.registry.extend(contracts_router.registry)
 router.registry.extend(users_router.registry)
 router.registry.extend(tariffs_router.registry)
+router.registry.extend(recommendation_router.registry)
 
 schema_view =  Schema.get_schema_view()
 
