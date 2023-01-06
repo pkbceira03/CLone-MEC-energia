@@ -9,11 +9,12 @@ from django.db import IntegrityError
 
 from drf_yasg.utils import swagger_auto_schema
 
-from users.models import UniversityUser
-from users.requests_permissions import RequestsPermissions
-from universities.models import ConsumerUnit
 from .models import Distributor, Tariff
+from users.models import UniversityUser
+from universities.models import ConsumerUnit
 from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs, DistributorListParamsSerializer
+
+from users.requests_permissions import RequestsPermissions
 
 class DistributorViewSet(ModelViewSet):
     queryset = Distributor.objects.all()
@@ -50,7 +51,12 @@ class DistributorViewSet(ModelViewSet):
     @swagger_auto_schema(responses={200: DistributorSerializerForDocs()},
                         query_serializer=DistributorListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.
+        Essa rota é exclusivamente para usuários de universidade, por isso
+        o filtro é por essa classe.'''
+        user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
+        university_id = user.university.id
+        distributors = Distributor.objects.filter(university_id=university_id).order_by('name')
         
         params_serializer = DistributorListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
@@ -58,6 +64,7 @@ class DistributorViewSet(ModelViewSet):
         
         request_university_id = request.GET.get('university_id')
 
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
         except Exception as error:

@@ -10,7 +10,7 @@ class EnergyBillUtils:
         month = date.month
         year = date.year
 
-        for i in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
+        for _ in range(settings.IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION):
             energy_bills_list, month, year = cls.update_date_and_insert_energy_bill_on_list(energy_bills_list, month, year)
 
         return energy_bills_list

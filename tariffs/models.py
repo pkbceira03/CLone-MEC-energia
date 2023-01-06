@@ -160,23 +160,23 @@ class Tariff(models.Model):
         if not self.is_blue():
             raise Exception('Tariff is green type. Cannot convert to blue')
         return BlueTariff(
-            peak_tusd_in_reais_per_kw=self.peak_tusd_in_reais_per_kw,
-            peak_tusd_in_reais_per_mwh=self.peak_tusd_in_reais_per_mwh,
-            peak_te_in_reais_per_mwh=self.peak_te_in_reais_per_mwh,
-            off_peak_tusd_in_reais_per_kw=self.off_peak_tusd_in_reais_per_kw,
-            off_peak_tusd_in_reais_per_mwh=self.off_peak_tusd_in_reais_per_mwh,
-            off_peak_te_in_reais_per_mwh=self.off_peak_te_in_reais_per_mwh,
+            peak_tusd_in_reais_per_kw=float(self.peak_tusd_in_reais_per_kw),
+            peak_tusd_in_reais_per_mwh=float(self.peak_tusd_in_reais_per_mwh),
+            peak_te_in_reais_per_mwh=float(self.peak_te_in_reais_per_mwh),
+            off_peak_tusd_in_reais_per_kw=float(self.off_peak_tusd_in_reais_per_kw),
+            off_peak_tusd_in_reais_per_mwh=float(self.off_peak_tusd_in_reais_per_mwh),
+            off_peak_te_in_reais_per_mwh=float(self.off_peak_te_in_reais_per_mwh),
         )
 
     def as_green_tariff(self) -> GreenTariff:
         if self.is_blue():
             raise Exception('Tariff is blue type. Cannot convert to green')
         return GreenTariff(
-            peak_tusd_in_reais_per_mwh=self.peak_tusd_in_reais_per_mwh,
-            peak_te_in_reais_per_mwh=self.peak_te_in_reais_per_mwh,
-            off_peak_tusd_in_reais_per_mwh=self.off_peak_tusd_in_reais_per_mwh,
-            off_peak_te_in_reais_per_mwh=self.off_peak_te_in_reais_per_mwh,
-            na_tusd_in_reais_per_kw=self.na_tusd_in_reais_per_kw,
+            peak_tusd_in_reais_per_mwh=float(self.peak_tusd_in_reais_per_mwh),
+            peak_te_in_reais_per_mwh=float(self.peak_te_in_reais_per_mwh),
+            off_peak_tusd_in_reais_per_mwh=float(self.off_peak_tusd_in_reais_per_mwh),
+            off_peak_te_in_reais_per_mwh=float(self.off_peak_te_in_reais_per_mwh),
+            na_tusd_in_reais_per_kw=float(self.na_tusd_in_reais_per_kw),
         )
 
 

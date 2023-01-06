@@ -166,6 +166,14 @@ class ConsumerUnit(models.Model):
                 energy_bills_pending.append(energy_bill)
 
         return list(energy_bills_pending)
+    
+    def get_energy_bills_for_recommendation(self):
+        if not self.current_contract:
+            return 'Unidade Consumidora sem Contrato'
+
+        energy_bills = Recommendation.get_energy_bills_for_recommendation(self.id)
+
+        return energy_bills
 
     def get_all_energy_bills(self):
         if not self.current_contract:

@@ -16,10 +16,10 @@ DEBUG = os.getenv('ENVIRONMENT') != 'production'
 ALLOWED_HOSTS = ['*']
 
 
-# Global variables
+# Parâmetros de recomendação de contrato
 MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION = 6
 IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION = 12
-
+MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE = 0.05
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'universities',
     'contracts',
     'tariffs',
+    'recommendation',
 ]
 
 MIDDLEWARE = [
@@ -188,4 +189,3 @@ REST_FRAMEWORK = {
 if os.getenv('ENVIRONMENT') == 'test':
     del REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']
     del REST_FRAMEWORK['DEFAULT_PARSER_CLASSES']
-    
