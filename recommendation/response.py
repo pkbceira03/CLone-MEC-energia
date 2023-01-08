@@ -146,7 +146,8 @@ def build_response(
         },
         'table_tariffs': table_tariffs,
         'table_consumption_history': consumption_history[HEADERS_FOR_CONSUMPTION_HISTORY].to_dict('records'),
-        'plot_consumption_history': consumption_history[HEADERS_FOR_CONSUMPTION_HISTORY, 'contract_peak_demand_in_kw', 'contract_off_peak_demand_in_kw'].to_dict('list'),
+        'plot_consumption_history': consumption_history[HEADERS_FOR_CONSUMPTION_HISTORY 
+          + ['contract_peak_demand_in_kw', 'contract_off_peak_demand_in_kw']].to_dict('list'),
         'plot_current_contract_demands': current_demands,
         # 'plot_current_contract_demands_costs': current_demands_costs,
         'plot_current_contract_demand_and_consumption_costs': current_demand_and_consumption_costs,
