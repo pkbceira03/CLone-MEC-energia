@@ -42,6 +42,8 @@ university_user = UniversityUser.objects.create(
     university=university,
     password='unb',
     email='usuario@unb.br',
+    first_name="José",
+    last_name="Santos",
 )
 
 # Distribuidoras
