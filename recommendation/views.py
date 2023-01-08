@@ -17,11 +17,6 @@ from recommendation.response import build_response
 from recommendation.serializers import RecommendationSettingsSerializerForDocs
 
 
-HEADERS_FOR_CONSUMPTION_HISTORY = [
-    'date', 'peak_consumption_in_kwh', 'off_peak_consumption_in_kwh',
-    'peak_measured_demand_in_kw', 'off_peak_measured_demand_in_kw',
-]
-
 class RecommendationViewSet(ViewSet):
     http_method_names = ['get']
 
@@ -66,7 +61,6 @@ class RecommendationViewSet(ViewSet):
         fill_with_pending_dates(recommendation, consumption_history, pending_bills_dates)
 
         return build_response(
-            HEADERS_FOR_CONSUMPTION_HISTORY,
             recommendation,
             consumption_history,
             contract,

@@ -13,6 +13,11 @@ from mec_energia.settings import MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDA
 
 from recommendation.calculator import ContractRecommendationResult
 
+HEADERS_FOR_CONSUMPTION_HISTORY = [
+    'date', 'peak_consumption_in_kwh', 'off_peak_consumption_in_kwh',
+    'peak_measured_demand_in_kw', 'off_peak_measured_demand_in_kw',
+]
+
 def _generate_tariffs_as_table(blue_tariff: Tariff, green_tariff: Tariff):
     serialized_blue = BlueTariffSerializer(blue_tariff).data
     serialized_green = GreenTariffSerializer(green_tariff).data
@@ -102,7 +107,6 @@ def _generate_table_current_vs_recommended_contracts(recommendation: ContractRec
     return (result.to_dict('list'), current_vs_recommended_contracts_totals)
 
 def build_response(
-    HEADERS_FOR_CONSUMPTION_HISTORY: list[str],
     recommendation: ContractRecommendationResult,
     consumption_history: DataFrame,
     contract: Contract,
@@ -142,6 +146,7 @@ def build_response(
         },
         'table_tariffs': table_tariffs,
         'table_consumption_history': consumption_history[HEADERS_FOR_CONSUMPTION_HISTORY].to_dict('records'),
+        'plot_consumption_history': consumption_history[HEADERS_FOR_CONSUMPTION_HISTORY, 'contract_peak_demand_in_kw', 'contract_off_peak_demand_in_kw'].to_dict('list'),
         'plot_current_contract_demands': current_demands,
         # 'plot_current_contract_demands_costs': current_demands_costs,
         'plot_current_contract_demand_and_consumption_costs': current_demand_and_consumption_costs,
