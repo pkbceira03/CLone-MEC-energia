@@ -49,12 +49,11 @@ class RecommendationViewSet(ViewSet):
         blue, green = self._get_tariffs(contract.subgroup, distributor_id)
         consumption_history, pending_bills_dates = self._get_energy_bills_as_consumption_history(consumer_unit, contract)
 
+        errors = []
         consumption_history_length = len(consumption_history)
         if consumption_history_length < MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION:
-            return Response(
-                {'errors': ['Not enough energy bills for recommendation.'
-                f' Got {consumption_history_length} bills']},
-                status=status.HTTP_400_BAD_REQUEST)
+            errors.append('Not enough energy bills for recommendation.'
+                f' Got {consumption_history_length} bills')
 
         calculator = RecommendationCalculator(
             consumption_history=consumption_history,
@@ -74,6 +73,7 @@ class RecommendationViewSet(ViewSet):
             consumer_unit,
             blue,
             green,
+            errors,
         )
 
     def _get_energy_bills_as_consumption_history(self, consumer_unit: ConsumerUnit, contract: Contract):

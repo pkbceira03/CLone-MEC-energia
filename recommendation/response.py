@@ -109,6 +109,7 @@ def build_response(
     consumer_unit: ConsumerUnit,
     blue: Tariff,
     green: Tariff,
+    errors: list[str],
     ):
     '''Reponsável por APENAS construir o objeto `Response` de endpoint'''
 
@@ -164,6 +165,6 @@ def build_response(
         'table_current_vs_recommended_contract_totals': totals,
         'should_update_contract': costs_percentage_difference > MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE,
         'costs_percentage_difference': round(costs_percentage_difference, 3),
-        'warnings': []
+        'errors': errors,
     })
 
