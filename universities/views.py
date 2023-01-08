@@ -161,3 +161,29 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
             return Response({'Consumer Unit and Contract created'})
         except Exception as error:
             raise Exception(str(error))
+
+    
+    @swagger_auto_schema(request_body=serializers.CreateConsumerUnitAndContractSerializerForDocs)
+    @action(detail=False, methods=['post'])
+    def edit_consumer_unit_and_contract(self, request, pk=None):
+        user_types_with_permission = RequestsPermissions.university_user_permissions
+
+        data = request.data
+
+        params_serializer = serializers.CreateConsumerUnitAndContractSerializerForDocs(data=request.data)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            body_university_id = data['consumer_unit']['university']
+
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, body_university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            ConsumerUnit.edit_consumer_unit_and_contract(data['consumer_unit'], data['contract'])
+            
+            return Response({'Consumer Unit and Contract edited'})
+        except Exception as error:
+            raise Exception(str(error))
