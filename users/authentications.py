@@ -37,7 +37,7 @@ class AuthenticationToken(ObtainAuthToken):
             }
 
             if user.type in RequestsPermissions.university_user_permissions:
-                response['user']['university_id'] = RequestsPermissions.get_university_user_object(user.id).university.id
+                response['user']['universityId'] = RequestsPermissions.get_university_user_object(user.id).university.id
 
             return Response(response)
         except Exception as error:
