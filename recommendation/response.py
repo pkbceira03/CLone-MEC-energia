@@ -1,8 +1,9 @@
+from datetime import datetime
 from pandas import DataFrame
 from numpy import nan
 
-from datetime import datetime
 from rest_framework.response import Response
+from rest_framework import status
 
 from universities.models import ConsumerUnit
 from contracts.models import Contract
@@ -116,6 +117,29 @@ def build_response(
     errors: list[str],
     ):
     '''Reponsável por APENAS construir o objeto `Response` de endpoint'''
+    # FIXME: um pouquinho de gambiarra
+    if recommendation == None:
+        current_demands = _generate_plot_demands_in_current_contract(
+            consumption_history,
+            int(contract.peak_contracted_demand_in_kw),
+            int(contract.off_peak_contracted_demand_in_kw))
+
+        return Response({
+            'errors': errors,
+            'current_contract': {
+                'university': consumer_unit.university.name,
+                'distributor': contract.distributor.name,
+                'consumer_unit': consumer_unit.name,
+                'consumer_unit_code': consumer_unit.code,
+                'supply_voltage': contract.supply_voltage,
+                'tariff_flag': contract.tariff_flag,
+                'subgroup': contract.subgroup,
+                'peak_contracted_demand_in_kw': contract.peak_contracted_demand_in_kw,
+                'off_peak_contracted_demand_in_kw': contract.off_peak_contracted_demand_in_kw,
+            },
+            'plot_consumption_history': consumption_history[HEADERS_FOR_CONSUMPTION_HISTORY 
+              + ['contract_peak_demand_in_kw', 'contract_off_peak_demand_in_kw']].to_dict('list'),
+        })
 
     current_demands = _generate_plot_demands_in_current_contract(
         consumption_history,

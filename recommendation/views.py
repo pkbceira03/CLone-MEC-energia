@@ -12,7 +12,7 @@ from contracts.models import Contract
 from tariffs.models import Tariff
 
 from recommendation.calculator import RecommendationCalculator, CONSUMPTION_HISTORY_HEADERS
-from recommendation.helpers import fill_with_pending_dates
+from recommendation.helpers import fill_with_pending_dates, fill_history_with_pending_dates
 from recommendation.response import build_response
 from recommendation.serializers import RecommendationSettingsSerializerForDocs
 
@@ -42,23 +42,33 @@ class RecommendationViewSet(ViewSet):
         distributor_id = contract.distributor.id
 
         blue, green = self._get_tariffs(contract.subgroup, distributor_id)
+        
+        errors = []
+        is_missing_tariff =  blue == None or green == None
+        if is_missing_tariff:
+            errors.append('Lance tarifas para análise')
+        
         consumption_history, pending_bills_dates = self._get_energy_bills_as_consumption_history(consumer_unit, contract)
 
-        errors = []
         consumption_history_length = len(consumption_history)
         if consumption_history_length < MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION:
             errors.append('Lance ao menos 6 faturas para análise.'
                 f' Foram lançadas apenas {consumption_history_length} faturas')
 
-        calculator = RecommendationCalculator(
-            consumption_history=consumption_history,
-            current_tariff_flag=contract.tariff_flag,
-            blue_tariff=blue.as_blue_tariff(),
-            green_tariff=green.as_green_tariff(),
-        )
+        recommendation = None
+        if not is_missing_tariff:
+            calculator = RecommendationCalculator(
+                consumption_history=consumption_history,
+                current_tariff_flag=contract.tariff_flag,
+                blue_tariff=blue.as_blue_tariff(),
+                green_tariff=green.as_green_tariff(),
+            )
 
-        recommendation = calculator.calculate()
-        fill_with_pending_dates(recommendation, consumption_history, pending_bills_dates)
+            recommendation = calculator.calculate()
+            fill_with_pending_dates(recommendation, consumption_history, pending_bills_dates)
+        else:
+            # FIXME: temporário
+            fill_history_with_pending_dates(consumption_history, pending_bills_dates)
 
         return build_response(
             recommendation,
@@ -98,8 +108,6 @@ class RecommendationViewSet(ViewSet):
 
     def _get_tariffs(self, subgroup: str, distributor_id: int):
         tariffs = Tariff.objects.filter(subgroup=subgroup, distributor_id=distributor_id)
-        tariffs_count = tariffs.count()
-        assert 2 == tariffs_count, f'Got {tariffs_count} tariffs'
         blue_tariff = tariffs.filter(flag=Tariff.BLUE).first()
         green_tariff = tariffs.filter(flag=Tariff.GREEN).first()
         return (blue_tariff, green_tariff)

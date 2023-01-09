@@ -7,6 +7,21 @@ from pandas import DataFrame
 def __formatted_date(date: str):
     return datetime.strptime(date, '%Y-%m-%d').date()
 
+def fill_history_with_pending_dates(
+    consumption_history: DataFrame,
+    pending_bills_dates: list[str]
+):
+    '''FIXME: função temporária'''
+    history_len = len(consumption_history)
+    for i, date in enumerate(pending_bills_dates):
+        consumption_history.loc[history_len + i] = [
+            __formatted_date(date),
+            None, None, None, None, None, None, None, None,
+        ]
+    consumption_history.replace({nan: None}, inplace=True)
+    consumption_history.sort_values(by='date', inplace=True)
+
+
 def fill_with_pending_dates(
     recommendation: ContractRecommendationCalculator,
     consumption_history: DataFrame,
