@@ -61,6 +61,8 @@ class Recommendation:
                     else:
                         energy_bill_object['is_energy_bill_pending'] = is_date_be_on_recommendation_list
 
+                    energy_bill_object['month'] -= 1
+
             return energy_bills_lists
         except Exception as e:
             raise Exception('Error get all energy bills by consumer unit: ' + str(e))
