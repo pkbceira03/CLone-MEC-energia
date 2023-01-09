@@ -42,6 +42,8 @@ university_user = UniversityUser.objects.create(
     university=university,
     password='ufmg',
     email='usuario@ufmg.br',
+    first_name="João",
+    last_name="da Silva",
 )
 
 # Distribuidoras
