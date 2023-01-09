@@ -110,7 +110,7 @@ class EnergyBillViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(responses={200: serializers.EnergyBillListSerializerForDocs(many=True)},
                         query_serializer=serializers.EnergyBillListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.university_user_permissions
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
 
         params_serializer = serializers.EnergyBillListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
