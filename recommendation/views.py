@@ -47,8 +47,8 @@ class RecommendationViewSet(ViewSet):
         errors = []
         consumption_history_length = len(consumption_history)
         if consumption_history_length < MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION:
-            errors.append('Not enough energy bills for recommendation.'
-                f' Got {consumption_history_length} bills')
+            errors.append('Lance ao menos 6 faturas para análise.'
+                f' Foram lançadas apenas {consumption_history_length} faturas')
 
         calculator = RecommendationCalculator(
             consumption_history=consumption_history,
