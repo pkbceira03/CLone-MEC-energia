@@ -102,6 +102,34 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         return JsonResponse(subgroups, safe=False)
 
+    @swagger_auto_schema(query_serializer=serializers.ContractListParamsSerializer)
+    @action(detail=False, methods=['get'], url_path='get-current-contract-of-consumer-unit')
+    def get_current_contract_of_consumer_unit(self, request: Request, pk=None):
+        user_types_with_permission = RequestsPermissions.university_user_permissions
+
+        params_serializer = serializers.ContractListParamsSerializer(data=request.GET)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        request_consumer_unit_id = request.GET.get('consumer_unit_id')
+
+        try:
+            consumer_unit = ConsumerUnit.objects.get(id = request_consumer_unit_id)
+        except ObjectDoesNotExist:
+            return Response({'error': 'consumer unit does not exist'}, status.HTTP_400_BAD_REQUEST)
+
+        university_id = consumer_unit.university.id
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        contract = consumer_unit.current_contract
+
+        serializer = self.get_serializer(contract)
+        return Response(serializer.data)
+
 
 class EnergyBillViewSet(viewsets.ModelViewSet):
     queryset = models.EnergyBill.objects.all()
