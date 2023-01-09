@@ -31,11 +31,11 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         university_id = consumer_unit.university.id
 
-        try:    
+        try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university_id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
-            
+
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
@@ -54,13 +54,13 @@ class ContractViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(query_serializer=serializers.ContractListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
-        
+
         params_serializer = serializers.ContractListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
             return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         request_consumer_unit_id = request.GET.get('consumer_unit_id')
-        
+
         try:
             consumer_unit = ConsumerUnit.objects.get(id = request_consumer_unit_id)
         except ObjectDoesNotExist:
@@ -72,7 +72,7 @@ class ContractViewSet(viewsets.ModelViewSet):
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university_id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
-        
+
         queryset = models.Contract.objects.filter(consumer_unit = consumer_unit.id)
         serializer = serializers.ContractSerializer(queryset, many=True, context={'request': request})
 
@@ -81,7 +81,7 @@ class ContractViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, pk=None):
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
         contract = self.get_object()
-        
+
         university_id = contract.consumer_unit.university.id
 
         try:
@@ -132,4 +132,4 @@ class EnergyBillViewSet(viewsets.ModelViewSet):
 
         energy_bills = consumer_unit.get_all_energy_bills()
 
-        return JsonResponse(energy_bills, safe=False)
+        return Response(energy_bills)
