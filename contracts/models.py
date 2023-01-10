@@ -104,6 +104,9 @@ class Contract(models.Model):
                 contract.end_date = day_before_start_date
                 contract.save()
 
+    def get_distributor_name(self):
+        return self.distributor.name
+
 
 class EnergyBill(models.Model):
 

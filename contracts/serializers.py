@@ -10,10 +10,11 @@ class ContractSerializer(serializers.HyperlinkedModelSerializer):
 
     consumer_unit = serializers.PrimaryKeyRelatedField(queryset=ConsumerUnit.objects.all())
     distributor = serializers.PrimaryKeyRelatedField(queryset=Distributor.objects.all())
+    distributor_name = serializers.CharField(source='get_distributor_name')
 
     class Meta:
         model = models.Contract
-        fields = fields = ['url', 'id', 'consumer_unit', 'distributor', 'start_date', 'end_date', 'tariff_flag',
+        fields = fields = ['url', 'id', 'consumer_unit', 'distributor', 'distributor_name', 'start_date', 'end_date', 'tariff_flag',
                            'subgroup', 'supply_voltage', 'peak_contracted_demand_in_kw', 'off_peak_contracted_demand_in_kw']
 
 class EnergyBillSerializer(serializers.HyperlinkedModelSerializer):
