@@ -54,6 +54,18 @@ class CreateContractSerializerForDocs(serializers.ModelSerializer):
         model = Contract
         exclude = ('consumer_unit', 'end_date', 'subgroup', )
 
+class EditConsumerUnitCodeSerializerForDocs(serializers.Serializer):
+    consumer_unit_id = serializers.IntegerField()
+    code = serializers.CharField()
+
 class CreateConsumerUnitAndContractSerializerForDocs(serializers.Serializer):
     consumer_unit = ConsumerUnitSerializer()
+    contract = CreateContractSerializerForDocs()
+
+class EditConsumerUnitAndContractSerializerForDocs(serializers.Serializer):
+    consumer_unit = ConsumerUnitSerializer()
+    contract = CreateContractSerializerForDocs()
+
+class EditConsumerUnitCodeAndCreateContractSerializerForDocs(serializers.Serializer):
+    consumer_unit = EditConsumerUnitCodeSerializerForDocs()
     contract = CreateContractSerializerForDocs()

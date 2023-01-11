@@ -157,6 +157,29 @@ class ConsumerUnit(models.Model):
 
         return consumer_unit, contract
 
+    @classmethod
+    def edit_consumer_unit_code_and_create_contract(cls, data_consumer_unit, data_contract):
+        try:
+            consumer_unit = ConsumerUnit.objects.filter(id = data_consumer_unit['consumer_unit_id']).update(
+                code = data_consumer_unit['code'],
+            )
+
+            created_contract = Contract(
+                consumer_unit = consumer_unit.first(),
+                distributor_id = data_contract['distributor'],
+                start_date = data_contract['start_date'],
+                tariff_flag = data_contract['tariff_flag'],
+                supply_voltage = data_contract['supply_voltage'],
+                peak_contracted_demand_in_kw = data_contract['peak_contracted_demand_in_kw'],
+                off_peak_contracted_demand_in_kw = data_contract['off_peak_contracted_demand_in_kw'],
+            )
+        except Exception as error:
+            raise Exception('error create consumer unit and contract: ' + str(error))
+
+        created_contract.save()
+
+        return consumer_unit, created_contract
+
     def get_energy_bills_by_year(self, year):
         if year < self.date.year or year > date.today().year:
             raise Exception('Consumer User do not have Energy Bills this year')
