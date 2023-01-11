@@ -127,8 +127,8 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         contract = consumer_unit.current_contract
 
-        serializer = self.get_serializer(contract)
-        return Response(serializer.data)
+        serializer = serializers.ContractListSerializer(contract, many=False, context={'request': request})
+        return Response(serializer.data, status.HTTP_200_OK)
 
 
 class EnergyBillViewSet(viewsets.ModelViewSet):
