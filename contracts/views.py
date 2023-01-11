@@ -102,7 +102,9 @@ class ContractViewSet(viewsets.ModelViewSet):
 
         return JsonResponse(subgroups, safe=False)
 
-    @swagger_auto_schema(query_serializer=serializers.ContractListParamsSerializer)
+    @swagger_auto_schema(
+        query_serializer=serializers.ContractListParamsSerializer,
+        responses={200: serializers.ContractListSerializer})
     @action(detail=False, methods=['get'], url_path='get-current-contract-of-consumer-unit')
     def get_current_contract_of_consumer_unit(self, request: Request, pk=None):
         user_types_with_permission = RequestsPermissions.university_user_permissions
