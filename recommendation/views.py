@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from drf_yasg.utils import swagger_auto_schema
 
-from mec_energia.settings import MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION, IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION, MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE
+from mec_energia.settings import MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION, IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION, MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_RENOVATION
 from universities.models import ConsumerUnit
 from contracts.models import Contract
 from tariffs.models import Tariff
@@ -78,6 +78,7 @@ class RecommendationViewSet(ViewSet):
             blue,
             green,
             errors,
+            consumption_history_length,
         )
 
     def _get_energy_bills_as_consumption_history(self, consumer_unit: ConsumerUnit, contract: Contract):
@@ -120,6 +121,6 @@ class RecommendationSettings(ViewSet):
         settings = {
             'MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION': MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION,
             'IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION': IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION,
-            'MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE': MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE
+            'MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_RENOVATION': MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_RENOVATION
         }
         return Response(settings)

@@ -10,7 +10,7 @@ from contracts.models import Contract
 from tariffs.models import Tariff
 from tariffs.serializers import BlueTariffSerializer, GreenTariffSerializer
 
-from mec_energia.settings import MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE
+from mec_energia.settings import MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_RENOVATION
 
 from recommendation.calculator import ContractRecommendationResult
 
@@ -56,8 +56,7 @@ def _generate_plot_demands_costs_in_current_contract(current_contract_recommenda
 
 def _generate_plot_demand_and_consumption_costs_in_current_contract(current_contract_recommendation: DataFrame):
     current_demand_and_consumption_costs: DataFrame = current_contract_recommendation[[
-        'date', 'consumption_cost_in_reais', 'demand_cost_in_reais']]\
-        .astype({'consumption_cost_in_reais': int, 'demand_cost_in_reais': int}, errors='ignore')
+        'date', 'consumption_cost_in_reais', 'demand_cost_in_reais']]
     return current_demand_and_consumption_costs.to_dict('list')
 
 def _generate_plot_recommended_contract_demands(
@@ -76,9 +75,20 @@ def _generate_plot_recommended_contract_demands(
 
 def _generate_plot_demand_and_consumption_costs_in_recommended_contract(recommendation_frame: DataFrame):
     demand_and_consumption_costs: DataFrame = recommendation_frame[[
-        'date', 'consumption_cost_in_reais', 'demand_cost_in_reais']]\
-        .astype({'consumption_cost_in_reais': int, 'demand_cost_in_reais': int}, errors='ignore')
+        'date', 'consumption_cost_in_reais', 'demand_cost_in_reais']]
     return demand_and_consumption_costs.to_dict('list')
+
+def _generate_plot_current_vs_estimated_costs(recommendation: ContractRecommendationResult):
+    result = DataFrame()
+    result.insert(0, 'total_cost_in_reais_in_recommended', recommendation.frame.contract_cost_in_reais)
+    result.insert(0, 'total_cost_in_reais_in_current', recommendation.current_contract.cost_in_reais)
+    result.insert(0, 'date', recommendation.frame.date)
+
+    result.replace({nan: None}, inplace=True)
+    result_dict = result.to_dict('list')
+    result_dict['total_total_cost_in_reais_in_current'] = recommendation.current_contract.cost_in_reais.sum()
+    result_dict['total_total_cost_in_reais_in_recommended'] = recommendation.frame.contract_cost_in_reais.sum()
+    return result_dict
 
 def _generate_table_current_vs_recommended_contracts(recommendation: ContractRecommendationResult):
     result = DataFrame()
@@ -105,7 +115,7 @@ def _generate_table_current_vs_recommended_contracts(recommendation: ContractRec
     }
 
     result.replace({nan: None}, inplace=True)
-    return (result.to_dict('list'), current_vs_recommended_contracts_totals)
+    return (result.to_dict('records'), current_vs_recommended_contracts_totals)
 
 def build_response(
     recommendation: ContractRecommendationResult,
@@ -115,6 +125,7 @@ def build_response(
     blue: Tariff,
     green: Tariff,
     errors: list[str],
+    energy_bills_count: int,
     ):
     '''Reponsável por APENAS construir o objeto `Response` de endpoint'''
     # FIXME: um pouquinho de gambiarra
@@ -150,6 +161,7 @@ def build_response(
 
     recommended_demands = _generate_plot_recommended_contract_demands(consumption_history, recommendation.frame)
     demands_and_consumption_costs_in_recommended_contract = _generate_plot_demand_and_consumption_costs_in_recommended_contract(recommendation.frame)
+    current_vs_estimated_costs = _generate_plot_current_vs_estimated_costs(recommendation)
     current_vs_recommended_contract, totals = _generate_table_current_vs_recommended_contracts(recommendation)
     table_tariffs = _generate_tariffs_as_table(blue, green)
 
@@ -187,13 +199,14 @@ def build_response(
             'peak_demand_in_kw': recommendation.peak_demand_in_kw,
         },
         'plot_recommended_demands': recommended_demands,
-        'plot_current_vs_estimated_costs': '',
         'plot_recommended_demand_and_consumption_costs': demands_and_consumption_costs_in_recommended_contract,
+        'plot_current_vs_estimated_costs': current_vs_estimated_costs,
         # Os dois campos seguintes devem fornecer dados suficientes para o
         # plot "Custo-base atual vs estimado" e para a tabela Custo-base (R$)
         'table_current_vs_recommended_contract': current_vs_recommended_contract,
         'table_current_vs_recommended_contract_totals': totals,
-        'should_update_contract': costs_percentage_difference > MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_UPDATE,
+        'should_renew_contract': costs_percentage_difference > MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_RENOVATION,
+        'energy_bills_count': energy_bills_count,
         'costs_percentage_difference': round(costs_percentage_difference, 3),
         'errors': errors,
     })
