@@ -143,8 +143,11 @@ class ConsumerUnit(models.Model):
                 code = data_consumer_unit['code'],
                 is_active = data_consumer_unit['is_active'],
             )
+
+            if not consumer_unit:
+                raise Exception('Consumer Unit not exist')
             
-            contract = Contract.objects.filter(id = data_contract['contract_id'], consumer_unit = consumer_unit).update(
+            contract = Contract.objects.filter(id = data_contract['contract_id']).update(
                 distributor_id = data_contract['distributor'],
                 start_date = data_contract['start_date'],
                 tariff_flag = data_contract['tariff_flag'],
@@ -152,6 +155,9 @@ class ConsumerUnit(models.Model):
                 peak_contracted_demand_in_kw = data_contract['peak_contracted_demand_in_kw'],
                 off_peak_contracted_demand_in_kw = data_contract['off_peak_contracted_demand_in_kw'],
             )
+
+            if not contract:
+                raise Exception('Contract not exist')
         except Exception as error:
             raise Exception('error edit consumer unit and contract: ' + str(error))
 

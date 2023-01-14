@@ -200,7 +200,6 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
             return Response(params_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            print(data['consumer_unit'])
             body_consumer_unit_id = data['consumer_unit']['consumer_unit_id']
 
             university = ConsumerUnit.objects.get(id = body_consumer_unit_id)
