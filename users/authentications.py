@@ -26,18 +26,7 @@ class AuthenticationToken(ObtainAuthToken):
 
         try:
             UserType.get_user_type(user.type)
-            
-            response = {
-                'token': token.key,
-                'user': {
-                    'email': user.email,
-                    'name': f'{user.first_name} {user.last_name}',
-                    'type': user.type,
-                }
-            }
-
-            if user.type in RequestsPermissions.university_user_permissions:
-                response['user']['universityId'] = RequestsPermissions.get_university_user_object(user.id).university.id
+            response = AuthenticationToken.create_and_update_login_response(token.key, user.id, user.email, user.first_name, user.last_name, user.type)
 
             return Response(response)
         except Exception as error:
@@ -62,3 +51,40 @@ class AuthenticationToken(ObtainAuthToken):
         }
 
         return Response(response)
+
+    def create_and_update_login_response(token, user_id, user_email, user_first_name, user_last_name, user_type):
+        response = AuthenticationToken.create_base_login_response(token, user_email, user_first_name, user_last_name, user_type)
+
+        if user_type in RequestsPermissions.university_user_permissions:
+            user = RequestsPermissions.get_university_user_object(user_id)
+            university_id = user.university.id
+
+            response = AuthenticationToken.update_university_user_response(response, university_id)
+
+        return response
+
+    def create_base_login_response(token, user_email, user_first_name, user_last_name, user_type):
+        response = {
+                'token': token,
+                'user': {
+                    'email': user_email,
+                    'first_name': user_first_name,
+                    'last_name': user_last_name,
+                    'type': user_type,
+                }
+            }
+
+        return response
+
+    def update_super_user_response(response):
+        return response
+
+    def update_university_user_response(response, university_id):
+        response = AuthenticationToken.insert_university_id_on_response(response, university_id)
+        
+        return response
+
+    def insert_university_id_on_response(response, university_id):
+        response['user']['universityId'] = university_id
+
+        return response
