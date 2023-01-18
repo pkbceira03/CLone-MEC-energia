@@ -53,10 +53,10 @@ class TestContractSubGroup:
         assert self.contract_test_2.supply_voltage == 250.00
         assert self.contract_test_2.subgroup == 'A1'
 
-    def test_throws_exception_when_suply_voltage_does_not_match_ranges_in_create_contract(self):
+    def test_throws_exception_when_already_have_a_contract_in_this_date(self):
         with pytest.raises(Exception) as e:
             CreateObjectsUtil.create_contract_object(
-                contract_dict_index = 2, distributor = self.distributor,
+                contract_dict_index = 5, distributor = self.distributor,
                 consumer_unit = self.consumer_unit_test)
 
         assert 'Already have the contract in this date' in str(e.value)
