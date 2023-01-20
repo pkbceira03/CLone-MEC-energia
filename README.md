@@ -1,6 +1,12 @@
-# MEC Energia API
+# MEC-Energia API
 
-## Começando
+Este repositório contém a implementação da API do sistema MEC-Energia.
+
+O sistema MEC-Energia tem por objetivo auxiliar as instituições de ensino superior (IES) a gerenciar e avaliar a adequação de contratos de conta de energia elétrica a partir do registro das faturas mensais de energia, gerando relatórios de recomendações de ajustes nos contratos visando economia de recursos.
+
+A documentação online do sistema está disponível em [Documentação](https://lappis-unb.gitlab.io/projects/mec-energia/documentacao)
+
+## Como executar o serviço
 
 Para acessar o banco, é recomendado que você tenha 
 [Docker Compose](https://docs.docker.com/compose/install/) instalado em
@@ -27,7 +33,7 @@ http://localhost:8080/api/swagger/schema/.
 Para ter acesso completo dos dados nos dois links, você precisa criar um 
 usuário. Leia sobre como fazer isso em [seed](docs/seed.md#usuário).
 
-## Documentação
+## Documentação Extra de Configuração
 
 Para saber mais sobre como configurar o seu ambiente de desenvolvimento e 
 outras coisas, acesse os seguintes links:

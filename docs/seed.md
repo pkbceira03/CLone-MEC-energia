@@ -22,6 +22,16 @@ Para apagar os dados do banco de dados você pode usar:
 **Execute o comando anterior com cuidado!**. Esse script pula o prompt de 
 confirmação e apaga todos os dados diretamente.
 
+## Seed de Demonstação
+
+O seed de demonstração da entrega do projeto pode ser carregado executando o seguinte comando:
+
+```sh
+./scripts/seed.sh
+```
+
+Esse comando também deve ser executado dentro do container da api (mec-energia-api).
+
 ## Usuários
 
 Para acessar dados da API e a documentação, você deve criar um usuário. O script
