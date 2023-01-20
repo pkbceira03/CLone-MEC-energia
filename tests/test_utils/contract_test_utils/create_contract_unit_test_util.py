@@ -62,5 +62,21 @@ class CreateContractTestUtil:
 
         return contract
 
+    def create_contract_with_wrong_suply_voltage(consumer_unit, distributor) -> Contract:
+        index = 4
+        contract_dict = CreateContractTestUtil.get_contract_dict(index)
+        
+        contract = Contract.objects.create(
+            distributor = distributor,
+            consumer_unit = consumer_unit,
+            start_date = contract_dict['start_date'],
+            tariff_flag = contract_dict['tariff_flag'],
+            supply_voltage = contract_dict['supply_voltage'],
+            peak_contracted_demand_in_kw = contract_dict['peak_contracted_demand_in_kw'],
+            off_peak_contracted_demand_in_kw = contract_dict['off_peak_contracted_demand_in_kw'],
+        )
+
+        return contract
+
     def get_contract_dict(index):
         return CreateContractTestUtil.contract_dicts[index]

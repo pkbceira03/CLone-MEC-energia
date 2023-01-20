@@ -65,7 +65,7 @@ class CreateObjectsUtil:
 
         return (contract_dict, contract)
 
-    def create_energy_bill_object(energy_bill_dict_index, contract, consumer_unit):
+    def create_energy_bill_by_index(energy_bill_dict_index, contract, consumer_unit):
         energy_bill = CreateEnergyBillTestUtil.create_energy_bill(energy_bill_dict_index, contract, consumer_unit)
         
         return energy_bill

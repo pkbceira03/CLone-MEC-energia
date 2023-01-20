@@ -18,20 +18,19 @@ class TestConsumerUnitsEndpoint:
             email = CreateObjectsUtil.login_university_user['email'], 
             password = CreateObjectsUtil.login_university_user['password'])
 
-        self.university_url = f'{TESTSERVER_ADDR}{self.university.id}/'
         self.consumer_unit_to_be_created = {
             'name': 'Faculdade do Gama',
             'code': '111111111',
             'created_on': '2022-10-02',
             'is_active': True,
-            'university': self.university_url
+            'university': self.university.id
         }
 
 
-    def test_creates_consumer_unit(self):
+    def test_create_consumer_unit(self):
         response = self.client.post(ENDPOINT, self.consumer_unit_to_be_created)
         created_consumer_unit = json.loads(response.content)
 
+        assert response.status_code == status.HTTP_201_CREATED
         assert created_consumer_unit['name'] == self.consumer_unit_to_be_created['name']
         assert created_consumer_unit['university'] == self.consumer_unit_to_be_created['university']
-        assert response.status_code == status.HTTP_201_CREATED

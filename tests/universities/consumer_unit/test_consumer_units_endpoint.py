@@ -29,8 +29,6 @@ class TestConsumerUnitsEndpoint:
             email = CreateObjectsUtil.login_university_user['email'], 
             password = CreateObjectsUtil.login_university_user['password'])
 
-        self.university_url = f'{TESTSERVER_ADDR}{self.university.id}/'
-
 
     def test_rejects_deleting_consumer_unit(self):
         response = self.client.delete(ENDPOINT, self.consumer_unit_test_1_dict)
@@ -39,7 +37,7 @@ class TestConsumerUnitsEndpoint:
     
     def test_updates_is_active_of_consumer_unit_to_false(self):
         self.consumer_unit_test_1_dict['is_active'] = False
-        self.consumer_unit_test_1_dict['university'] = self.university_url
+        self.consumer_unit_test_1_dict['university'] = self.university.id
         
         response = self.client.put(
             f'{ENDPOINT}{self.consumer_unit_test_1.id}/',

@@ -22,12 +22,13 @@ class DistributorViewSet(ModelViewSet):
     serializer_class = DistributorSerializer
 
     def destroy(self, request, *args, **kwargs):
+        distributor: Distributor = self.get_object()
         user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, distributor.university.id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
-        distributor: Distributor = self.get_object()
 
         units = ConsumerUnit.objects.filter(university=distributor.university)
 
