@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from tests.test_utils.create_objects_util import CreateObjectsUtil
+from tests.test_utils.energy_bill_test_utils.create_energy_bill_unit_test_util import CreateEnergyBillTestUtil
 
 ENDPOINT = '/api/consumer-units/'
 EMAIL = 'admin@admin.com'
@@ -38,13 +39,12 @@ class TestConsumerUnitsProperties:
                                 contract_dict_index = 1, distributor=self.distributor,
                                 consumer_unit = self.consumer_unit_test_2)
 
-        self.energy_bill_test_2 = CreateObjectsUtil.create_energy_bill_object(
-                                energy_bill_dict_index = 0,
+        self.energy_bill_test_2 = CreateEnergyBillTestUtil.create_current_energy_bill(
                                 contract = self.contract_test_2,
                                 consumer_unit = self.consumer_unit_test_2)
 
 
-    def test_reads_consumer_unit_properties_no_one_energy_bill_filled(self):
+    def test_read_consumer_unit_properties_no_one_energy_bill_filled(self):
         response = self.client.get(f'{ENDPOINT}{self.consumer_unit_test_1.id}/')
         consumer_unit = json.loads(response.content)
 
@@ -52,10 +52,10 @@ class TestConsumerUnitsProperties:
         assert 12 == consumer_unit['pending_energy_bills_number']
         assert status.HTTP_200_OK == response.status_code
     
-    def test_reads_consumer_unit_properties_current_energy_bill_filled_and_all_energy_bills_pending(self):
+    def test_read_consumer_unit_properties_current_energy_bill_filled_and_all_energy_bills_pending(self):
         response = self.client.get(f'{ENDPOINT}{self.consumer_unit_test_2.id}/')
-        consumer_unit = json.loads(response.content)
+        consumer_unit_2 = json.loads(response.content)
 
-        assert True == consumer_unit['is_current_energy_bill_filled']
-        assert 12 == consumer_unit['pending_energy_bills_number']
+        assert True == consumer_unit_2['is_current_energy_bill_filled']
+        assert 11 == consumer_unit_2['pending_energy_bills_number']
         assert status.HTTP_200_OK == response.status_code
