@@ -22,10 +22,12 @@ class UniversityUsersViewSet(ModelViewSet):
     serializer_class = UniversityUserSerializer
 
     def create(self, request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.super_user_permissions
+        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+
+        body_university_id = request.data['university']
 
         try:
-            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, None)
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, body_university_id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
             

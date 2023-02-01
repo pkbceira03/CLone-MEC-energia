@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
@@ -8,13 +9,20 @@ from .managers import CustomUserManager
 
 
 class CustomUser(AbstractUser):
+    objects = CustomUserManager()
+    
     ### User types
     super_user_type = 'super_user'
     university_admin_user_type = 'university_admin'
     university_user_type = 'university_user'
 
-    user_types = [
+    all_user_types = [
         super_user_type,
+        university_admin_user_type,
+        university_user_type
+    ]
+
+    university_user_types = [
         university_admin_user_type,
         university_user_type
     ]
@@ -29,7 +37,30 @@ class CustomUser(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    objects = CustomUserManager()
+
+    @classmethod
+    def search_user_by_email(cls, email):
+        return cls.objects.get(email = email)
+
+    def change_user_last_login_time(self):
+        self.last_login = timezone.now()
+        self.save()
+
+        return self
+
+    def change_user_password_by_reset_password_token(self, new_password, reset_password_token):
+        from .authentications import Password
+
+        try:
+            if Password.check_password_token_is_valid(self, reset_password_token):
+                self.set_password(new_password)
+                self.save()
+            else:
+                raise Exception('Reset password token is not valid')
+
+            return self
+        except Exception as error:
+            raise Exception('Change User Password: ' + str(error))
 
     def __str__(self) -> str:
         return f'{self.first_name} {self.last_name} [{self.email}]'
