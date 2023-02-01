@@ -73,9 +73,9 @@ class DistributorViewSet(ModelViewSet):
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
         distributors = Distributor.objects.filter(university_id=request_university_id).order_by('name')
-        units_count_by_distributor = self._get_consumer_units_count_by_distributor(request_university_id, distributors)
+        # units_count_by_distributor = self._get_consumer_units_count_by_distributor(request_university_id, distributors)
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
-        for dist in ser.data:
+        """ for dist in ser.data:
             dist['consumer_units'] = units_count_by_distributor[dist['id']]
             tariffs = dist['tariffs']
             dist['tariffs'] = []
@@ -91,10 +91,10 @@ class DistributorViewSet(ModelViewSet):
                     'distributor': t['distributor'],
                     'blue': BlueTariffSerializer(blue).data,
                     'green': GreenTariffSerializer(green).data,
-                })
+                }) """
         return Response(ser.data)
 
-    def _get_consumer_units_count_by_distributor(self, university_id: int, distributors: 'BaseManager[Distributor]') -> dict[int, int]:
+    """ def _get_consumer_units_count_by_distributor(self, university_id: int, distributors: 'BaseManager[Distributor]') -> dict[int, int]:
         consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
         units_count_by_distributor = {}
 
@@ -109,7 +109,7 @@ class DistributorViewSet(ModelViewSet):
         for dist in distributors:
             if dist not in units_count_by_distributor:
                 units_count_by_distributor[dist.id] = 0
-        return units_count_by_distributor
+        return units_count_by_distributor """
 
     @swagger_auto_schema(responses={200: ConsumerUnitsBySubgroupByDistributorSerializerForDocs(many=True)})
     @action(detail=False, methods=['get'], url_path='with-subgroups-with-consumer-units')

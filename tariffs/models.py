@@ -5,7 +5,7 @@ from datetime import date
 
 from django.utils.translation import gettext_lazy as _
 
-from universities.models import University
+from universities.models import University, ConsumerUnit
 
 class Distributor(models.Model):
     name = models.CharField(
@@ -31,6 +31,15 @@ class Distributor(models.Model):
 
     class Meta:
         unique_together = ['university', 'cnpj']
+
+    @property
+    def consumer_units_count(self) -> int:
+        return len(self.get_consumer_units_by_distributor())
+
+    def get_consumer_units_by_distributor(self):
+        consumer_units = ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
+
+        return consumer_units
 
 @dataclass
 class BlueTariff:

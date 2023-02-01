@@ -62,8 +62,9 @@ class DistributorSerializer(HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     # https://www.django-rest-framework.org/api-guide/relations/#serializer-relations
     university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
-    tariffs = TariffSerializer(many=True, read_only=True)
-    consumer_units = serializers.IntegerField(read_only=True)
+    # tariffs = TariffSerializer(many=True, read_only=True)
+    # consumer_units = serializers.IntegerField(read_only=True)
+    consumer_units_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Distributor
