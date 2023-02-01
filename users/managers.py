@@ -2,25 +2,38 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
 from . import models
-from utils.user_type_util import UserType
+
+from utils.user.authentication import generate_random_password
+from utils.user.user_type_util import UserType
 
 class CustomUserManager(BaseUserManager):
-    def create(self, email, password, **extra_fields):
-        if not email:
-            raise ValueError(_('Email is required'))
+    def create(self, email, password = None, **extra_fields):
+        from .authentications import Password
 
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        
-        if not user.type:
-            user.type = UserType.get_user_type_by_model(self.model)
-        else:
-            UserType.get_user_type(user.type)
-        
-        user.save()
+        try:
+            if not email:
+                raise ValueError(_('Email is required'))
 
-        return user
+            email = self.normalize_email(email)
+            user = self.model(email=email, **extra_fields)
+            
+            if not user.type:
+                user.type = UserType.get_user_type_by_model(self.model)
+            
+            UserType.is_valid_user_type(user.type)
+                
+            if user.type in models.CustomUser.university_user_types:
+                user.set_password(generate_random_password())
+            else:
+                user.set_password(password) 
+
+            Password.send_email_first_access_password(user)
+            
+            user.save()
+
+            return user
+        except Exception as error:
+            raise Exception('Error Create User: ' + str(error))
 
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)

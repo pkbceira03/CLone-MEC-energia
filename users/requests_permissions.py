@@ -2,7 +2,7 @@ from rest_framework import exceptions
 
 from . import models
 
-from utils.user_type_util import UserType
+from utils.user.user_type_util import UserType
 
 class RequestsPermissions:
     defaut_users_permissions = [

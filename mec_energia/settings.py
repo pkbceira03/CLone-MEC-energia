@@ -15,11 +15,25 @@ DEBUG = os.getenv('ENVIRONMENT') != 'production'
 
 ALLOWED_HOSTS = ['*']
 
+# -----------------------------------------------------------------
+
+# Mec Energia
+MEC_ENERGIA_URL = os.getenv('MEC_ENERGIA_URL')
 
 # Parâmetros de recomendação de contrato
 MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION = 6
 IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION = 12
 MINIMUM_PERCENTAGE_DIFFERENCE_FOR_CONTRACT_RENOVATION = 0.05
+
+# Email
+MEC_ENERGIA_EMAIL = os.getenv('MEC_ENERGIA_EMAIL')
+MEC_ENERGIA_EMAIL_PASSWORD = os.getenv('MEC_ENERGIA_EMAIL_PASSWORD')
+
+# Password reset
+PASSWORD_RESET_TIMEOUT = 86400 # 24 horas
+MEC_ENERGIA_PASSWORD_ENDPOINT = 'recuperacao-senha'
+
+# -----------------------------------------------------------------
 
 INSTALLED_APPS = [
     'django.contrib.admin',

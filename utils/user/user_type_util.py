@@ -2,7 +2,10 @@ from users import models
 
 class UserType:
     def get_user_type(user_type):
-        if user_type in models.CustomUser.user_types:
+        return UserType.is_valid_user_type(user_type)
+
+    def is_valid_user_type(user_type):
+        if user_type in models.CustomUser.all_user_types:
             return user_type
 
         raise Exception(f'User type ({user_type}) does not exist')
