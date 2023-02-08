@@ -6,6 +6,7 @@ from datetime import date
 from django.utils.translation import gettext_lazy as _
 
 from universities.models import University, ConsumerUnit
+from contracts.models import Contract
 
 class Distributor(models.Model):
     name = models.CharField(
@@ -34,12 +35,51 @@ class Distributor(models.Model):
 
     @property
     def consumer_units_count(self) -> int:
-        return len(self.get_consumer_units_by_distributor())
+        return len(self.get_consumer_units())
 
-    def get_consumer_units_by_distributor(self):
-        consumer_units = ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
+    #@property
+    #def pending_tariffs_count(self):
+    #    return None
 
-        return consumer_units
+    def get_consumer_units(self):
+        return ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
+
+    def get_consumer_units_by_subgroup(self, subgroup):
+        return ConsumerUnit.objects.filter(
+            university_id = self.university.id,
+            contract__distributor = self,
+            contract__end_date__isnull = True,
+            contract__subgroup = subgroup
+        )
+        
+    def get_subgroup_list(self):
+        subgroup_list = []
+
+        contracts = Contract.objects.filter(consumer_unit__university__id = self.university.id, distributor = self, end_date__isnull = True)
+
+        for contract in contracts:
+            if contract.subgroup not in subgroup_list:
+                subgroup_list.append(contract.subgroup)
+
+        return subgroup_list
+
+    def get_consumer_units_filtered_by_subgroup(self):
+        subgroup_list = []
+
+        subgroups = self.get_subgroup_list()
+
+        for subgroup in subgroups:
+            sb = {'subgroup': subgroup, 'consumer_units': []}
+
+            consumer_unit_by_subgroup = self.get_consumer_units_by_subgroup(sb['subgroup'])
+
+            for unit in consumer_unit_by_subgroup:
+                sb['consumer_units'].append({'id': unit.id, 'name': unit.name})
+
+            subgroup_list.append(sb)
+
+        return subgroup_list
+
 
 @dataclass
 class BlueTariff:

@@ -111,7 +111,16 @@ class DistributorViewSet(ModelViewSet):
                 units_count_by_distributor[dist.id] = 0
         return units_count_by_distributor """
 
-    @swagger_auto_schema(responses={200: ConsumerUnitsBySubgroupByDistributorSerializerForDocs(many=True)})
+    @action(detail=True, methods=['get'], url_path='consumer-units-filtered-by-subgroup')
+    def consumer_units_filtered_by_subgroup(self, request: Request, pk=None):
+        distributor: Distributor = self.get_object()
+
+        consumer_units = distributor.get_consumer_units_filtered_by_subgroup()
+
+        return Response(consumer_units, status=status.HTTP_200_OK)
+
+
+    """ @swagger_auto_schema(responses={200: ConsumerUnitsBySubgroupByDistributorSerializerForDocs(many=True)})
     @action(detail=False, methods=['get'], url_path='with-subgroups-with-consumer-units')
     def with_subgroups_with_consumer_units(self, request: Request):
         '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.'''
@@ -145,7 +154,7 @@ class DistributorViewSet(ModelViewSet):
                 dist['subgroups'].append({'subgroup': subgroup, 'consumer_units': units_without_subgroup_field})
             del dist[TMP_UNITS_FIELD]
 
-        return Response(distributors_list, status=status.HTTP_200_OK)
+        return Response(distributors_list, status=status.HTTP_200_OK) """
 
 class TariffViewSet(ViewSet):
     queryset = Tariff.objects.all()

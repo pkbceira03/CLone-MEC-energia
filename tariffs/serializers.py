@@ -65,6 +65,7 @@ class DistributorSerializer(HyperlinkedModelSerializer):
     # tariffs = TariffSerializer(many=True, read_only=True)
     # consumer_units = serializers.IntegerField(read_only=True)
     consumer_units_count = serializers.IntegerField(read_only=True)
+    # pending_tariffs_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Distributor
