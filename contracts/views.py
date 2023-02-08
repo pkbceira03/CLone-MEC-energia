@@ -53,7 +53,7 @@ class ContractViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(query_serializer=serializers.ContractListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
 
         params_serializer = serializers.ContractListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
@@ -79,7 +79,7 @@ class ContractViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
         contract = self.get_object()
 
         university_id = contract.consumer_unit.university.id
@@ -140,7 +140,7 @@ class EnergyBillViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(responses={200: serializers.EnergyBillListSerializerForDocs(many=True)},
                         query_serializer=serializers.EnergyBillListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
 
         params_serializer = serializers.EnergyBillListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():

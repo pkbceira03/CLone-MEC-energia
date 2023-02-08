@@ -23,7 +23,7 @@ class DistributorViewSet(ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         distributor: Distributor = self.get_object()
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
         
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, distributor.university.id)
@@ -66,7 +66,7 @@ class DistributorViewSet(ModelViewSet):
 
         request_university_id = request.GET.get('university_id')
 
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
         except Exception as error:

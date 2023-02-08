@@ -5,7 +5,7 @@ from . import models
 from utils.user.user_type_util import UserType
 
 class RequestsPermissions:
-    defaut_users_permissions = [
+    default_users_permissions = [
         models.CustomUser.super_user_type,
         models.CustomUser.university_admin_user_type,
         models.CustomUser.university_user_type,
@@ -13,6 +13,11 @@ class RequestsPermissions:
 
     super_user_permissions = [
         models.CustomUser.super_user_type,
+    ]
+
+    admin_permission = [
+        models.CustomUser.super_user_type,
+        models.CustomUser.university_admin_user_type
     ]
 
     university_admin_user_permissions = [
@@ -44,11 +49,17 @@ class RequestsPermissions:
     def check_university_user_has_permissions(request_university_id, user_university_id):
         university_user = RequestsPermissions.get_university_user_object(user_university_id)
 
+        if not request_university_id:
+            raise PermissionsException.request_university_id_is_necessary_exception()
+
         return int(request_university_id) == int(university_user.university.id)
 
     def get_university_user_object(user_university_id):
         return models.UniversityUser.objects.get(id = user_university_id)
 
 class PermissionsException:
+    def request_university_id_is_necessary_exception():
+        raise exceptions.AuthenticationFailed('University id is necessary for check permission.')
+
     def user_has_not_permission_exception():
         raise exceptions.AuthenticationFailed('This User does not have permission.')

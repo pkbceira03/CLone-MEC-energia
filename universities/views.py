@@ -49,7 +49,7 @@ class UniversityViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
         university = self.get_object()
         
         try:
@@ -93,7 +93,7 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
         query_serializer=serializers.ConsumerUnitParamsSerializer,
         responses={200: serializers.ListConsumerUnitSerializerForDocs})
     def list(self, request: Request, *args, **kwargs):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
 
         params_serializer = serializers.ConsumerUnitParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
@@ -126,7 +126,7 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
         return Response(consumer_units, status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
-        user_types_with_permission = RequestsPermissions.defaut_users_permissions
+        user_types_with_permission = RequestsPermissions.default_users_permissions
         consumer_unit = self.get_object()
         
         try:
