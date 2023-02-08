@@ -17,6 +17,8 @@ ALLOWED_HOSTS = ['*']
 
 # -----------------------------------------------------------------
 
+ENVIRONMENT = os.getenv('ENVIRONMENT')
+
 # Mec Energia
 MEC_ENERGIA_URL = os.getenv('MEC_ENERGIA_URL')
 

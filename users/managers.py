@@ -1,6 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
 
+from mec_energia import settings
+
 from . import models
 
 from utils.user.authentication import generate_random_password
@@ -21,13 +23,17 @@ class CustomUserManager(BaseUserManager):
                 user.type = UserType.get_user_type_by_model(self.model)
             
             UserType.is_valid_user_type(user.type)
-                
-            if user.type in models.CustomUser.university_user_types:
-                user.set_password(generate_random_password())
+            
+            # TODO retirar if externo futuramente
+            if settings.ENVIRONMENT != 'development':
+                if user.type in models.CustomUser.university_user_types:
+                    user.set_password(generate_random_password())
+
+                    Password.send_email_first_access_password(user)
+                else:
+                    user.set_password(password) 
             else:
                 user.set_password(password) 
-
-            Password.send_email_first_access_password(user)
             
             user.save()
 
