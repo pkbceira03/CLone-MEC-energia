@@ -79,7 +79,7 @@ class Distributor(models.Model):
         subgroups = self.get_subgroups()
 
         for subgroup in subgroups:
-            is_pending = self.is_subgroups_pending(subgroup)    
+            is_pending = self.check_subgroups_pending(subgroup)    
 
             sb = {'subgroup': subgroup, 'pending': is_pending, 'consumer_units': []}
 
@@ -98,25 +98,25 @@ class Distributor(models.Model):
         subgroups = self.get_subgroups()
 
         for subgroup in subgroups:
-            is_pending = self.is_subgroups_pending(subgroup)                  
+            is_pending = self.check_subgroups_pending(subgroup)                  
             
             sb = {'subgroup': subgroup, 'pending': is_pending}
             subgroup_list.append(sb)
 
         return subgroup_list
 
-    def is_subgroups_pending(self, subgroup):
+    def check_subgroups_pending(self, subgroup):
         is_pending = False
 
         tariffs = Tariff.objects.filter(distributor = self, flag = Tariff.BLUE, subgroup = subgroup)
-
-        if not tariffs:
-                is_pending = True
 
         for tariff in tariffs:
             if tariff.pending == True:
                 is_pending = True
                 break
+
+        if not tariffs:
+            is_pending = True
 
         return is_pending
 
