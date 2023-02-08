@@ -37,9 +37,14 @@ class Distributor(models.Model):
     def consumer_units_count(self) -> int:
         return len(self.get_consumer_units())
 
-    #@property
-    #def pending_tariffs_count(self):
-    #    return None
+    @property
+    def pending_tariffs_count(self):
+        return len(self.get_subgroups_pending())
+
+    @property
+    def is_pending(self):
+        # TODO Fazer lógica boolean is_pending
+        return False
 
     def get_consumer_units(self):
         return ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
@@ -52,30 +57,53 @@ class Distributor(models.Model):
             contract__subgroup = subgroup
         )
         
-    def get_subgroup_list(self):
-        subgroup_list = []
+    def get_subgroups(self):
+        subgroups = []
 
         contracts = Contract.objects.filter(consumer_unit__university__id = self.university.id, distributor = self, end_date__isnull = True)
 
         for contract in contracts:
-            if contract.subgroup not in subgroup_list:
-                subgroup_list.append(contract.subgroup)
+            if contract.subgroup not in subgroups:
+                subgroups.append(contract.subgroup)
 
-        return subgroup_list
+        return subgroups
 
     def get_consumer_units_filtered_by_subgroup(self):
         subgroup_list = []
 
-        subgroups = self.get_subgroup_list()
+        subgroups = self.get_subgroups()
 
         for subgroup in subgroups:
-            sb = {'subgroup': subgroup, 'consumer_units': []}
+            sb = {'subgroup': subgroup, 'pending': self.is_pending, 'consumer_units': []}
 
             consumer_unit_by_subgroup = self.get_consumer_units_by_subgroup(sb['subgroup'])
 
             for unit in consumer_unit_by_subgroup:
                 sb['consumer_units'].append({'id': unit.id, 'name': unit.name})
 
+            subgroup_list.append(sb)
+
+        return subgroup_list
+
+    def get_subgroups_pending(self):
+        subgroup_list = []
+
+        subgroups = self.get_subgroups()
+
+        for subgroup in subgroups:
+            is_pending = False
+
+            tariffs = Tariff.objects.filter(distributor = self, flag = Tariff.BLUE, subgroup = subgroup)
+
+            if not tariffs:
+                is_pending = True 
+
+            for tariff in tariffs:
+                if tariff.pending == True:
+                    is_pending = True
+                    break       
+            
+            sb = {'subgroup': subgroup, 'pending': is_pending}
             subgroup_list.append(sb)
 
         return subgroup_list
@@ -156,7 +184,7 @@ class Tariff(models.Model):
     )
 
     @property
-    def overdue(self) -> bool:
+    def pending(self) -> bool:
         return self.end_date < date.today()
 
     peak_tusd_in_reais_per_kw = models.DecimalField(

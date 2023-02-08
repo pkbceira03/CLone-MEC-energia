@@ -86,7 +86,7 @@ class DistributorViewSet(ModelViewSet):
                 dist['tariffs'].append({
                     'start_date': t['start_date'],
                     'end_date': t['end_date'],
-                    'overdue': t['overdue'],
+                    'pending': t['pending'],
                     'subgroup': t['subgroup'],
                     'distributor': t['distributor'],
                     'blue': BlueTariffSerializer(blue).data,

@@ -38,7 +38,7 @@ class BlueAndGreenTariffsSerializer(Serializer):
     end_date = serializers.DateField()
     subgroup = serializers.ChoiceField(allow_blank=False, choices=Tariff.subgroups)
     distributor = serializers.PrimaryKeyRelatedField(queryset=Distributor.objects.all())
-    overdue = serializers.BooleanField(read_only=True)
+    pending = serializers.BooleanField(read_only=True)
 
     blue = BlueTariffSerializer()
     green = GreenTariffSerializer()
@@ -52,7 +52,7 @@ class BlueAndGreenTariffsSerializer(Serializer):
         fields = '__all__'
 
 class TariffSerializer(ModelSerializer):
-    overdue = serializers.BooleanField(read_only=True)
+    pending = serializers.BooleanField(read_only=True)
 
     class Meta:
         fields = '__all__'
@@ -65,7 +65,7 @@ class DistributorSerializer(HyperlinkedModelSerializer):
     # tariffs = TariffSerializer(many=True, read_only=True)
     # consumer_units = serializers.IntegerField(read_only=True)
     consumer_units_count = serializers.IntegerField(read_only=True)
-    # pending_tariffs_count = serializers.IntegerField(read_only=True)
+    pending_tariffs_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Distributor
