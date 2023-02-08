@@ -38,18 +38,20 @@ class Distributor(models.Model):
         return len(self.get_consumer_units())
 
     @property
-    def pending_tariffs_count(self):
-        return len(self.get_subgroups_pending())
+    def pending_tariffs_count(self) -> int:
+        count = 0
+
+        subgroups = self.get_subgroups_pending()
+
+        for subgroup in subgroups:
+            if subgroup['pending'] == True:
+                count += 1
+        
+        return count
 
     @property
-    def is_pending(self):
-        subgroups_pending = self.get_subgroups_pending()
-
-        for subgroup in subgroups_pending:
-            if subgroup['pending'] == True:
-                return True
-        
-        return False
+    def is_pending(self):        
+        return True if self.pending_tariffs_count else False
 
     def get_consumer_units(self):
         return ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
