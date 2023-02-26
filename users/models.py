@@ -91,4 +91,19 @@ class UniversityUser(CustomUser):
             self.favorite_consumer_units.remove(unit)
         else:
             raise Exception('"action" field must be "add" or "remove"')
-    
+
+    def change_university_user_type(self, new_user_type):
+        if self.type == CustomUser.university_admin_user_type:
+            admin_university_users = UniversityUser.objects.all().filter(university = self.university, type = CustomUser.university_admin_user_type)
+            
+            if len(admin_university_users) == 1:
+                raise Exception('This User is the last Admin User')
+            
+        if not self.type in CustomUser.university_user_types:
+            raise Exception('User is not User University')
+        
+        if not new_user_type in CustomUser.university_user_types:
+            raise Exception('New University User type does not exist')
+        
+        self.type = new_user_type
+        self.save()

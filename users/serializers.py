@@ -44,6 +44,10 @@ class FavoriteConsumerUnitActionSerializer(Serializer):
     action = serializers.ChoiceField(allow_blank=False, choices=['remove', 'add'])
     consumer_unit_id = serializers.IntegerField()
 
+class ChangeUniversityUserTypeSerializer(Serializer):
+    user_id = serializers.IntegerField()
+    new_user_type = serializers.CharField()
+
 class UniversityUserAuthenticatedSerializerForDocs(ModelSerializer):
     email = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)

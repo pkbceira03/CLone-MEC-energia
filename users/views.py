@@ -9,7 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from universities.models import ConsumerUnit
 
 from .models import CustomUser, UniversityUser
-from .serializers import RetrieveUniversityUserSerializer, UniversityUserSerializer, FavoriteConsumerUnitActionSerializer, CustomUserSerializer
+from .serializers import RetrieveUniversityUserSerializer, UniversityUserSerializer, FavoriteConsumerUnitActionSerializer, CustomUserSerializer, ChangeUniversityUserTypeSerializer
 from .requests_permissions import RequestsPermissions
 
 
@@ -89,5 +89,32 @@ class UniversityUsersViewSet(ModelViewSet):
             return Response({'errors': ['Consumer unit not found']}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'errors': e.args}, status=status.HTTP_403_FORBIDDEN)
+
+        return Response(data)
+
+    
+    @swagger_auto_schema(request_body=ChangeUniversityUserTypeSerializer)
+    @action(detail=True, methods=['post'], url_path='change-university-user-type')
+    def change_university_user_type(self, request: Request, pk=None):
+        user_types_with_permission = RequestsPermissions.admin_permission
+
+        params_serializer = ChangeUniversityUserTypeSerializer(data=request.data)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+        data = request.data
+        user_id = data['user_id']
+        new_user_type = data['new_user_type']
+
+        try:
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, None)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            user_for_change = UniversityUser.objects.get(id = user_id)
+            user_for_change.change_university_user_type(new_user_type)
+        except Exception as error:
+            return Response({'error': f'{error}'}, status.HTTP_400_BAD_REQUEST)
 
         return Response(data)
