@@ -13,7 +13,7 @@ from . import serializers
 from .requests_permissions import RequestsPermissions
 
 from utils.user.user_type_util import UserType
-from utils.response_endpoints import ResponseEndpointsUtils
+from utils.endpoints_util import EndpointsUtils
 from utils.user.authentication import create_token_response, create_valid_token_response, generate_link_to_reset_password
 from utils.email.send_email import send_email_reset_password, send_email_first_access_password
 
@@ -140,14 +140,14 @@ class ResetPassword(generics.GenericAPIView):
         try:
             Password.send_email_reset_password(request.data['email'])
 
-            response = ResponseEndpointsUtils.create_message_endpoint_response(
-                        status = ResponseEndpointsUtils.status_success, 
+            response = EndpointsUtils.create_message_endpoint_response(
+                        status = EndpointsUtils.status_success, 
                         message = "Email was sent for user with reset password link")
 
             return Response(response, status.HTTP_200_OK)
         except Exception as error:
-            response = ResponseEndpointsUtils.create_message_endpoint_response(
-                        status = ResponseEndpointsUtils.status_error,
+            response = EndpointsUtils.create_message_endpoint_response(
+                        status = EndpointsUtils.status_error,
                         message = str(error))
 
             return Response(response, status.HTTP_400_BAD_REQUEST)
@@ -161,14 +161,14 @@ class ConfirmResetPassword(generics.GenericAPIView):
         try:
             Password.change_user_password(request.data['user'], request.data['reset_password_token'])
 
-            response = ResponseEndpointsUtils.create_message_endpoint_response(
-                        status = ResponseEndpointsUtils.status_success, 
+            response = EndpointsUtils.create_message_endpoint_response(
+                        status = EndpointsUtils.status_success, 
                         message = "User password has been changed")
 
             return Response(response, status.HTTP_200_OK)
         except Exception as error:
-            response = ResponseEndpointsUtils.create_message_endpoint_response(
-                        status = ResponseEndpointsUtils.status_error,
+            response = EndpointsUtils.create_message_endpoint_response(
+                        status = EndpointsUtils.status_error,
                         message = str(error))
 
             return Response(response, status.HTTP_400_BAD_REQUEST)

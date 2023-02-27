@@ -1,4 +1,4 @@
-class ResponseEndpointsUtils:
+class EndpointsUtils:
     
     status_success = 'success'
     status_error = 'error'
@@ -10,3 +10,6 @@ class ResponseEndpointsUtils:
         }
 
         return response
+    
+    def convert_string_request_param_to_boolean(request_param):
+        return True if request_param.lower() == 'true' else False

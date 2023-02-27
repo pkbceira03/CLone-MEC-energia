@@ -99,4 +99,5 @@ class ConsumerUnitsBySubgroupByDistributorSerializerForDocs(Serializer):
     subgroups = _SubgroupSerializerForDocs(many=True, read_only=True)
 
 class DistributorListParamsSerializer(Serializer):
+    only_pending = serializers.BooleanField()
     university_id = serializers.IntegerField()

@@ -53,6 +53,17 @@ class Distributor(models.Model):
     def is_pending(self):        
         return True if self.pending_tariffs_count else False
 
+    @classmethod
+    def get_distributors_pending(cls, university_id):
+        distributors = Distributor.objects.filter(university = university_id)
+        pending_distributors = distributors
+        
+        for distributor in distributors:
+            if not distributor.is_pending:
+                pending_distributors = pending_distributors.exclude(id = distributor.id)
+
+        return pending_distributors
+
     def get_consumer_units(self):
         return ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
 
