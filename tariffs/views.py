@@ -61,7 +61,8 @@ class DistributorViewSet(ModelViewSet):
         
         request_university_id = request.GET.get('university_id')
         request_only_pending = request.GET.get('only_pending')
-        only_pending = EndpointsUtils.convert_string_request_param_to_boolean(request_only_pending)
+
+        only_pending = False if not request_only_pending else EndpointsUtils.convert_string_request_param_to_boolean(request_only_pending)
 
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
