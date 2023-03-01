@@ -34,7 +34,7 @@ class RequestsPermissions:
 
         user_has_permission = RequestsPermissions.check_type_user_has_permission(user_type, user_types_with_permission)
 
-        if user_has_permission and (user_type == models.CustomUser.university_user_type):
+        if user_has_permission and (user_type in RequestsPermissions.university_user_permissions):
             user_has_permission = RequestsPermissions.check_university_user_has_permissions(request_university_id, request_user.id)
         
         if not user_has_permission:
