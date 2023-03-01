@@ -86,7 +86,7 @@ class Distributor(models.Model):
 
         return subgroups
 
-    def get_consumer_units_filtered_by_subgroup(self):
+    def get_consumer_units_separated_by_subgroup(self):
         subgroup_list = []
 
         subgroups = self.get_subgroups()

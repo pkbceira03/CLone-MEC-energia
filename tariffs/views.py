@@ -12,7 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from utils.endpoints_util import EndpointsUtils
 
 from .models import Distributor, Tariff
-from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs, DistributorListParamsSerializer, TariffSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
+from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsSeparatedBySubgroupSerializerForDocs, DistributorListParamsSerializer, TariffSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
 
 from users.requests_permissions import RequestsPermissions
 from universities.models import ConsumerUnit
@@ -50,8 +50,7 @@ class DistributorViewSet(ModelViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-    @swagger_auto_schema(responses={200: DistributorSerializerForDocs()},
-                        query_serializer = DistributorListParamsSerializer)
+    @swagger_auto_schema(query_serializer = DistributorListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
         user_types_with_permission = RequestsPermissions.default_users_permissions
 
@@ -77,11 +76,12 @@ class DistributorViewSet(ModelViewSet):
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
         return Response(ser.data, status.HTTP_200_OK)
 
+    @swagger_auto_schema(responses={200: ConsumerUnitsSeparatedBySubgroupSerializerForDocs()})
     @action(detail=True, methods=['get'], url_path='consumer-units-by-subgroup')
-    def consumer_units_filtered_by_subgroup(self, request: Request, pk=None):
+    def consumer_units_separated_by_subgroup(self, request: Request, pk=None):
         distributor: Distributor = self.get_object()
 
-        consumer_units = distributor.get_consumer_units_filtered_by_subgroup()
+        consumer_units = distributor.get_consumer_units_separated_by_subgroup()
 
         return Response(consumer_units, status=status.HTTP_200_OK)
     

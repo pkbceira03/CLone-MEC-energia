@@ -90,13 +90,12 @@ class _ConsumerUnitSerializerForDocs(Serializer):
     name = serializers.CharField(read_only=True)
 
 class _SubgroupSerializerForDocs(Serializer):
-    subgroup = serializers.CharField(read_only=True)
+    sub_group = serializers.CharField(read_only=True)
+    pending = serializers.BooleanField()
     consumer_units = _ConsumerUnitSerializerForDocs(many=True)
     
-class ConsumerUnitsBySubgroupByDistributorSerializerForDocs(Serializer):
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField(read_only=True)
-    subgroups = _SubgroupSerializerForDocs(many=True, read_only=True)
+class ConsumerUnitsSeparatedBySubgroupSerializerForDocs(Serializer):
+    sub_group = _SubgroupSerializerForDocs(many=True, read_only=True)
 
 class DistributorListParamsSerializer(Serializer):
     only_pending = serializers.BooleanField()
