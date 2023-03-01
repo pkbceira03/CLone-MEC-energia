@@ -101,3 +101,9 @@ class ConsumerUnitsBySubgroupByDistributorSerializerForDocs(Serializer):
 class DistributorListParamsSerializer(Serializer):
     only_pending = serializers.BooleanField()
     university_id = serializers.IntegerField()
+
+class GetTariffsOfDistributorParamsSerializer(Serializer):
+    subgroup = serializers.CharField()
+
+class GetTariffsOfDistributorForDocs(Serializer):
+    tariffs = TariffSerializer(many=True, read_only=True)

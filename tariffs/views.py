@@ -12,7 +12,7 @@ from drf_yasg.utils import swagger_auto_schema
 from utils.endpoints_util import EndpointsUtils
 
 from .models import Distributor, Tariff
-from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs, DistributorListParamsSerializer
+from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs, DistributorListParamsSerializer, TariffSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
 
 from users.requests_permissions import RequestsPermissions
 from universities.models import ConsumerUnit
@@ -75,7 +75,6 @@ class DistributorViewSet(ModelViewSet):
             distributors = Distributor.objects.filter(university_id = request_university_id)
 
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
-
         return Response(ser.data, status.HTTP_200_OK)
 
     @action(detail=True, methods=['get'], url_path='consumer-units-by-subgroup')
@@ -85,6 +84,31 @@ class DistributorViewSet(ModelViewSet):
         consumer_units = distributor.get_consumer_units_filtered_by_subgroup()
 
         return Response(consumer_units, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(responses={200: GetTariffsOfDistributorForDocs()},
+                         query_serializer = GetTariffsOfDistributorParamsSerializer)
+    @action(detail=True, methods=['get'], url_path='get-tariffs')
+    def get_blue_and_green_tariffs(self, request: Request, pk=None):
+        user_types_with_permission = RequestsPermissions.default_users_permissions
+        distributor: Distributor = self.get_object()
+        
+        params_serializer = GetTariffsOfDistributorParamsSerializer(data=request.GET)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        try:
+            university_id = distributor.university.id
+
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
+
+        request_subgroup = request.GET.get('subgroup')
+
+        tariffs = distributor.get_tariffs_by_subgroups(request_subgroup)
+
+        ser = TariffSerializer(tariffs, many=True, context={'request': request})
+        return Response(ser.data, status.HTTP_200_OK)
 
 class TariffViewSet(ViewSet):
     queryset = Tariff.objects.all()

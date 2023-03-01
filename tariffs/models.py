@@ -133,6 +133,9 @@ class Distributor(models.Model):
 
         return is_pending
 
+    def get_tariffs_by_subgroups(self, request_subgroup):
+        return Tariff.objects.filter(distributor = self.id, subgroup = request_subgroup)
+
 
 @dataclass
 class BlueTariff:
