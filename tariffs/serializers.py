@@ -105,4 +105,8 @@ class GetTariffsOfDistributorParamsSerializer(Serializer):
     subgroup = serializers.CharField()
 
 class GetTariffsOfDistributorForDocs(Serializer):
-    tariffs = TariffSerializer(many=True, read_only=True)
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+
+    blue = BlueTariffSerializer()
+    green = GreenTariffSerializer()

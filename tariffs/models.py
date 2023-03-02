@@ -134,7 +134,13 @@ class Distributor(models.Model):
         return is_pending
 
     def get_tariffs_by_subgroups(self, request_subgroup):
-        return Tariff.objects.filter(distributor = self.id, subgroup = request_subgroup)
+        try:
+            blue = Tariff.objects.get(distributor = self.id, subgroup = request_subgroup, flag = Tariff.BLUE)
+            green = Tariff.objects.get(distributor = self.id, subgroup = request_subgroup, flag = Tariff.GREEN)
+
+            return blue, green
+        except Exception as error:
+            raise Exception({'error': str(error)})
 
 
 @dataclass

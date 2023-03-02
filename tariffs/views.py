@@ -10,6 +10,7 @@ from django.db import IntegrityError
 from drf_yasg.utils import swagger_auto_schema
 
 from utils.endpoints_util import EndpointsUtils
+from utils.tariff_util import response_tariffs_of_distributor
 
 from .models import Distributor, Tariff
 from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsSeparatedBySubgroupSerializerForDocs, DistributorListParamsSerializer, TariffSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
@@ -105,10 +106,11 @@ class DistributorViewSet(ModelViewSet):
 
         request_subgroup = request.GET.get('subgroup')
 
-        tariffs = distributor.get_tariffs_by_subgroups(request_subgroup)
+        blue_tariff, green_tariff = distributor.get_tariffs_by_subgroups(request_subgroup)
 
-        ser = TariffSerializer(tariffs, many=True, context={'request': request})
-        return Response(ser.data, status.HTTP_200_OK)
+        response = response_tariffs_of_distributor(start_date = blue_tariff.start_date, end_date = blue_tariff.end_date, blue_tariff = blue_tariff, green_tariff = green_tariff)
+
+        return Response(response, status.HTTP_200_OK)
 
 class TariffViewSet(ViewSet):
     queryset = Tariff.objects.all()
