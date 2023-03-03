@@ -102,7 +102,7 @@ class UniversityUsersViewSet(ModelViewSet):
 
     
     @swagger_auto_schema(request_body=ChangeUniversityUserTypeSerializer)
-    @action(detail=True, methods=['post'], url_path='change-university-user-type')
+    @action(detail=False, methods=['post'], url_path='change-university-user-type')
     def change_university_user_type(self, request: Request, pk=None):
         user_types_with_permission = RequestsPermissions.admin_permission
 
@@ -115,7 +115,9 @@ class UniversityUsersViewSet(ModelViewSet):
         new_user_type = data['new_user_type']
 
         try:
-            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, None)
+            request_university_id = UniversityUser.objects.get(id = request.user.id).university.id if request.user.type in CustomUser.university_user_types else None
+            
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
