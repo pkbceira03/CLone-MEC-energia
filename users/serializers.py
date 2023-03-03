@@ -16,7 +16,6 @@ class CustomUserSerializer(HyperlinkedModelSerializer):
         
 class UniversityUserSerializer(HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    type = serializers.CharField(read_only=True)
     university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
 
     class Meta:

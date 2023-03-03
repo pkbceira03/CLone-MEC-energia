@@ -59,7 +59,7 @@ class RequestsPermissions:
 
 class PermissionsException:
     def request_university_id_is_necessary_exception():
-        raise exceptions.AuthenticationFailed('University id is necessary for check permission.')
+        raise exceptions.AuthenticationFailed('Param university_id is necessary.')
 
     def user_has_not_permission_exception():
         raise exceptions.AuthenticationFailed('This User does not have permission.')
