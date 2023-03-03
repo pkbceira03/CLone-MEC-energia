@@ -1,7 +1,8 @@
-def response_tariffs_of_distributor(start_date, end_date, blue_tariff, green_tariff):
+def response_tariffs_of_distributor(start_date, end_date, pending, blue_tariff, green_tariff):
     response = {
         "start_date": start_date,
         "end_date": end_date,
+        "overdue": pending,
         "blue": {
             "peakTusdInReaisPerKw": blue_tariff.peak_tusd_in_reais_per_kw,
             "peakTusdInReaisPerMwh": blue_tariff.peak_tusd_in_reais_per_mwh,

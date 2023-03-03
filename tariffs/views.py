@@ -108,7 +108,7 @@ class DistributorViewSet(ModelViewSet):
 
         blue_tariff, green_tariff = distributor.get_tariffs_by_subgroups(request_subgroup)
 
-        response = response_tariffs_of_distributor(start_date = blue_tariff.start_date, end_date = blue_tariff.end_date, blue_tariff = blue_tariff, green_tariff = green_tariff)
+        response = response_tariffs_of_distributor(start_date = blue_tariff.start_date, end_date = blue_tariff.end_date, pending = blue_tariff.pending, blue_tariff = blue_tariff, green_tariff = green_tariff)
 
         return Response(response, status.HTTP_200_OK)
 
