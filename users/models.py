@@ -27,11 +27,17 @@ class CustomUser(AbstractUser):
         university_user_type
     ]
 
+    user_types = (
+        (super_user_type, 'super_user'),
+        (university_admin_user_type, 'university_admin'),
+        (university_user_type,'university_user'),
+    )
+
     username = None
     first_name = models.CharField(max_length=25)
     last_name = models.CharField(max_length=25)
     email = models.EmailField(_('Email is required'), unique=True, null=False)
-    type = models.CharField(max_length=25, null=False, editable=False)
+    type = models.CharField(max_length=25, null=False, blank=False, choices=user_types)
     created_on = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
@@ -91,4 +97,19 @@ class UniversityUser(CustomUser):
             self.favorite_consumer_units.remove(unit)
         else:
             raise Exception('"action" field must be "add" or "remove"')
-    
+
+    def change_university_user_type(self, new_user_type):
+        if not new_user_type in CustomUser.university_user_types:
+            raise Exception('New University User type does not exist')
+        
+        if not self.type in CustomUser.university_user_types:
+            raise Exception('User is not User University')
+        
+        if self.type == CustomUser.university_admin_user_type:
+            admin_university_users = UniversityUser.objects.all().filter(university = self.university, type = CustomUser.university_admin_user_type)
+            
+            if len(admin_university_users) == 1:
+                raise Exception('This User is the last Admin University User')
+        
+        self.type = new_user_type
+        self.save()

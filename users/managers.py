@@ -22,7 +22,7 @@ class CustomUserManager(BaseUserManager):
             if not user.type:
                 user.type = UserType.get_user_type_by_model(self.model)
             
-            UserType.is_valid_user_type(user.type)
+            UserType.is_valid_user_type(user.type, self.model)
             
             # TODO retirar if externo futuramente
             if settings.ENVIRONMENT != 'development':

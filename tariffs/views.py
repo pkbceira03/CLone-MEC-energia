@@ -6,16 +6,17 @@ from rest_framework.request import Request
 from rest_framework import status
 
 from django.db import IntegrityError
-from django.db.models.manager import BaseManager
 
 from drf_yasg.utils import swagger_auto_schema
 
+from utils.endpoints_util import EndpointsUtils
+from utils.tariff_util import response_tariffs_of_distributor
+
 from .models import Distributor, Tariff
-from users.models import UniversityUser
-from universities.models import ConsumerUnit
-from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsBySubgroupByDistributorSerializerForDocs, DistributorListParamsSerializer
+from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsSeparatedBySubgroupSerializerForDocs, DistributorListParamsSerializer, TariffSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
 
 from users.requests_permissions import RequestsPermissions
+from universities.models import ConsumerUnit
 
 class DistributorViewSet(ModelViewSet):
     queryset = Distributor.objects.all()
@@ -50,111 +51,66 @@ class DistributorViewSet(ModelViewSet):
 
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
-    @swagger_auto_schema(responses={200: DistributorSerializerForDocs()},
-                        query_serializer=DistributorListParamsSerializer)
+    @swagger_auto_schema(query_serializer = DistributorListParamsSerializer)
     def list(self, request: Request, *args, **kwargs):
-        '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.
-        Essa rota é exclusivamente para usuários de universidade, por isso
-        o filtro é por essa classe.'''
-        user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
-        university_id = user.university.id
-        distributors = Distributor.objects.filter(university_id=university_id).order_by('name')
+        user_types_with_permission = RequestsPermissions.default_users_permissions
 
         params_serializer = DistributorListParamsSerializer(data=request.GET)
         if not params_serializer.is_valid():
             return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
+        
         request_university_id = request.GET.get('university_id')
+        request_only_pending = request.GET.get('only_pending')
 
-        user_types_with_permission = RequestsPermissions.default_users_permissions
+        only_pending = False if not request_only_pending else EndpointsUtils.convert_string_request_param_to_boolean(request_only_pending)
+
         try:
             RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
-        distributors = Distributor.objects.filter(university_id=request_university_id).order_by('name')
-        # units_count_by_distributor = self._get_consumer_units_count_by_distributor(request_university_id, distributors)
+        if only_pending:
+            distributors = Distributor.get_distributors_pending(request_university_id)
+        else:
+            distributors = Distributor.objects.filter(university_id = request_university_id)
+
         ser = DistributorSerializer(distributors, many=True, context={'request': request})
-        """ for dist in ser.data:
-            dist['consumer_units'] = units_count_by_distributor[dist['id']]
-            tariffs = dist['tariffs']
-            dist['tariffs'] = []
-            for i in range(0, len(tariffs), 2):
-                t = tariffs[i]
-                blue = tariffs[i]
-                green = tariffs[i+1]
-                dist['tariffs'].append({
-                    'start_date': t['start_date'],
-                    'end_date': t['end_date'],
-                    'pending': t['pending'],
-                    'subgroup': t['subgroup'],
-                    'distributor': t['distributor'],
-                    'blue': BlueTariffSerializer(blue).data,
-                    'green': GreenTariffSerializer(green).data,
-                }) """
-        return Response(ser.data)
+        return Response(ser.data, status.HTTP_200_OK)
 
-    """ def _get_consumer_units_count_by_distributor(self, university_id: int, distributors: 'BaseManager[Distributor]') -> dict[int, int]:
-        consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
-        units_count_by_distributor = {}
-
-        for unit in consumer_units:
-            contract = unit.current_contract
-            distributor = contract.distributor
-            if distributor.id in units_count_by_distributor:
-                units_count_by_distributor[distributor.id] += 1
-            else:
-                units_count_by_distributor[distributor.id] = 1
-
-        for dist in distributors:
-            if dist not in units_count_by_distributor:
-                units_count_by_distributor[dist.id] = 0
-        return units_count_by_distributor """
-
-    @action(detail=True, methods=['get'], url_path='consumer-units-filtered-by-subgroup')
-    def consumer_units_filtered_by_subgroup(self, request: Request, pk=None):
+    @swagger_auto_schema(responses={200: ConsumerUnitsSeparatedBySubgroupSerializerForDocs()})
+    @action(detail=True, methods=['get'], url_path='consumer-units-by-subgroup')
+    def consumer_units_separated_by_subgroup(self, request: Request, pk=None):
         distributor: Distributor = self.get_object()
 
-        consumer_units = distributor.get_consumer_units_filtered_by_subgroup()
+        consumer_units = distributor.get_consumer_units_separated_by_subgroup()
 
         return Response(consumer_units, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(responses={200: GetTariffsOfDistributorForDocs()},
+                         query_serializer = GetTariffsOfDistributorParamsSerializer)
+    @action(detail=True, methods=['get'], url_path='get-tariffs')
+    def get_blue_and_green_tariffs(self, request: Request, pk=None):
+        user_types_with_permission = RequestsPermissions.default_users_permissions
+        distributor: Distributor = self.get_object()
+        
+        params_serializer = GetTariffsOfDistributorParamsSerializer(data=request.GET)
+        if not params_serializer.is_valid():
+            return Response(params_serializer.errors, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        
+        try:
+            university_id = distributor.university.id
 
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university_id)
+        except Exception as error:
+            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
-    """ @swagger_auto_schema(responses={200: ConsumerUnitsBySubgroupByDistributorSerializerForDocs(many=True)})
-    @action(detail=False, methods=['get'], url_path='with-subgroups-with-consumer-units')
-    def with_subgroups_with_consumer_units(self, request: Request):
-        '''TODO: não tenho certeza se customuser_ptr_id é a melhor maneira.'''
-        user: UniversityUser = UniversityUser.objects.filter(customuser_ptr_id=request.user.id).first()
-        university_id = user.university.id
-        distributors = Distributor.objects.filter(university_id=university_id)
-        consumer_units = ConsumerUnit.objects.filter(university_id=university_id)
-        units_with_subgroup_with_distributor: list[dict] = []
+        request_subgroup = request.GET.get('subgroup')
 
-        for units in consumer_units:
-            contract = units.current_contract
-            distributor: Distributor = contract.distributor
-            sub = contract.subgroup
-            units_with_subgroup_with_distributor.append({'id': units.id, 'name': units.name, 'distributor': distributor.id, 'subgroup': sub})
+        blue_tariff, green_tariff = distributor.get_tariffs_by_subgroups(request_subgroup)
 
-        TMP_UNITS_FIELD = 'tmp_units_field'
-        distributors_list: list[dict] = []
-        for dist in distributors:
-            distributors_list.append({'id': dist.id, 'name': dist.name, 'subgroups': [], TMP_UNITS_FIELD: []})
-            distributors_list[-1][TMP_UNITS_FIELD] = list(filter(lambda unit: unit['distributor'] == dist.id, units_with_subgroup_with_distributor))
+        response = response_tariffs_of_distributor(start_date = blue_tariff.start_date, end_date = blue_tariff.end_date, pending = blue_tariff.pending, blue_tariff = blue_tariff, green_tariff = green_tariff)
 
-        for dist in distributors_list:
-            for unit in dist[TMP_UNITS_FIELD]:
-                del unit['distributor']
-
-        for dist in distributors_list:
-            subgroups_for_current_dist = set(map(lambda unit: unit['subgroup'], dist[TMP_UNITS_FIELD]))
-            for subgroup in subgroups_for_current_dist:
-                units_for_current_subgroup = list(filter(lambda unit: unit['subgroup'] == subgroup, dist[TMP_UNITS_FIELD]))
-                units_without_subgroup_field = list(map(lambda unit: {'id': unit['id'], 'name': unit['name']}, units_for_current_subgroup))
-                dist['subgroups'].append({'subgroup': subgroup, 'consumer_units': units_without_subgroup_field})
-            del dist[TMP_UNITS_FIELD]
-
-        return Response(distributors_list, status=status.HTTP_200_OK) """
+        return Response(response, status.HTTP_200_OK)
 
 class TariffViewSet(ViewSet):
     queryset = Tariff.objects.all()

@@ -16,7 +16,6 @@ class CustomUserSerializer(HyperlinkedModelSerializer):
         
 class UniversityUserSerializer(HyperlinkedModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    type = serializers.CharField(read_only=True)
     university = serializers.PrimaryKeyRelatedField(queryset=University.objects.all())
 
     class Meta:
@@ -43,6 +42,10 @@ class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
 class FavoriteConsumerUnitActionSerializer(Serializer):
     action = serializers.ChoiceField(allow_blank=False, choices=['remove', 'add'])
     consumer_unit_id = serializers.IntegerField()
+
+class ChangeUniversityUserTypeSerializer(Serializer):
+    user_id = serializers.IntegerField()
+    new_user_type = serializers.CharField()
 
 class UniversityUserAuthenticatedSerializerForDocs(ModelSerializer):
     email = serializers.CharField(read_only=True)

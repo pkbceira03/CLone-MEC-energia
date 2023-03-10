@@ -53,6 +53,17 @@ class Distributor(models.Model):
     def is_pending(self):        
         return True if self.pending_tariffs_count else False
 
+    @classmethod
+    def get_distributors_pending(cls, university_id):
+        distributors = Distributor.objects.filter(university = university_id)
+        pending_distributors = distributors
+        
+        for distributor in distributors:
+            if not distributor.is_pending:
+                pending_distributors = pending_distributors.exclude(id = distributor.id)
+
+        return pending_distributors
+
     def get_consumer_units(self):
         return ConsumerUnit.objects.filter(university_id = self.university.id, contract__distributor = self, contract__end_date__isnull = True)
 
@@ -75,7 +86,7 @@ class Distributor(models.Model):
 
         return subgroups
 
-    def get_consumer_units_filtered_by_subgroup(self):
+    def get_consumer_units_separated_by_subgroup(self):
         subgroup_list = []
 
         subgroups = self.get_subgroups()
@@ -121,6 +132,15 @@ class Distributor(models.Model):
             is_pending = True
 
         return is_pending
+
+    def get_tariffs_by_subgroups(self, request_subgroup):
+        try:
+            blue = Tariff.objects.get(distributor = self.id, subgroup = request_subgroup, flag = Tariff.BLUE)
+            green = Tariff.objects.get(distributor = self.id, subgroup = request_subgroup, flag = Tariff.GREEN)
+
+            return blue, green
+        except Exception as error:
+            raise Exception({'error': str(error)})
 
 
 @dataclass
