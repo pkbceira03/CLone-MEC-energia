@@ -30,12 +30,12 @@ class TestConsumerUnitsEndpoint:
             password = CreateObjectsUtil.login_university_user['password'])
 
 
-    def test_rejects_deleting_consumer_unit(self):
+    def test_reject_deleting_consumer_unit(self):
         response = self.client.delete(ENDPOINT, self.consumer_unit_test_1_dict)
 
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
     
-    def test_updates_is_active_of_consumer_unit_to_false(self):
+    def test_update_is_active_of_consumer_unit_to_false(self):
         self.consumer_unit_test_1_dict['is_active'] = False
         self.consumer_unit_test_1_dict['university'] = self.university.id
         
