@@ -85,11 +85,12 @@ class UniversityUsersViewSet(ModelViewSet):
         params_serializer = FavoriteConsumerUnitActionSerializer(data=request.data)
         if not params_serializer.is_valid():
             return Response(params_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user: UniversityUser = self.get_object()
         
         data = params_serializer.validated_data
         consumer_unit_id = data['consumer_unit_id']
         action = data['action']
-        user: UniversityUser = self.get_object()
 
         try:
             user.add_or_remove_favorite_consumer_unit(consumer_unit_id, action)
@@ -98,7 +99,7 @@ class UniversityUsersViewSet(ModelViewSet):
         except Exception as e:
             return Response({'errors': e.args}, status=status.HTTP_403_FORBIDDEN)
 
-        return Response(data)
+        return Response(data, status.HTTP_200_OK)
 
     
     @swagger_auto_schema(request_body=ChangeUniversityUserTypeSerializer)
