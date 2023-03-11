@@ -34,7 +34,7 @@ class ListConsumerUnitSerializerForDocs(ConsumerUnitSerializer):
     
     class Meta:
         model = ConsumerUnit
-        fields = ['is_favorite', 'id', 'url', 'name', 'code', 'is_active', 'date', 'is_current_energy_bill_filled', 'pending_energy_bills_number', 'university', 'created_on']
+        fields = ['id', 'url', 'name', 'code', 'is_active', 'date', 'pending_energy_bills_number', 'university', 'created_on', 'is_current_energy_bill_filled', 'is_favorite']
 
 class ConsumerUnitParamsSerializer(serializers.Serializer):
     university_id = serializers.IntegerField()

@@ -109,20 +109,15 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
         queryset = ConsumerUnit.objects.filter(university = request_university_id)
         serializer = serializers.ConsumerUnitSerializer(queryset, many=True, context={'request': request})
 
-        # Caso o usuário seja de universidade, buscamos se saber cada uc é uma de suas ucs favoritas ou não
-        # Caso sim, retornamos o atributo "is_favorite" como True. Caso não, "is_favorite" como False
-        if request.user.type in RequestsPermissions.university_user_permissions:
-            user: UniversityUser = UniversityUser.objects.get(pk=request.user.id)
-            favorite_consumer_units = set(user.favorite_consumer_units.all())
-            consumer_units = []
-            # Esse loop assume que  UCs em queryset e em serializer.data
-            # estão ordenadas igualmente
-            for unit, unit_dict in zip(queryset, serializer.data):
-                is_favorite = unit in favorite_consumer_units
-                consumer_units.append({**unit_dict, 'is_favorite': is_favorite})
-        else:
-            consumer_units = serializer.data
+        consumer_units = serializer.data
             
+        try:
+            # Buscando se as Unidades Consumidoras estão na lista de favoritas do Usuário Universidade
+            if request.user.type in CustomUser.university_user_types:
+                consumer_units = ConsumerUnit.check_insert_is_favorite_on_consumer_units(consumer_units, request.user.id)
+        except:
+            return Response({'detail': f'Error in searching if the consumer unit is the user`s favorite - {error}'}, status.HTTP_400_BAD_REQUEST)
+
         return Response(consumer_units, status.HTTP_200_OK)
 
     def retrieve(self, request, pk=None):
