@@ -37,7 +37,10 @@ class RecommendationViewSet(ViewSet):
         try:
             consumer_unit = ConsumerUnit.objects.get(pk=consumer_unit_id)
         except ConsumerUnit.DoesNotExist:
-            return Response({'errors': [f'Consumer unit does not exist']}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'errors': ['Consumer unit does not exist']}, status=status.HTTP_404_NOT_FOUND)
+
+        if not consumer_unit.is_active:
+            return Response({'errors': ['Consumer unit is not active']}, status=status.HTTP_400_BAD_REQUEST)
 
         contract = consumer_unit.current_contract
         distributor_id = contract.distributor.id
