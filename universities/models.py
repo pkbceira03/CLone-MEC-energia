@@ -1,9 +1,13 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.forms.models import model_to_dict
+
 from datetime import date
 
-from contracts.models import Contract, EnergyBill
 from .recommendation import Recommendation
+
+from contracts.models import Contract, EnergyBill
+
 from utils.energy_bill_util import EnergyBillUtils
 
 class University(models.Model):
@@ -104,6 +108,21 @@ class ConsumerUnit(models.Model):
                 pending_bills_number += 1
 
         return pending_bills_number
+    
+    @classmethod
+    def check_insert_is_favorite_on_consumer_units(cls, consumer_unit_list, user_id):
+        from users.models import UniversityUser
+
+        updated_consumer_unit_list = []
+        university_user: UniversityUser = UniversityUser.objects.get(id = user_id)
+
+        for unit in consumer_unit_list:
+            unit_dict = dict(unit)
+            unit_dict['is_favorite'] = university_user.check_if_consumer_unit_is_your_favorite(unit_dict['id'])
+
+            updated_consumer_unit_list.append(unit_dict)
+
+        return updated_consumer_unit_list
 
     @classmethod
     def create_consumer_unit_and_contract(cls, data_consumer_unit, data_contract):

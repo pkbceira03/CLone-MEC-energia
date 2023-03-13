@@ -9,12 +9,14 @@ from universities.models import ConsumerUnit, University
 
 from tests.test_utils.create_objects_util import CreateObjectsUtil
 
-ENDPOINT = '/api/users/'
 EMAIL = CreateObjectsUtil.login_university_user['email']
 PASSWORD = CreateObjectsUtil.login_university_user['password']
 
 TOKEN_ENDPOINT = '/api/token/'
 ENDPOINT_UNIVERSITY = '/api/universities/'
+
+ENDPOINT = '/api/users/'
+ENDPOINT_USER_UNIVERSITY = '/api/university-user/'
 
 @pytest.mark.django_db
 class TestUsersEndpoint:
@@ -93,8 +95,8 @@ class TestUsersEndpoint:
 
         assert 0 == len(user['favorite_consumer_units'])
 
-    def test_adds_consumer_unit_to_favorite(self):
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+    def test_add_consumer_unit_to_favorite(self):
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
         response = self._add_to_favorite_request(endpoint, self.consumer_units[0].id)
 
@@ -106,8 +108,8 @@ class TestUsersEndpoint:
         assert 1 == len(user['favorite_consumer_units'])
         assert self.consumer_units[0].id == user['favorite_consumer_units'][0]['id']
             
-    def test_adds_second_consumer_unit_to_favorite(self):
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+    def test_add_second_consumer_unit_to_favorite(self):
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
         self._add_to_favorite_request(endpoint, self.consumer_units[0].id)
         self._add_to_favorite_request(endpoint, self.consumer_units[1].id)
@@ -117,15 +119,15 @@ class TestUsersEndpoint:
 
         assert 2 == len(user['favorite_consumer_units'])
 
-    def test_removes_second_consumer_unit_from_favorite(self):
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+    def test_remove_second_consumer_unit_from_favorite(self):
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
         self._add_to_favorite_request(endpoint, self.consumer_units[0].id)
         self._add_to_favorite_request(endpoint, self.consumer_units[1].id)
 
         self._remove_from_favorite_request(endpoint, self.consumer_units[1].id)
 
-        endpoint = f'{ENDPOINT}{self.user.id}/'
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/'
         assert 1 == UniversityUser.objects.get(pk=self.user.id).favorite_consumer_units.count()
 
     def test_cannot_add_consumer_unit_from_unrelated_university_to_favorite(self):
@@ -140,7 +142,7 @@ class TestUsersEndpoint:
             created_on=date.today()
         )
 
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
         response = self._add_to_favorite_request(
             endpoint, unit_from_unrelated_university.id)
             
@@ -152,14 +154,14 @@ class TestUsersEndpoint:
     
     def test_cannot_add_non_existing_consumer_unit_to_favorite(self):
         non_existent_consumer_unit_id = 5
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
         
         response = self._add_to_favorite_request(endpoint, non_existent_consumer_unit_id)
         
         assert status.HTTP_404_NOT_FOUND == response.status_code
     
-    def test_rejects_request_with_missing_fields(self):
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+    def test_reject_request_with_missing_fields(self):
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
         response = self.client.post(endpoint, {})
         error = json.loads(response.content)
@@ -168,8 +170,8 @@ class TestUsersEndpoint:
         assert 'This field is required' in error['consumer_unit_id'][0]
         assert 'This field is required' in error['action'][0]
             
-    def test_rejects_request_with_wrong_action_value(self):
-        endpoint = f'{ENDPOINT}{self.user.id}/favorite-consumer-units/'
+    def test_reject_request_with_wrong_action_value(self):
+        endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
         response = self.client.post(endpoint, {
             'consumer_unit_id': self.consumer_units[0].id,
