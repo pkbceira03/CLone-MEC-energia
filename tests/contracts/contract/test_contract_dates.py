@@ -12,7 +12,7 @@ from tests.test_utils import create_objects_utils
 class TestContractEndpoint:
     def setup_method(self):
         self.university_dict = dicts_utils.university_dict_1
-        self.user_dict = dicts_utils.super_user_dict_1
+        self.user_dict = dicts_utils.university_user_dict_1
 
         self.university = create_objects_utils.create_test_university(self.university_dict)
         self.user = create_objects_utils.create_test_university_user(self.user_dict, self.university)
