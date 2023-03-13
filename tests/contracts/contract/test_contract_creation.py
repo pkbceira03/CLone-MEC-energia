@@ -1,14 +1,16 @@
 import pytest
 
-from contracts.models import Contract
-
-from tests.test_utils.create_objects_util import CreateObjectsUtil
+from tests.test_utils import dicts_utils
+from tests.test_utils import create_objects_utils
 
 @pytest.mark.django_db
 class TestContractCreation:
     def setup_method(self):
-        self.university = CreateObjectsUtil.create_university_object()
-        _, self.distributor = CreateObjectsUtil.create_distributor_object(self.university, 0)
-        (self.consumer_unit_dict,
-        self.consumer_unit) = CreateObjectsUtil.create_consumer_unit_object(
-                                university = self.university)
+        self.university_dict = dicts_utils.university_dict_1
+        self.university = create_objects_utils.create_test_university(self.university_dict)
+
+        self.distributor_dict = dicts_utils.distributor_dict_1
+        self.distributor = create_objects_utils.create_test_distributor(self.distributor_dict, self.university)
+
+        self.consumer_unit_test_dict = dicts_utils.consumer_unit_dict_1
+        self.consumer_unit_test = create_objects_utils.create_test_consumer_unit(self.consumer_unit_test_dict, self.university)
