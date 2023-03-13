@@ -3,42 +3,38 @@ from rest_framework.test import APIClient
 
 from contracts.models import Contract
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
 from tests.test_utils.contract_test_utils.create_contract_unit_test_util import CreateContractTestUtil
+
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
 @pytest.mark.django_db
 class TestContractSubGroup:
     def setup_method(self):
-        self.university, self.user = CreateObjectsUtil.create_university_and_user()
-        
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.user_dict = dicts_test_utils.university_user_dict_1
+
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
+
         self.client = APIClient()
         self.client.login(
-            email = CreateObjectsUtil.login_university_user['email'], 
-            password = CreateObjectsUtil.login_university_user['password'])
+            email = self.user_dict['email'], 
+            password = self.user_dict['password'])
 
-        self.university_to_be_created = {
-            'name': 'Universidade de Brasília',
-            'cnpj': '00038174000143'
-        }
+        self.consumer_unit_test_dict = dicts_test_utils.consumer_unit_dict_1
+        self.consumer_unit_test = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_dict, self.university)
 
-        (self.consumer_unit_test_dict,
-        self.consumer_unit_test) = CreateObjectsUtil.create_consumer_unit_object(
-                                        consumer_unit_dict_index = 0,
-                                        university = self.university)
+        self.distributor_dict = dicts_test_utils.distributor_dict_1
+        self.distributor = create_objects_test_utils.create_test_distributor(self.distributor_dict, self.university)
 
-        _, self.distributor = CreateObjectsUtil.create_distributor_object(self.university, 0)
+        self.contract_test_1_dict = dicts_test_utils.contract_dict_1
+        self.contract_test_2_dict = dicts_test_utils.contract_dict_2
+        self.contract_test_3_dict = dicts_test_utils.contract_dict_3
 
-        self.contract_test_1 = CreateObjectsUtil.create_contract_object(
-                                contract_dict_index = 0, distributor = self.distributor,
-                                consumer_unit = self.consumer_unit_test)
-
-        self.contract_test_2 = CreateObjectsUtil.create_contract_object(
-                                contract_dict_index = 1, distributor = self.distributor,
-                                consumer_unit = self.consumer_unit_test)
-
-        self.contract_test_3 = CreateObjectsUtil.create_contract_object(
-                                contract_dict_index = 2, distributor = self.distributor,
-                                consumer_unit = self.consumer_unit_test)
+        self.contract_test_1 = create_objects_test_utils.create_test_contract(self.contract_test_1_dict, self.distributor, self.consumer_unit_test)
+        self.contract_test_2 = create_objects_test_utils.create_test_contract(self.contract_test_2_dict, self.distributor, self.consumer_unit_test)
+        self.contract_test_3 = create_objects_test_utils.create_test_contract(self.contract_test_3_dict, self.distributor, self.consumer_unit_test)
 
 
     def test_read_contract_subgroup_A3(self):
@@ -55,9 +51,8 @@ class TestContractSubGroup:
 
     def test_throws_exception_when_already_have_a_contract_in_this_date(self):
         with pytest.raises(Exception) as e:
-            CreateObjectsUtil.create_contract_object(
-                contract_dict_index = 5, distributor = self.distributor,
-                consumer_unit = self.consumer_unit_test)
+            contract_test_6_dict = dicts_test_utils.contract_dict_6
+            create_objects_test_utils.create_test_contract(contract_test_6_dict, self.distributor, self.consumer_unit_test)
 
         assert 'Already have the contract in this date' in str(e.value)
 
