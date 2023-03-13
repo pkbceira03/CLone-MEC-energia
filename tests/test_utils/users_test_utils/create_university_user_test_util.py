@@ -7,18 +7,21 @@ class CreateUniversityUserTestUtil:
             "last_name": "Schwarzenegger",
             "email": "arnold@user.com",
             "password": "12345",
+            "type": "university_user"
         },
         {
             "first_name": "Ronnie",
             "last_name": "Coleman",
             "email": "ronnie@user.com",
             "password": "12345",
+            "type": "university_user"
         },
         {
             "first_name": "Phil",
             "last_name": "Heath",
             "email": "phil@user.com",
             "password": "12345",
+            "type": "university_user"
         },
     ]
     

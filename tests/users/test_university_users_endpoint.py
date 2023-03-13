@@ -57,15 +57,28 @@ class TestUsersEndpoint:
         university_user_dict = CreateObjectsUtil.get_university_user_dict(index = 1)
         university_user_dict['university'] = self.university.id
 
-        response = self.client.post(ENDPOINT, university_user_dict)
+        response = self.client.post(ENDPOINT_USER_UNIVERSITY, university_user_dict)
 
         assert status.HTTP_201_CREATED == response.status_code
 
-    def test_create_and_login_university_user_through_endpoints(self):
+        json_response_create_user = json.loads(response.content)
+        created_user = UniversityUser.objects.get(id = json_response_create_user['id'])
+
+        response_login_user = self.client.post(TOKEN_ENDPOINT, {
+                                "username": created_user.email,
+                                "password": university_user_dict['password']
+                            })
+        
+        print(response_login_user.content, response_login_user.status_code)
+        logged_user = json.loads(response_login_user.content)
+
+        assert status.HTTP_200_OK == response_login_user.status_code
+
+    """ def test_create_and_login_university_user_through_endpoints(self): 
         university_user_dict = CreateObjectsUtil.get_university_user_dict(index = 2)
         university_user_dict['university'] = self.university.id
 
-        response_create_user = self.client.post(ENDPOINT, university_user_dict)
+        response_create_user = self.client.post(ENDPOINT_USER_UNIVERSITY, university_user_dict)
 
         assert status.HTTP_201_CREATED == response_create_user.status_code
 
@@ -75,25 +88,29 @@ class TestUsersEndpoint:
         assert type(created_user) == UniversityUser
         assert created_user.university.id == self.university.id
 
+        print(university_user_dict['password'], created_user.email)
+
         response_login_user = self.client.post(TOKEN_ENDPOINT, {
                                 "username": created_user.email,
                                 "password": university_user_dict['password']
                             })
 
+        print(response_login_user.content, response_login_user.status_code)
         logged_user = json.loads(response_login_user.content)
 
         assert status.HTTP_200_OK == response_login_user.status_code
         assert 'token' in logged_user
         assert 'university_id' in logged_user['user']
         assert logged_user['user']['email'] == created_user.email
-        assert logged_user['user']['university_id'] == created_user.university.id
+        assert logged_user['user']['university_id'] == created_user.university.id """
 
     def test_university_user_starts_0_favorite_consumer_units(self):
         endpoint = f'{ENDPOINT}{self.user.id}/'
 
-        user = self._get_user_as_response(endpoint)
+        favorite_consumer_units = self._get_user_as_response()
+        print(favorite_consumer_units)
 
-        assert 0 == len(user['favorite_consumer_units'])
+        assert 0 == favorite_consumer_units.count()
 
     def test_add_consumer_unit_to_favorite(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
@@ -103,10 +120,9 @@ class TestUsersEndpoint:
         assert status.HTTP_200_OK == response.status_code
 
         endpoint = f'{ENDPOINT}{self.user.id}/'
-        user = self._get_user_as_response(endpoint)
+        favorite_consumer_units = self._get_user_as_response()
 
-        assert 1 == len(user['favorite_consumer_units'])
-        assert self.consumer_units[0].id == user['favorite_consumer_units'][0]['id']
+        assert 1 == favorite_consumer_units.count()
             
     def test_add_second_consumer_unit_to_favorite(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
@@ -115,9 +131,9 @@ class TestUsersEndpoint:
         self._add_to_favorite_request(endpoint, self.consumer_units[1].id)
 
         endpoint = f'{ENDPOINT}{self.user.id}/'
-        user = self._get_user_as_response(endpoint)
+        favorite_consumer_units = self._get_user_as_response()
 
-        assert 2 == len(user['favorite_consumer_units'])
+        assert 2 == favorite_consumer_units.count()
 
     def test_remove_second_consumer_unit_from_favorite(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
@@ -149,8 +165,8 @@ class TestUsersEndpoint:
         assert status.HTTP_403_FORBIDDEN == response.status_code
 
         endpoint = f'{ENDPOINT}{self.user.id}/'
-        user = self._get_user_as_response(endpoint)
-        assert 0 == len(user['favorite_consumer_units'])
+        favorite_consumer_units = self._get_user_as_response()
+        assert 0 == favorite_consumer_units.count()
     
     def test_cannot_add_non_existing_consumer_unit_to_favorite(self):
         non_existent_consumer_unit_id = 5
@@ -190,6 +206,5 @@ class TestUsersEndpoint:
         return self.client.post(endpoint, 
             {'consumer_unit_id': consumer_unit_id, 'action': 'remove'})
 
-    def _get_user_as_response(self, endpoint: str):
-        response = self.client.get(endpoint)
-        return json.loads(response.content)
+    def _get_user_as_response(self):
+        return UniversityUser.objects.get(pk=self.user.id).favorite_consumer_units

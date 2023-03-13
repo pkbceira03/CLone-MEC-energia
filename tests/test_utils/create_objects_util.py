@@ -4,9 +4,11 @@ from tests.test_utils.consumer_unit_test_utils.create_consumer_unit_test_util im
 from tests.test_utils.contract_test_utils.create_contract_unit_test_util import CreateContractTestUtil
 from tests.test_utils.energy_bill_test_utils.create_energy_bill_unit_test_util import CreateEnergyBillTestUtil
 from tests.test_utils.distributors_test_utils.create_distributors_test_util import CreateDistributorTestUtil
+from tests.test_utils.users_test_utils.create_super_user_test_util import CreateSuperUserTestUtil
 
 class CreateObjectsUtil:
     login_university_user = CreateUniversityUserTestUtil.university_user_dicts[0]
+    login_super_user = CreateSuperUserTestUtil.super_user_dicts[0]
 
     def create_university_object():
         return CreateUniversityTestUtil.create_university()
@@ -22,10 +24,9 @@ class CreateObjectsUtil:
             index = 0
 
         return CreateUniversityUserTestUtil.get_university_user_dict(index)
-
-    def create_university_and_user(index = None):
-        if not index:
-            index = 0
+    
+    def create_super_user(index = None):
+        return CreateSuperUserTestUtil.create_super_user(index)
 
     def create_university_and_user():
         university = CreateObjectsUtil.create_university_object()

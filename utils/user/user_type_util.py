@@ -17,6 +17,9 @@ class UserType:
         return user_type
 
     def get_user_type_by_model(user_model):
+        if user_model == models.CustomUser:
+            return models.CustomUser.super_user_type
+        
         if user_model == models.UniversityUser:
             return models.CustomUser.university_user_type
 
