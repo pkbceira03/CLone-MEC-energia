@@ -266,6 +266,9 @@ class Tariff(models.Model):
 
     def is_blue(self) -> bool:
         return self.flag == Tariff.BLUE
+    
+    def is_green(self) -> bool:
+        return self.flag == Tariff.GREEN
 
     def as_blue_tariff(self) -> BlueTariff:
         if not self.is_blue():
