@@ -6,7 +6,8 @@ from rest_framework import status
 
 from tariffs.models import Distributor, Tariff
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
 ENDPOINT = '/api/tariffs/'
 DATE_FORMAT = '%Y-%m-%d'
@@ -15,24 +16,20 @@ TODAY = date.today()
 @pytest.mark.django_db
 class TestTariffEndpoints:
     def setup_method(self):
-        self.university, self.user = CreateObjectsUtil.create_university_and_user()
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.user_dict = dicts_test_utils.university_user_dict_1
+
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
 
         self.client = APIClient()
         self.client.login(
-            email = CreateObjectsUtil.login_university_user['email'], 
-            password = CreateObjectsUtil.login_university_user['password'])
+            email = self.user_dict['email'], 
+            password = self.user_dict['password'])
 
-        self.distributor1 = Distributor.objects.create(
-            name='Distribuidora de Energia',
-            cnpj='63025530000104',
-            university_id=self.university.id
-        )
+        self.distributor1_dict = dicts_test_utils.distributor_dict_1
+        self.distributor1 = create_objects_test_utils.create_test_distributor(self.distributor1_dict, self.university)
 
-        self.distributor2 = Distributor.objects.create(
-            name='Antiga CEB?',
-            cnpj='11111111111111',
-            university_id=self.university.id
-        )
 
     def test_creates_tariff(self):
         tariff_dict = self._create_tariff_dict()
