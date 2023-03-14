@@ -123,7 +123,8 @@ tariff_dict_1 = {
     'peak_te_in_reais_per_mwh': 3,
     'off_peak_tusd_in_reais_per_kw': 4,
     'off_peak_tusd_in_reais_per_mwh': 5,
-    'off_peak_te_in_reais_per_mwh': 6
+    'off_peak_te_in_reais_per_mwh': 6,
+    'na_tusd_in_reais_per_kw': 7
 }
 
 # ---------------------------------------

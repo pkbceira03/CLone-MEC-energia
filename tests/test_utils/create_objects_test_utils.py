@@ -59,12 +59,12 @@ def create_test_distributor(dict: dict, university: University) -> Distributor:
     return distributor
 
 def create_test_tariffs(dict: dict):
-    blue_tariff = _create_test_blue_tariff(dict)
-    green_tariff = _create_test_green_tariff(dict)
+    blue_tariff = create_test_blue_tariff(dict)
+    green_tariff = create_test_green_tariff(dict)
 
     return blue_tariff, green_tariff
 
-def _create_test_blue_tariff(dict: dict, distributor: Distributor) -> Tariff:
+def create_test_blue_tariff(dict: dict, distributor: Distributor) -> Tariff:
     blue_tarif = Tariff.objects.create(
         subgroup = dict['subgroup'],
         start_date = dict['start_date'],
@@ -75,13 +75,13 @@ def _create_test_blue_tariff(dict: dict, distributor: Distributor) -> Tariff:
         off_peak_tusd_in_reais_per_kw = dict['off_peak_tusd_in_reais_per_kw'],
         off_peak_tusd_in_reais_per_mwh = dict['off_peak_tusd_in_reais_per_mwh'],
         off_peak_te_in_reais_per_mwh = dict['off_peak_te_in_reais_per_mwh'],
-        distributor_id = distributor,
+        distributor_id = distributor.id,
         flag = Tariff.BLUE
     )
 
     return blue_tarif
 
-def _create_test_green_tariff(dict: dict, distributor: Distributor) -> Tariff:
+def create_test_green_tariff(dict: dict, distributor: Distributor) -> Tariff:
     green_tariff = Tariff.objects.create(
         subgroup = dict['subgroup'],
         start_date = dict['start_date'],
@@ -91,7 +91,7 @@ def _create_test_green_tariff(dict: dict, distributor: Distributor) -> Tariff:
         off_peak_tusd_in_reais_per_mwh = dict['off_peak_tusd_in_reais_per_mwh'],
         off_peak_te_in_reais_per_mwh = dict['off_peak_te_in_reais_per_mwh'],
         na_tusd_in_reais_per_kw = dict['na_tusd_in_reais_per_kw'],
-        distributor_id = distributor,
+        distributor_id = distributor.id,
         flag = Tariff.GREEN
     )
 

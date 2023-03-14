@@ -1,18 +1,23 @@
 import pytest
 
 from tests.test_utils.tariff_test_utils.create_tariff_test_util import CreateTariffTestUtil
-from tests.test_utils.university_test_utils.create_university_test_util import CreateUniversityTestUtil
-from tests.test_utils.distributors_test_utils.create_distributors_test_util import CreateDistributorTestUtil
+
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
 @pytest.mark.django_db
 class TestTariff:
     def setup_method(self):
-        self.university = CreateUniversityTestUtil.create_university()
-        _, self.distributor = CreateDistributorTestUtil.create_distributor(0, self.university)
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+
+        self.distributor_dict = dicts_test_utils.distributor_dict_1
+        self.distributor = create_objects_test_utils.create_test_distributor(self.distributor_dict, self.university)
 
 
-    def test_creates_blue_tariff(self):
-        tariff = CreateTariffTestUtil.create_blue_tariff(self.distributor.id)
+    def test_create_blue_tariff(self):
+        tariff_dict = dicts_test_utils.tariff_dict_1
+        tariff = create_objects_test_utils.create_test_blue_tariff(tariff_dict, self.distributor)
 
         assert tariff.is_blue()
 
@@ -21,25 +26,28 @@ class TestTariff:
         assert 1 == blue_tariff.peak_tusd_in_reais_per_kw
         assert 4 == blue_tariff.off_peak_tusd_in_reais_per_kw
 
-    def test_creates_green_tariff(self):
-        tariff = CreateTariffTestUtil.create_green_tariff(self.distributor.id)
+    def test_create_green_tariff(self):
+        tariff_dict = dicts_test_utils.tariff_dict_1
+        tariff = create_objects_test_utils.create_test_green_tariff(tariff_dict, self.distributor)
 
-        assert not tariff.is_blue()
+        assert tariff.is_green()
 
         green_tariff = tariff.as_green_tariff()
 
-        assert 1 == green_tariff.peak_tusd_in_reais_per_mwh
-        assert 5 == green_tariff.na_tusd_in_reais_per_kw
+        assert 2 == green_tariff.peak_tusd_in_reais_per_mwh
+        assert 7 == green_tariff.na_tusd_in_reais_per_kw
 
     def test_mishandles_green_tariff_as_blue_tariff(self):
-        tariff = CreateTariffTestUtil.create_green_tariff(self.distributor.id)
+        tariff_dict = dicts_test_utils.tariff_dict_1
+        tariff = create_objects_test_utils.create_test_green_tariff(tariff_dict, self.distributor)
 
         with pytest.raises(Exception) as e:
             tariff.as_blue_tariff()
         assert 'Cannot convert' in str(e.value)
 
     def test_mishandles_blue_tariff_as_green_tariff(self):
-        tariff = CreateTariffTestUtil.create_blue_tariff(self.distributor.id)
+        tariff_dict = dicts_test_utils.tariff_dict_1
+        tariff = create_objects_test_utils.create_test_blue_tariff(tariff_dict, self.distributor)
 
         with pytest.raises(Exception) as e:
             tariff.as_green_tariff()
