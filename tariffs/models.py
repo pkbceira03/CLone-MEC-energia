@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 from datetime import date
 
@@ -139,6 +140,8 @@ class Distributor(models.Model):
             green = Tariff.objects.get(distributor = self.id, subgroup = request_subgroup, flag = Tariff.GREEN)
 
             return blue, green
+        except ObjectDoesNotExist:
+            return None, None
         except Exception as error:
             raise Exception({'error': str(error)})
 
