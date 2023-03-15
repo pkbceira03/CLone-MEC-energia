@@ -3,7 +3,8 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
 TESTSERVER_ADDR = 'http://testserver/api/universities/'
 ENDPOINT = '/api/consumer-units/'
@@ -11,12 +12,16 @@ ENDPOINT = '/api/consumer-units/'
 @pytest.mark.django_db
 class TestConsumerUnitsEndpoint:
     def setup_method(self):
-        self.university, self.user = CreateObjectsUtil.create_university_and_user()
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.user_dict = dicts_test_utils.university_user_dict_1
+
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
         
         self.client = APIClient()
         self.client.login(
-            email = CreateObjectsUtil.login_university_user['email'], 
-            password = CreateObjectsUtil.login_university_user['password'])
+            email = self.user_dict['email'], 
+            password = self.user_dict['password'])
 
         self.consumer_unit_to_be_created = {
             'name': 'Faculdade do Gama',

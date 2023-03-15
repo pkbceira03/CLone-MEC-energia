@@ -1,7 +1,5 @@
 import pytest
 
-from tests.test_utils.tariff_test_utils.create_tariff_test_util import CreateTariffTestUtil
-
 from tests.test_utils import dicts_test_utils
 from tests.test_utils import create_objects_test_utils
 

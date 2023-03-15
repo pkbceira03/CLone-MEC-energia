@@ -6,8 +6,6 @@ from rest_framework.test import APIClient
 from tests.test_utils import dicts_test_utils
 from tests.test_utils import create_objects_test_utils
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
-
 ENDPOINT = '/api/distributors/'
 
 @pytest.mark.django_db
@@ -65,14 +63,27 @@ class TestTariff:
     
     @pytest.mark.skip
     def test_consumer_units_count_by_distributor(self):
-        _, unit1 = CreateObjectsUtil.create_consumer_unit_object(self.university, 0)
-        _, unit2 = CreateObjectsUtil.create_consumer_unit_object(self.university, 1)
-        _, unit3 = CreateObjectsUtil.create_consumer_unit_object(self.university, 2)
-        _, neoenergia = CreateObjectsUtil.create_distributor_object(self.university, 0)
-        _, ceb = CreateObjectsUtil.create_distributor_object(self.university, 1)
-        CreateObjectsUtil.create_contract_object(unit1, neoenergia, 0)
-        CreateObjectsUtil.create_contract_object(unit2, ceb, 1)
-        CreateObjectsUtil.create_contract_object(unit3, ceb, 2)
+        self.consumer_unit_test_1_dict = dicts_test_utils.consumer_unit_dict_1
+        self.consumer_unit_test_2_dict = dicts_test_utils.consumer_unit_dict_2
+        self.consumer_unit_test_3_dict = dicts_test_utils.consumer_unit_dict_3
+
+        self.unit1 = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_1_dict, self.university)
+        self.unit2 = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_2_dict, self.university)
+        self.unit3 = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_3_dict, self.university)
+
+        self.neoenergia_dict = dicts_test_utils.distributor_dict_1
+        self.neoenergia = create_objects_test_utils.create_test_distributor(self.neoenergia_dict, self.university)
+
+        self.ceb_dict = dicts_test_utils.distributor_dict_2
+        self.ceb = create_objects_test_utils.create_test_distributor(self.ceb_dict, self.university)
+
+        self.contract_test_1_dict = dicts_test_utils.contract_dict_1
+        self.contract_test_2_dict = dicts_test_utils.contract_dict_2
+        self.contract_test_3_dict = dicts_test_utils.contract_dict_3
+
+        self.contract_test_1 = create_objects_test_utils.create_test_contract(self.contract_test_1_dict, self.neoenergia, self.consumer_unit_test)
+        self.contract_test_2 = create_objects_test_utils.create_test_contract(self.contract_test_2_dict, self.ceb, self.consumer_unit_test)
+        self.contract_test_3 = create_objects_test_utils.create_test_contract(self.contract_test_3_dict, self.ceb, self.consumer_unit_test)
 
         response = self.client.get(ENDPOINT + f"?university_id={neoenergia.id}")
         assert status.HTTP_200_OK == response.status_code

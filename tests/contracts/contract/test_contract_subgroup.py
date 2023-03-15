@@ -3,8 +3,6 @@ from rest_framework.test import APIClient
 
 from contracts.models import Contract
 
-from tests.test_utils.contract_test_utils.create_contract_unit_test_util import CreateContractTestUtil
-
 from tests.test_utils import dicts_test_utils
 from tests.test_utils import create_objects_test_utils
 
@@ -58,7 +56,8 @@ class TestContractSubGroup:
 
     def test_throws_exception_when_suply_voltage_does_not_match_subgroup_ranges(self):
         with pytest.raises(Exception) as e:
-            CreateContractTestUtil.create_contract_with_wrong_suply_voltage(distributor=self.distributor, consumer_unit=self.consumer_unit_test)
-
+            contract_test_5_dict = dicts_test_utils.contract_dict_5
+            create_objects_test_utils.create_test_contract(contract_test_5_dict, self.distributor, self.consumer_unit_test)
+        
         assert 'Subgroup not found' in str(e.value)
         assert 3 == Contract.objects.all().count()

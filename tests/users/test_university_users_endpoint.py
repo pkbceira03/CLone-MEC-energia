@@ -7,10 +7,8 @@ from rest_framework.test import APIClient
 from users.models import UniversityUser
 from universities.models import ConsumerUnit, University
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
-
-EMAIL = CreateObjectsUtil.login_university_user['email']
-PASSWORD = CreateObjectsUtil.login_university_user['password']
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
 TOKEN_ENDPOINT = '/api/token/'
 ENDPOINT_UNIVERSITY = '/api/universities/'
@@ -21,13 +19,23 @@ ENDPOINT_USER_UNIVERSITY = '/api/university-user/'
 @pytest.mark.django_db
 class TestUsersEndpoint:
     def setup_method(self):
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.user_dict = dicts_test_utils.university_user_dict_1
+
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
+
         self.client = APIClient()
+        self.client.login(
+            email = self.user_dict['email'], 
+            password = self.user_dict['password'])
+        """ self.client = APIClient()
         self.university = University(name='UnB', cnpj='00038174000143')
         self.university.save()
 
         self.user = UniversityUser.objects.create(
             email=EMAIL, password=PASSWORD, university=self.university)
-        self.client.login(email=EMAIL, password=PASSWORD)
+        self.client.login(email=EMAIL, password=PASSWORD) """
 
         self.consumer_units = []
         for i in range(3):
@@ -42,19 +50,19 @@ class TestUsersEndpoint:
 
     def test_university_user_already_created(self):
         assert type(self.user) == UniversityUser
-        assert self.user.email == EMAIL
+        assert self.user.email == self.user_dict['email']
         assert self.user.university == self.university
 
     def test_login_university_user_already_created(self):
         response = self.client.post(TOKEN_ENDPOINT, {
-                        "username": EMAIL,
-                        "password": PASSWORD
+                        "username": self.user_dict['email'],
+                        "password": self.user_dict['password']
                     })
 
         assert status.HTTP_200_OK == response.status_code
         
     def test_endpoint_create_university_user(self):
-        university_user_dict = CreateObjectsUtil.get_university_user_dict(index = 1)
+        university_user_dict = dicts_test_utils.university_user_dict_2
         university_user_dict['university'] = self.university.id
 
         response = self.client.post(ENDPOINT_USER_UNIVERSITY, university_user_dict)

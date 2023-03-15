@@ -3,21 +3,24 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
-ENDPOINT = '/api/universities/'
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
-from tests.test_utils.university_test_utils.create_university_test_util import CreateUniversityTestUtil
-from tests.test_utils.create_objects_util import CreateObjectsUtil
+ENDPOINT = '/api/universities/'
 
 @pytest.mark.django_db
 class TestUniversitiesEndpoint:
     def setup_method(self):
-        self.university = CreateObjectsUtil.create_university_object() 
-        self.user = CreateObjectsUtil.create_super_user()
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.user_dict = dicts_test_utils.university_user_dict_1
+
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
         
         self.client = APIClient()
         self.client.login(
-            email = CreateObjectsUtil.login_super_user['email'], 
-            password = CreateObjectsUtil.login_super_user['password'])
+            email = self.user_dict['email'], 
+            password = self.user_dict['password'])
 
         self.university_to_be_created = {
             'name': 'Universidade de Brasília',
@@ -43,7 +46,7 @@ class TestUniversitiesEndpoint:
         assert 'must contain exactly 14 numerical digits' in error_json['cnpj'][0]
 
     def test_reject_attempt_to_delete_university(self):
-        response = self.client.delete(ENDPOINT, CreateUniversityTestUtil.university_dict)
+        response = self.client.delete(ENDPOINT, self.university_dict)
 
         assert response.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
 

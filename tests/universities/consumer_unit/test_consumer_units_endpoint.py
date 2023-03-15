@@ -2,8 +2,6 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
-
 from tests.test_utils import dicts_test_utils
 from tests.test_utils import create_objects_test_utils
 
@@ -25,11 +23,6 @@ class TestConsumerUnitsEndpoint:
         
         self.consumer_unit_test_1_dict = dicts_test_utils.consumer_unit_dict_1
         self.consumer_unit_test_1 = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_1_dict, self.university)
-        
-        self.client = APIClient()
-        self.client.login(
-            email = CreateObjectsUtil.login_university_user['email'], 
-            password = CreateObjectsUtil.login_university_user['password'])
 
 
     def test_reject_deleting_consumer_unit(self):

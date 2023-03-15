@@ -7,10 +7,10 @@ from rest_framework.test import APIClient
 from users.models import CustomUser, UniversityUser
 from universities.models import ConsumerUnit, University
 
-from tests.test_utils.create_objects_util import CreateObjectsUtil
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
 
 ENDPOINT = '/api/users/'
-PASSWORD = CreateObjectsUtil.login_university_user['password']
 
 TOKEN_ENDPOINT = '/api/token/'
 ENDPOINT_UNIVERSITY = '/api/universities/'
@@ -26,13 +26,15 @@ class TestUniversityPermissions:
         self.email_university_admin_user = 'university_admin@email.com'
         self.email_university_user = 'university_user@email.com'
 
-        self.super_user = CustomUser.objects.create_superuser(email=self.email_super_user, password=PASSWORD)
+        self.super_user_dict = dicts_test_utils.super_user_dict_1
+        self.super_user = create_objects_test_utils.create_test_super_user(self.super_user_dict)
 
-        self.university_admin_user = UniversityUser.objects.create(
-            email=self.email_university_admin_user, password=PASSWORD, type=CustomUser.university_admin_user_type, university=self.university)
+        self.university_admin_user_dict = dicts_test_utils.university_user_dict_1
+        self.university_admin_user = create_objects_test_utils.create_test_super_user(self.university_admin_user_dict)
 
-        self.university_user = UniversityUser.objects.create(
-            email=self.email_university_user, password=PASSWORD, type=CustomUser.university_user_type, university=self.university)
+        self.university_user_dict = dicts_test_utils.university_user_dict_2
+        self.university_user = create_objects_test_utils.create_test_super_user(self.university_user_dict)
+
 
     def test_super_user_already_created(self):
         assert type(self.super_user) == CustomUser
