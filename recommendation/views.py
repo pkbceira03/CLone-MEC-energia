@@ -1,4 +1,5 @@
 from pandas import DataFrame
+from datetime import date
 
 from rest_framework import status
 from rest_framework.request import Request
@@ -36,27 +37,42 @@ class RecommendationViewSet(ViewSet):
         try:
             consumer_unit = ConsumerUnit.objects.get(pk=consumer_unit_id)
         except ConsumerUnit.DoesNotExist:
-            return Response({'errors': [f'Consumer unit does not exist']}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'errors': ['Consumer unit does not exist']}, status=status.HTTP_404_NOT_FOUND)
+
+        if not consumer_unit.is_active:
+            return Response({'errors': ['Consumer unit is not active']}, status=status.HTTP_400_BAD_REQUEST)
 
         contract = consumer_unit.current_contract
         distributor_id = contract.distributor.id
 
         blue, green = self._get_tariffs(contract.subgroup, distributor_id)
-        
+
         errors = []
-        is_missing_tariff =  blue == None or green == None
+        warnings = []
+        is_missing_tariff = blue == None or green == None
         if is_missing_tariff:
             errors.append('Lance tarifas para análise')
-        
+
         consumption_history, pending_bills_dates = self._get_energy_bills_as_consumption_history(consumer_unit, contract)
 
         consumption_history_length = len(consumption_history)
-        if consumption_history_length < MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION:
+        has_enough_energy_bills = consumption_history_length >= MINIMUM_ENERGY_BILLS_FOR_RECOMMENDATION
+        if not has_enough_energy_bills:
             errors.append('Lance ao menos 6 faturas para análise.'
                 f' Foram lançadas apenas {consumption_history_length} faturas')
 
+        if blue.end_date or green.end_date > date.today():
+            warnings.append('Atualize as tarifas vencidas para aumentar a precisão da análise')
+
+        if consumption_history_length < IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION:
+            warnings.append(
+                f'Lance todas as faturas dos últimos {IDEAL_ENERGY_BILLS_FOR_RECOMMENDATION}'
+                ' meses para aumentar a precisão da análise. Foram lançadas apenas'
+                f' {consumption_history_length} faturas'
+            )
+
         recommendation = None
-        if not is_missing_tariff:
+        if not is_missing_tariff and has_enough_energy_bills:
             calculator = RecommendationCalculator(
                 consumption_history=consumption_history,
                 current_tariff_flag=contract.tariff_flag,
@@ -78,6 +94,7 @@ class RecommendationViewSet(ViewSet):
             blue,
             green,
             errors,
+            warnings,
             consumption_history_length,
         )
 
