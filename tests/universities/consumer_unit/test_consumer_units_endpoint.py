@@ -4,25 +4,27 @@ from rest_framework.test import APIClient
 
 from tests.test_utils.create_objects_util import CreateObjectsUtil
 
-TESTSERVER_ADDR = 'http://testserver/api/universities/'
+from tests.test_utils import dicts_test_utils
+from tests.test_utils import create_objects_test_utils
+
 ENDPOINT = '/api/consumer-units/'
-EMAIL = 'admin@admin.com'
-PASSWORD = 'admin@admin.com'
 
 @pytest.mark.django_db
 class TestConsumerUnitsEndpoint:
     def setup_method(self):
-        self.university, self.user = CreateObjectsUtil.create_university_and_user()
+        self.university_dict = dicts_test_utils.university_dict_1
+        self.user_dict = dicts_test_utils.university_user_dict_1
+
+        self.university = create_objects_test_utils.create_test_university(self.university_dict)
+        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
         
         self.client = APIClient()
         self.client.login(
-            email = CreateObjectsUtil.login_university_user['email'], 
-            password = CreateObjectsUtil.login_university_user['password'])
-
-        (self.consumer_unit_test_1_dict,
-        self.consumer_unit_test_1) = CreateObjectsUtil.create_consumer_unit_object(
-                                        consumer_unit_dict_index = 0,
-                                        university = self.university)
+            email = self.user_dict['email'], 
+            password = self.user_dict['password'])
+        
+        self.consumer_unit_test_1_dict = dicts_test_utils.consumer_unit_dict_1
+        self.consumer_unit_test_1 = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_1_dict, self.university)
         
         self.client = APIClient()
         self.client.login(

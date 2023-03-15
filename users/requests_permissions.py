@@ -46,11 +46,11 @@ class RequestsPermissions:
 
         return False
 
-    def check_university_user_has_permissions(request_university_id, user_university_id):
-        university_user = RequestsPermissions.get_university_user_object(user_university_id)
-
+    def check_university_user_has_permissions(request_university_id, user_id):
         if not request_university_id:
             raise PermissionsException.request_university_id_is_necessary_exception()
+
+        university_user = RequestsPermissions.get_university_user_object(user_id)
 
         return int(request_university_id) == int(university_user.university.id)
 

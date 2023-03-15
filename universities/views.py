@@ -80,10 +80,10 @@ class ConsumerUnitViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         user_types_with_permission = RequestsPermissions.university_user_permissions
-        university = self.get_object()
+        consumer_unit = self.get_object()
 
         try:
-            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, university.id)
+            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, consumer_unit.university.id)
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
