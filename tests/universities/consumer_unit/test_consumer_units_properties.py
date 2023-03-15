@@ -34,13 +34,13 @@ class TestConsumerUnitsProperties:
         self.consumer_unit_test_2 = create_objects_test_utils.create_test_consumer_unit(self.consumer_unit_test_2_dict, self.university)
 
         self.contract_test_1_dict = dicts_test_utils.contract_dict_1
-        self.contract_test_1 = create_objects_test_utils.create_test_contract(self.contract_test_1_dict, self.distributor, self.consumer_unit_test)
+        self.contract_test_1 = create_objects_test_utils.create_test_contract(self.contract_test_1_dict, self.distributor, self.consumer_unit_test_1)
 
         self.contract_test_2_dict = dicts_test_utils.contract_dict_2
-        self.contract_test_2 = create_objects_test_utils.create_test_contract(self.contract_test_2_dict, self.distributor, self.consumer_unit_test)
+        self.contract_test_2 = create_objects_test_utils.create_test_contract(self.contract_test_2_dict, self.distributor, self.consumer_unit_test_2)
 
         self.energy_bill_test_1_dict = dicts_test_utils.energy_bill_dict_1
-        self.energy_bill_test_1 = create_objects_test_utils.create_test_energy_bill(self.energy_bill_test_1, self.contract_test_2, self.consumer_unit_test_2)
+        self.energy_bill_test_1 = create_objects_test_utils.create_test_energy_bill(self.energy_bill_test_1_dict, self.contract_test_2, self.consumer_unit_test_2)
 
 
     def test_read_consumer_unit_properties_no_one_energy_bill_filled(self):
