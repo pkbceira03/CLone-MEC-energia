@@ -12,10 +12,10 @@ ENDPOINT = '/api/universities/'
 class TestUniversitiesEndpoint:
     def setup_method(self):
         self.university_dict = dicts_test_utils.university_dict_1
-        self.user_dict = dicts_test_utils.university_user_dict_1
+        self.user_dict = dicts_test_utils.super_user_dict_1
 
         self.university = create_objects_test_utils.create_test_university(self.university_dict)
-        self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
+        self.user = create_objects_test_utils.create_test_super_user(self.user_dict)
         
         self.client = APIClient()
         self.client.login(
