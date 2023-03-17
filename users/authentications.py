@@ -60,7 +60,7 @@ class Authentication(ObtainAuthToken):
         return Response(response)
 
     def _create_and_update_login_response(token, user_id, user_email, user_first_name, user_last_name, user_type):
-        response = create_token_response(token, user_email, user_first_name, user_last_name, user_type)
+        response = create_token_response(token, user_id, user_email, user_first_name, user_last_name, user_type)
 
         if user_type in RequestsPermissions.university_user_permissions:
             user = RequestsPermissions.get_university_user_object(user_id)

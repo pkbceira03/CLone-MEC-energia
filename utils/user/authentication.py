@@ -6,13 +6,14 @@ from mec_energia import settings
 def generate_random_password():
     return ''.join(random.choice(string.ascii_lowercase + string.digits) for _ in range(20))
 
-def create_token_response(token, user_email, user_first_name, user_last_name, user_type):
+def create_token_response(token, user_id, user_email, user_first_name, user_last_name, user_type):
     response = {
             'token': token,
             'user': {
+                'id': user_id,
                 'email': user_email,
-                'first_name': user_first_name,
-                'last_name': user_last_name,
+                'firstName': user_first_name,
+                'lastName': user_last_name,
                 'type': user_type,
             }
         }
