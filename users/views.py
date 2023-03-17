@@ -9,7 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from universities.models import ConsumerUnit
 
 from .models import CustomUser, UniversityUser
-from .serializers import RetrieveUniversityUserSerializer, UniversityUserSerializer, FavoriteConsumerUnitActionSerializer, CustomUserSerializer, ChangeUniversityUserTypeSerializer
+from .serializers import ListUsersParamsSerializer, RetrieveUniversityUserSerializer, UniversityUserSerializer, FavoriteConsumerUnitActionSerializer, CustomUserSerializer, ChangeUniversityUserTypeSerializer
 from .requests_permissions import RequestsPermissions
 
 
@@ -25,6 +25,7 @@ class CustomUserViewSet(ModelViewSet):
         except Exception as error:
             return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED)
 
+    @swagger_auto_schema(query_serializer=ListUsersParamsSerializer)
     def list(self, request):
         user_types_with_permission = RequestsPermissions.admin_permission
 
