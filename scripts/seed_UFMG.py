@@ -38,12 +38,23 @@ university = University.objects.create(
     cnpj='17217985000104'
 )
 
+# Usuários
+
+admin_university_user = UniversityUser.objects.create(
+    university=university,
+    type=UniversityUser.university_admin_user_type,
+    password='ufmg',
+    email='admin@ufmg.br',
+    first_name="João",
+    last_name="da Silva",
+)
+
 university_user = UniversityUser.objects.create(
     university=university,
     password='ufmg',
     email='usuario@ufmg.br',
-    first_name="João",
-    last_name="da Silva",
+    first_name="José",
+    last_name="Santos",
 )
 
 # Distribuidoras

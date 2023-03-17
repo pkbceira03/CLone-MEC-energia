@@ -73,6 +73,9 @@ class CustomUser(AbstractUser):
 
 
 class UniversityUser(CustomUser):
+    university_admin_user_type = CustomUser.university_admin_user_type
+    university_user_type = CustomUser.university_user_type
+
     favorite_consumer_units = models.ManyToManyField(ConsumerUnit, blank=True)
     
     university = models.ForeignKey(
