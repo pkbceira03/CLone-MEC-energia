@@ -45,20 +45,6 @@ class CustomUserViewSet(ModelViewSet):
 
         return Response(serializer.data, status.HTTP_200_OK)
 
-    """ @action(detail=False, methods=['post'])
-    def change_user_type(self, request, pk=None):
-        user_types_with_permission = RequestsPermissions.admin_permission
-
-        new_user_type = request.GET.get('new_user_type')
-
-        try:
-            if request.user.type == CustomUser.super_user_type:
-
-
-            RequestsPermissions.check_request_permissions(request.user, user_types_with_permission, request_university_id)
-        except Exception as error:
-            return Response({'detail': f'{error}'}, status.HTTP_401_UNAUTHORIZED) """
-
 class UniversityUsersViewSet(ModelViewSet):
     queryset = UniversityUser.objects.all()
     serializer_class = UniversityUserSerializer
