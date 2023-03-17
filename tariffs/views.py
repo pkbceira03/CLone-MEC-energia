@@ -13,7 +13,7 @@ from utils.endpoints_util import EndpointsUtils
 from utils.tariff_util import response_tariffs_of_distributor
 
 from .models import Distributor, Tariff
-from .serializers import DistributorSerializer, DistributorSerializerForDocs, BlueAndGreenTariffsSerializer, BlueTariffSerializer, GreenTariffSerializer, ConsumerUnitsSeparatedBySubgroupSerializerForDocs, DistributorListParamsSerializer, TariffSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
+from .serializers import DistributorSerializer, BlueAndGreenTariffsSerializer, ConsumerUnitsSeparatedBySubgroupSerializerForDocs, DistributorListParamsSerializer, GetTariffsOfDistributorParamsSerializer, GetTariffsOfDistributorForDocs
 
 from users.requests_permissions import RequestsPermissions
 from universities.models import ConsumerUnit

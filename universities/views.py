@@ -6,7 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 
 from .models import ConsumerUnit, University
 from users.requests_permissions import RequestsPermissions
-from users.models import UniversityUser, CustomUser
+from users.models import CustomUser
 from . import serializers
 
 class UniversityViewSet(viewsets.ModelViewSet):
