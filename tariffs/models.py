@@ -11,7 +11,7 @@ from contracts.models import Contract
 
 class Distributor(models.Model):
     name = models.CharField(
-        max_length=30,
+        max_length=100,
         null=False,
         blank=False,
     )
