@@ -119,6 +119,8 @@ class Password():
             link = Password.generate_link_to_reset_password(user, token)
             
             send_email_reset_password(user.first_name, user.email, link)
+        except ObjectDoesNotExist:
+            raise Exception('Send email reset password: ' + 'User does not exist')
         except Exception as error:
             raise Exception('Send email reset password: ' + str(error))
 
