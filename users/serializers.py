@@ -70,3 +70,17 @@ class AuthenticationGetTokenParamsSerializer(Serializer):
 
 class AuthenticationGetTokenSerializerForDocs(Serializer):
     is_valid_token = serializers.BooleanField()
+
+## Authentications Endpoints
+
+class ResetPasswordParamsSerializer(Serializer):
+    email = serializers.CharField()
+
+class ResetPasswordParamsForDocs(Serializer):
+    status = serializers.CharField()
+    message = serializers.CharField()
+
+class ConfirmPasswordBodySerializer(Serializer):
+    user_email = serializers.CharField()
+    user_new_password = serializers.CharField()
+    user_reset_password_token = serializers.CharField()

@@ -102,12 +102,15 @@ class Password():
     def check_password_token_is_valid(user, token):
         return default_token_generator.check_token(user, token)
 
-    def change_user_password(user_data, token):
-        user = CustomUser.search_user_by_email(email = user_data['email'])
+    def change_user_password(user_email, user_new_password, token):
+        try:
+            user = CustomUser.search_user_by_email(email = user_email)
 
-        user.change_user_password_by_reset_password_token(user_data['new_password'], token)
+            user.change_user_password_by_reset_password_token(user_new_password, token)
 
-        Password._invalid_all_generated_tokens(user)
+            Password._invalid_all_generated_tokens(user)
+        except Exception as error:
+            raise Exception('Change user password: ' + str(error))
 
     def _invalid_all_generated_tokens(user):
         return user.change_user_last_login_time()
@@ -119,8 +122,6 @@ class Password():
             link = Password.generate_link_to_reset_password(user, token)
             
             send_email_reset_password(user.first_name, user.email, link)
-        except ObjectDoesNotExist:
-            raise Exception('Send email reset password: ' + 'User does not exist')
         except Exception as error:
             raise Exception('Send email reset password: ' + str(error))
 
@@ -137,10 +138,13 @@ class Password():
 @authentication_classes([])
 @permission_classes([])
 class ResetPassword(generics.GenericAPIView):
-
+    @swagger_auto_schema(query_serializer=serializers.ResetPasswordParamsSerializer,
+                         responses={200: serializers.ResetPasswordParamsForDocs})
     def post(self, request, *args, **kwargs):
         try:
-            Password.send_email_reset_password(request.data['email'])
+            request_user_email = request.GET.get('email')
+
+            Password.send_email_reset_password(request_user_email)
 
             response = EndpointsUtils.create_message_endpoint_response(
                         status = EndpointsUtils.status_success, 
@@ -158,10 +162,15 @@ class ResetPassword(generics.GenericAPIView):
 @authentication_classes([])
 @permission_classes([])
 class ConfirmResetPassword(generics.GenericAPIView):
-
+    @swagger_auto_schema(request_body=serializers.ConfirmPasswordBodySerializer,
+                         responses={200: serializers.ResetPasswordParamsForDocs})
     def post(self, request, *args, **kwargs):
         try:
-            Password.change_user_password(request.data['user'], request.data['reset_password_token'])
+            request_user_email = request.data['user_email']
+            request_user_new_password = request.data['user_new_password']
+            request_user_reset_password_token = request.data['user_reset_password_token']
+
+            Password.change_user_password(request_user_email, request_user_new_password, request_user_reset_password_token)
 
             response = EndpointsUtils.create_message_endpoint_response(
                         status = EndpointsUtils.status_success, 

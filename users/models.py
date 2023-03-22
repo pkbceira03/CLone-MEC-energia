@@ -2,6 +2,7 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ObjectDoesNotExist
 
 from universities.models import ConsumerUnit, University
 
@@ -46,7 +47,12 @@ class CustomUser(AbstractUser):
 
     @classmethod
     def search_user_by_email(cls, email):
-        return cls.objects.get(email = email)
+        try:
+            user = cls.objects.get(email = email)
+
+            return user
+        except ObjectDoesNotExist:
+            raise Exception('User does not exist')
 
     def change_user_last_login_time(self):
         self.last_login = timezone.now()
@@ -66,7 +72,7 @@ class CustomUser(AbstractUser):
 
             return self
         except Exception as error:
-            raise Exception('Change User Password: ' + str(error))
+            raise Exception(str(error))
 
     def __str__(self) -> str:
         return f'{self.first_name} {self.last_name} [{self.email}]'
