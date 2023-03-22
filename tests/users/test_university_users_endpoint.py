@@ -77,12 +77,12 @@ class TestUsersEndpoint:
                                 "password": university_user_dict['password']
                             })
         
-        print(response_login_user.content, response_login_user.status_code)
         logged_user = json.loads(response_login_user.content)
 
         assert status.HTTP_200_OK == response_login_user.status_code
 
-    """ def test_create_and_login_university_user_through_endpoints(self): 
+    """ 
+    def test_create_and_login_university_user_through_endpoints(self): 
         university_user_dict = CreateObjectsUtil.get_university_user_dict(index = 2)
         university_user_dict['university'] = self.university.id
 
@@ -96,14 +96,11 @@ class TestUsersEndpoint:
         assert type(created_user) == UniversityUser
         assert created_user.university.id == self.university.id
 
-        print(university_user_dict['password'], created_user.email)
-
         response_login_user = self.client.post(TOKEN_ENDPOINT, {
                                 "username": created_user.email,
                                 "password": university_user_dict['password']
                             })
 
-        print(response_login_user.content, response_login_user.status_code)
         logged_user = json.loads(response_login_user.content)
 
         assert status.HTTP_200_OK == response_login_user.status_code
@@ -116,7 +113,6 @@ class TestUsersEndpoint:
         endpoint = f'{ENDPOINT}{self.user.id}/'
 
         favorite_consumer_units = self._get_user_as_response()
-        print(favorite_consumer_units)
 
         assert 0 == favorite_consumer_units.count()
 
