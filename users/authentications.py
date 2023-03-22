@@ -92,12 +92,12 @@ class Password():
 
     def generate_link_to_reset_password(user: str, token: str or None):
         if not token:
-            raise Exception('Is necessary a valid password token')
+            raise Exception('Is necessary a password token')
 
         if not Password.check_password_token_is_valid(user, token):
             raise Exception('Password token is not valid')
 
-        return generate_link_to_reset_password(token)
+        return generate_link_to_reset_password(token, user.email)
 
     def check_password_token_is_valid(user, token):
         return default_token_generator.check_token(user, token)
