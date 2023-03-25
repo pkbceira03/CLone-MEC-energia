@@ -1,24 +1,23 @@
-import os
 import smtplib
 from email.message import Message
 
 from mec_energia import settings
 
-from .templates_email import templates_email
+from .templates_email import password_templates_email
 from .valid_email import verify_email_is_valid
 
 MEC_ENERGIA_EMAIL = settings.MEC_ENERGIA_EMAIL
 MEC_ENERGIA_EMAIL_APP_PASSWORD = settings.MEC_ENERGIA_EMAIL_APP_PASSWORD
 
 def send_email_first_access_password(user_name, recipient_email, link_to_reset_password_page):
-    title, text_body = templates_email.template_email_first_access(user_name, link_to_reset_password_page)
+    title, text_body = password_templates_email.template_email_first_access(user_name, link_to_reset_password_page)
 
     verify_email_is_valid(recipient_email)
 
     send_email(MEC_ENERGIA_EMAIL, MEC_ENERGIA_EMAIL_APP_PASSWORD, recipient_email, title, text_body)
 
 def send_email_reset_password(user_name, recipient_email, link_to_reset_password_page):
-    title, text_body = templates_email.template_email_recovery_password(user_name, link_to_reset_password_page)
+    title, text_body = password_templates_email.template_email_recovery_password(user_name, link_to_reset_password_page)
 
     verify_email_is_valid(recipient_email)
 

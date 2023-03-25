@@ -1,9 +1,9 @@
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 import datetime
 
 from utils.subgroup_util import Subgroup
 from utils.date_util import DateUtils
-
 
 class ContractManager(models.Manager):
     def create(self, *args, **kwargs):
@@ -12,6 +12,7 @@ class ContractManager(models.Manager):
         obj.set_last_contract_end_date()
         
         return obj
+
 
 class Contract(models.Model):
     objects = ContractManager()
@@ -173,5 +174,7 @@ class EnergyBill(models.Model):
                 date__year=year)
 
             return energy_bill
-        except:
+        except ObjectDoesNotExist:
             return None
+        except Exception as error:
+            raise Exception('Get Energy Bill: ' + str(error))
