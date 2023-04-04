@@ -27,7 +27,7 @@ confirmação e apaga todos os dados diretamente.
 O seed de demonstração da entrega do projeto pode ser carregado executando o seguinte comando:
 
 ```sh
-./scripts/seed.sh
+./scripts/seed_demo.sh
 ```
 
 Esse comando também deve ser executado dentro do container da api (mec-energia-api).
