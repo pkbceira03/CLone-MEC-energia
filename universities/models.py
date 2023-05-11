@@ -37,7 +37,13 @@ class University(models.Model):
         help_text=_('14 números sem caracteres especiais')
     )
 
-    created_on = models.DateField(auto_now_add=True)
+    is_active = models.BooleanField(
+        default=True
+    )
+
+    created_on = models.DateField(
+        auto_now_add=True
+    )
 
 class ConsumerUnit(models.Model):
     name = models.CharField(
@@ -55,7 +61,9 @@ class ConsumerUnit(models.Model):
             'Cheque a conta de luz para obter o código da Unidade Consumidora. Insira apenas números')
     )
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(
+        default=True
+    )
 
     university = models.ForeignKey(
         University,
@@ -68,7 +76,9 @@ class ConsumerUnit(models.Model):
             'Uma Unidade Consumidora deve estar ligada a uma Universidade')
     )
 
-    created_on = models.DateTimeField(auto_now_add=True)
+    created_on = models.DateTimeField(
+        auto_now_add=True
+    )
 
     @property
     def current_contract(self) -> Contract:

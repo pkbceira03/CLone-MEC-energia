@@ -29,7 +29,9 @@ class Distributor(models.Model):
         blank=False,
     )
 
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(
+        default=True
+    )
 
     class Meta:
         unique_together = ['university', 'cnpj']
