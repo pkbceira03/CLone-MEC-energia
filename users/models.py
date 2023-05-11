@@ -35,11 +35,31 @@ class CustomUser(AbstractUser):
     )
 
     username = None
-    first_name = models.CharField(max_length=25)
-    last_name = models.CharField(max_length=25)
-    email = models.EmailField(_('Email is required'), unique=True, null=False)
-    type = models.CharField(max_length=25, null=False, blank=False, choices=user_types)
-    created_on = models.DateTimeField(auto_now_add=True)
+    
+    first_name = models.CharField(
+        max_length=25
+    )
+
+    last_name = models.CharField(
+        max_length=25
+    )
+
+    email = models.EmailField(
+        _('Email is required'),
+        unique=True,
+        null=False
+    )
+
+    type = models.CharField(
+        max_length=25,
+        null=False,
+        blank=False,
+        choices=user_types
+    )
+
+    created_on = models.DateTimeField(
+        auto_now_add=True
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

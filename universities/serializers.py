@@ -9,7 +9,7 @@ from contracts.models import Contract
 class UniversitySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = University
-        fields = ['url', 'id', 'name', 'acronym', 'cnpj', 'created_on']
+        fields = ['url', 'id', 'name', 'acronym', 'cnpj', 'is_active', 'created_on']
 
     def validate_cnpj(self, cnpj: str):
         try:
