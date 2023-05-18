@@ -5,12 +5,15 @@ import datetime
 from utils.subgroup_util import Subgroup
 from utils.date_util import DateUtils
 
+from django.core.validators import FileExtensionValidator
+
+
 class ContractManager(models.Manager):
     def create(self, *args, **kwargs):
         obj = super().create(*args, **kwargs)
 
         obj.set_last_contract_end_date()
-        
+
         return obj
 
 
@@ -44,13 +47,13 @@ class Contract(models.Model):
         null=False,
         blank=False
     )
-    
+
     end_date = models.DateField(
         null=True,
         blank=True
     )
-    
-    tariff_flag = models.CharField( 
+
+    tariff_flag = models.CharField(
         choices=tariff_flag_choices,
         max_length=1,
         null=True,
@@ -98,7 +101,7 @@ class Contract(models.Model):
         day_before_start_date = DateUtils.get_yesterday_date(self.start_date)
 
         contract = Contract.objects.filter(
-                        consumer_unit = self.consumer_unit).exclude(start_date__gt = day_before_start_date).last()
+            consumer_unit=self.consumer_unit).exclude(start_date__gt=day_before_start_date).last()
 
         if contract:
             if not contract.end_date:
@@ -163,6 +166,16 @@ class EnergyBill(models.Model):
         max_digits=10,
         null=True,
         blank=True
+    )
+
+    energy_bill_file = models.FileField(
+        validators=[
+            FileExtensionValidator(allowed_extensions=[
+                                   'pdf', 'doc', 'ppt', 'xlsx', 'png', 'jpg', 'jpeg'])
+        ],
+        max_length=None,
+        null=True,
+        blank=True,
     )
 
     @classmethod

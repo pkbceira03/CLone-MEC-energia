@@ -64,6 +64,7 @@ class EnergyBillListObjectAttributesSerializerForDocs(serializers.Serializer):
     off_peak_contracted_demand_in_kw = serializers.DecimalField(decimal_places=2, max_digits=10)
     peak_measured_demand_in_kw = serializers.DecimalField(decimal_places=2, max_digits=10)
     off_peak_measured_demand_in_kw = serializers.DecimalField(decimal_places=2, max_digits=10)
+    energy_bill_file = serializers.FileField()
 
 class EnergyBillListObjectSerializerForDocs(serializers.Serializer):
     month = serializers.IntegerField()
