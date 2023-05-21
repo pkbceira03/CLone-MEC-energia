@@ -1,7 +1,8 @@
 #!/usr/local/bin/python
 
 from random import random
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from users.models import UniversityUser
 from contracts.models import Contract
@@ -27,6 +28,21 @@ def create_bills_from_table(contract, uc, table):
             off_peak_measured_demand_in_kw=row[4],\
             invoice_in_reais=row[5],\
             is_atypical=(False if len(row) < 7 else row[6]))
+
+def data_size(list):
+    size = len(list)
+
+    return size
+
+def update_data(list, size):
+    current_date = datetime.now().date()
+    n_months = size - 1
+    
+    for i in range(size):
+        new_date = current_date - relativedelta(months=n_months - i)
+        list[i][0] = new_date.strftime('%Y-%m-%d')
+    
+    return list
 
 ########################################################################## 
 
@@ -218,6 +234,8 @@ table_campus_darcy = [['2021-11-01', 20707.0, 281450.0, 538.00, 1306.62, 211121.
                       ['2022-08-01', 46293.0, 371087.0, 1113.84, 1842.12, 328455.38],
                       ['2022-09-01', 53072.0, 434993.0, 1362.06, 2055.06, 436850.05]]
 
+size_darcy = data_size(table_campus_darcy)
+table_campus_darcy = update_data(table_campus_darcy, size_darcy)
 create_bills_from_table(contract_campus_darcy, uc_campus_darcy, table_campus_darcy)
 
 table_campus_ceilandia = [['2021-11-01', 20707.0, 281450.0, 538.00, 1306.62, 211121.14, False],
@@ -233,8 +251,9 @@ table_campus_ceilandia = [['2021-11-01', 20707.0, 281450.0, 538.00, 1306.62, 211
                       ['2022-09-01', 53072.0, 434993.0, 1362.06, 2055.06, 436850.05, False],
                       ['2023-01-01', 52841.0, 503043.0, 1525.06, 1988.06, 525010.05, False]]
 
+size_ceilandia = data_size(table_campus_ceilandia)
+table_campus_ceilandia = update_data(table_campus_ceilandia, size_ceilandia)
 create_bills_from_table(contract_campus_ceilandia, uc_campus_ceilandia, table_campus_ceilandia)
-
 
 table_campus_planaltina = [['2021-09-01', 0707.0, 81450.0, 38.00, 306.62, 11121.14],
                             ['2021-10-01', 0707.0, 81450.0, 38.00, 306.62, 11121.14],
@@ -253,6 +272,8 @@ table_campus_planaltina = [['2021-09-01', 0707.0, 81450.0, 38.00, 306.62, 11121.
                             ['2022-11-01', 2954.0, 3243.0, 499.6, 1010, 23010.05],
                             ['2022-12-01', 3144.0, 3543.0, 485.3, 975.6, 23010.05]]
 
+size_planaltina = data_size(table_campus_planaltina)
+table_campus_planaltina = update_data(table_campus_planaltina, size_planaltina)
 create_bills_from_table(contract_campus_planaltina, uc_campus_planaltina, table_campus_planaltina)
 
 table_campus_gama = [['2021-08-01', 0707.0, 81450.0, 38.00, 306.62, 11121.14],
@@ -274,8 +295,9 @@ table_campus_gama = [['2021-08-01', 0707.0, 81450.0, 38.00, 306.62, 11121.14],
                             ['2022-12-01', 495.0, 3753.0, 27.06, 47.84, 23010.05],
                             ['2023-01-01', 342.0, 3580.0, 15.37, 31.36, 23010.05]]
 
+size_gama = data_size(table_campus_gama)
+table_campus_gama = update_data(table_campus_gama, size_gama)
 create_bills_from_table(contract_campus_gama, uc_campus_gama, table_campus_gama)
-
 
 table_fazenda_agua_limpa = [['2022-09-01', 248.0, 2040.0, 9.96,  21.77, 36850.05],
                             ['2022-10-01', 408.0, 2573.0, 22.26, 23.24, 25010.05],
@@ -283,10 +305,14 @@ table_fazenda_agua_limpa = [['2022-09-01', 248.0, 2040.0, 9.96,  21.77, 36850.05
                             ['2022-12-01', 495.0, 3753.0, 27.06, 47.84, 23010.05],
                             ['2023-01-01', 342.0, 3580.0, 15.37, 31.36, 23010.05]]
 
+size_fazenda_agua_limpa = data_size(table_fazenda_agua_limpa)
+table_fazenda_agua_limpa = update_data(table_fazenda_agua_limpa, size_fazenda_agua_limpa)
 create_bills_from_table(contract_fazenda_agua_limpa, uc_fazenda_agua_limpa, table_fazenda_agua_limpa)
 
 table_estacao = [['2021-03-01', 248.0, 2040.0, 9.96,  21.77, 36850.05],
                  ['2021-04-01', 408.0, 2573.0, 22.26, 23.24, 25010.05],
                  ['2021-05-01', 342.0, 3580.0, 15.37, 31.36, 23010.05]]
 
+size_estacao = data_size(table_estacao)
+table_estacao = update_data(table_estacao, size_estacao)
 create_bills_from_table(contract_estacao, uc_estacao, table_estacao)
