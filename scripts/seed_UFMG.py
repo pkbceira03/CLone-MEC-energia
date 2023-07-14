@@ -1,7 +1,8 @@
 #!/usr/local/bin/python
 
 from random import random
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from users.models import UniversityUser
 from contracts.models import Contract
@@ -27,6 +28,21 @@ def create_bills_from_table(contract, uc, table):
             off_peak_measured_demand_in_kw=row[4],\
             invoice_in_reais=row[5],\
             is_atypical=(False if len(row) < 7 else row[6]))
+
+def data_size(list):
+    size = len(list)
+
+    return size
+
+def update_data(list, size):
+    current_date = datetime.now().date()
+    n_months = size - 1
+    
+    for i in range(size):
+        new_date = current_date - relativedelta(months=n_months - i)
+        list[i][0] = new_date.strftime('%Y-%m-%d')
+    
+    return list
 
 ########################################################################## 
 
@@ -350,6 +366,8 @@ table_uc_campus_centro = [['2022-02-01', 20707.0, 281450.0, 538.00, 1306.62, 211
                           ['2022-11-01', 46293.0, 371087.0, 1113.84, 1842.12, 328455.38],
                           ['2022-12-01', 53072.0, 434993.0, 1362.06, 2055.06, 436850.05]]
 
+size_campus_centro = data_size(table_uc_campus_centro)
+table_uc_campus_centro = update_data(table_uc_campus_centro, size_campus_centro)
 create_bills_from_table(contract2, uc_campus_centro, table_uc_campus_centro)
 
 table_uc_campus_pampulha = [['2022-02-01', 313, 3226, 8.23, 12.77, 5260.41],
@@ -363,6 +381,8 @@ table_uc_campus_pampulha = [['2022-02-01', 313, 3226, 8.23, 12.77, 5260.41],
                             ['2022-12-01', 368, 5273, 10.25, 44.69, 6571.89],
                             ['2023-01-01', 375, 4328, 10.24, 21.84, 5997.46]]
 
+size_campus_pampulha = data_size(table_uc_campus_pampulha)
+table_uc_campus_pampulha = update_data(table_uc_campus_pampulha, size_campus_pampulha)
 create_bills_from_table(contract_campus_pampulha, uc_campus_pampulha, table_uc_campus_pampulha)
 
 table_uc_montes_claros = [['2021-05-01', 7760,    66179,   156.00,  283.00, 48113.24],
@@ -386,6 +406,8 @@ table_uc_montes_claros = [['2021-05-01', 7760,    66179,   156.00,  283.00, 4811
                           ['2022-11-01', 4100,    35048,   75.6,    90.72, 32413.44],
                           ['2022-12-01', 3989,    34671,   75.6,    94.08, 32395.53]]
 
+size_montes_claros = data_size(table_uc_montes_claros)
+table_uc_montes_claros = update_data(table_uc_montes_claros, size_montes_claros)
 create_bills_from_table(contract_montes_claros, uc_montes_claros, table_uc_montes_claros)
 
 table_uc_fazenda_modelo = [['2021-05-01', 898, 10199,   19.74,   47.88,   8550.40],
@@ -409,6 +431,8 @@ table_uc_fazenda_modelo = [['2021-05-01', 898, 10199,   19.74,   47.88,   8550.4
                             ['2022-11-01', 1564, 18567,   45.78,   94.92,  18069.45],
                             ['2022-12-01', 1631, 18668,   45.78,   98.28,  18176.20]]
 
+size_fazenda_modelo = data_size(table_uc_fazenda_modelo)
+table_uc_fazenda_modelo = update_data(table_uc_fazenda_modelo, size_fazenda_modelo)
 create_bills_from_table(contract_fazenda_modelo, uc_fazenda_modelo, table_uc_fazenda_modelo)
 
 table_uc_fazenda_experimental = [['2021-03-01', 4550, 56000, 112, 207, 8550.40],
@@ -416,6 +440,8 @@ table_uc_fazenda_experimental = [['2021-03-01', 4550, 56000, 112, 207, 8550.40],
                                  ['2021-05-01', 4550, 51450, 112, 207, 8482.50],
                                  ['2021-06-01', 4200, 54950, 81,  179, 7877.94]]
 
+size_fazenda_experimental = data_size(table_uc_fazenda_experimental)
+table_uc_fazenda_experimental = update_data(table_uc_fazenda_experimental, size_fazenda_experimental)
 create_bills_from_table(contract_fazenda_experimental, uc_fazenda_experimental, table_uc_fazenda_experimental)
 
 table_uc_pampulha_ru_i = [['2021-10-01', 1400, 9800, 42, 67, 8550.40, False],
@@ -431,6 +457,8 @@ table_uc_pampulha_ru_i = [['2021-10-01', 1400, 9800, 42, 67, 8550.40, False],
                           ['2022-08-01', 4200, 21000, 130, 165, 10357.78, True],
                           ['2022-09-01', 3500, 19250, 105, 193, 10866.41, False]]
 
+size_pampulha_ru_i = data_size(table_uc_pampulha_ru_i)
+table_uc_pampulha_ru_i = update_data(table_uc_pampulha_ru_i, size_pampulha_ru_i)
 create_bills_from_table(contract_pampulha_ru_i, uc_pampulha_ru_i, table_uc_pampulha_ru_i)
 
 table_uc_pampulha_ru_ii = [['2021-12-01', 2100, 14700, 116, 126, 8550.40, False],
@@ -445,6 +473,8 @@ table_uc_pampulha_ru_ii = [['2021-12-01', 2100, 14700, 116, 126, 8550.40, False]
                            ['2022-09-01', 4200, 17150, 126, 130, 10699.28, False],
                            ['2023-01-01', 3500, 18200, 175, 161, 10357.78, False]]
 
+size_pampulha_ru_ii = data_size(table_uc_pampulha_ru_ii)
+table_uc_pampulha_ru_ii = update_data(table_uc_pampulha_ru_ii, size_pampulha_ru_ii)
 create_bills_from_table(contract_pampulha_ru_ii, uc_pampulha_ru_ii, table_uc_pampulha_ru_ii)
 
 table_uc_pampulha_praca = [['2021-10-01', 1194.00, 13057.00, 62.16, 132.38, 11031.74, False],
@@ -463,6 +493,8 @@ table_uc_pampulha_praca = [['2021-10-01', 1194.00, 13057.00, 62.16, 132.38, 1103
                            ['2022-11-01', 1582.00, 16121.00, 137.65, 162.51, 14690.59, False],
                            ['2022-12-01', 4169.00, 23348.00, 169.01, 167.44, 24302.93, False]]
 
+size_pampulha_praca = data_size(table_uc_pampulha_praca)
+table_uc_pampulha_praca = update_data(table_uc_pampulha_praca, size_pampulha_praca)
 create_bills_from_table(contract_pampulha_praca, uc_pampulha_praca, table_uc_pampulha_praca)
  
 table_uc_diamantina = [['2021-08-01', 949.00,  7313.00, 36.54, 75.60, 8911.80, False],
@@ -484,12 +516,16 @@ table_uc_diamantina = [['2021-08-01', 949.00,  7313.00, 36.54, 75.60, 8911.80, F
                        ['2022-12-01', 457.00,  4057.00, 11.84, 19.15, 8092.63, False],
                        ['2023-01-01', 451.00,  3413.00, 15.62, 14.62, 7920.22, False]]
 
+size_diamantina = data_size(table_uc_diamantina)
+table_uc_diamantina = update_data(table_uc_diamantina, size_diamantina)
 create_bills_from_table(contract_diamantina, uc_diamantina, table_uc_diamantina)
  
 table_uc_pampulha_teatro = [['2022-10-01', 4550, 56000, 112, 207, 8550.40],
                             ['2022-11-01', 3500, 51100, 112, 207, 8814.11],
                             ['2022-12-01', 4550, 51450, 112, 207, 8482.50]]
-
+ 
+size_pampulha_teatro = data_size(table_uc_pampulha_teatro)
+table_uc_pampulha_teatro = update_data(table_uc_pampulha_teatro, size_pampulha_teatro)
 create_bills_from_table(contract_pampulha_teatro, uc_pampulha_teatro, table_uc_pampulha_teatro)
 
 table_uc_campus_tiradentes = [['2021-05-01', 3694.00, 72646.00, 85.18,   401.18,  46297.83],
@@ -514,4 +550,6 @@ table_uc_campus_tiradentes = [['2021-05-01', 3694.00, 72646.00, 85.18,   401.18,
                               ['2022-12-01', 2483.00, 28673.00, 56.45,   91.73,   28894.77],
                               ['2023-01-01', 2837.00, 34244.00, 69.05,   145.66,  32447.77]]
 
+size_campus_tiradentes = data_size(table_uc_campus_tiradentes)
+table_uc_campus_tiradentes = update_data(table_uc_campus_tiradentes, size_campus_tiradentes)
 create_bills_from_table(contract_campus_tiradentes, uc_campus_tiradentes, table_uc_campus_tiradentes)
