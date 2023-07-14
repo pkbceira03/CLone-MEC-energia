@@ -19,20 +19,26 @@ Copie o arquivo `.env.dev` para `.env`:
 cp .env.dev .env 
 ```
 
-Então levante os containeres da API e do banco de dados com:
+Levante os containers da API e do banco de dados com:
 
 ```sh
 docker-compose up -d
 ```
 
 Se tudo deu certo, a API do Django REST deve estar acessível em 
-http://localhost:8080.
+http://localhost:8000.
 
 Além disso, a API também tem seus endpoints documentados no Swagger em
-http://localhost:8080/api/swagger/schema/.
+http://localhost:8000/api/swagger/schema/.
 
 Para ter acesso completo dos dados nos dois links, você precisa criar um 
-usuário. Leia sobre como fazer isso em [seed](docs/seed.md#usuário).
+usuário. Leia como fazer isso em [seed](docs/seed.md#usuário).
+
+Para derrubar os containers utilize:
+
+```sh
+docker-compose down
+```
 
 
 ## Código de Conduta e Políticas
@@ -43,7 +49,7 @@ usuário. Leia sobre como fazer isso em [seed](docs/seed.md#usuário).
 
 ## Documentação Extra de Configuração
 
-Para saber mais sobre como configurar o seu ambiente de desenvolvimento e 
+Para saber mais sobre configuração de ambiente de desenvolvimento e 
 outras coisas, acesse os seguintes links:
 
 - **Comece aqui:** [ambiente de desenvolvimento](docs/ambiente-desenvolvimento.md)

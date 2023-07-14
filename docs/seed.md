@@ -4,14 +4,20 @@ Em `scripts/seed.py` são criados alguns dados para facilitar o desenvolvimento
 e alguns testes manuais. Dados como universidade, unidades consumidoras, 
 contratos e etc. Leia o script para entender como eles se relacionam.
 
-Para popular o banco execute **dentro do container da API** o seguinte:
+Os comandos a seguir também devem ser executados dentro do container da api 
+(mec-energia-api).
+Note que esses comandos executam scripts em bash. Eles fazem pipe dos conteúdos
+expressos `seed_UNB.py` e `seed_UFMG.py` para o shell do Django.
+
+
+Para popular o banco com o **seed de demonstração** execute **dentro do container da API** o seguinte:
 
 ```sh
-./scripts/seed.sh
+./scripts/seed_demo.sh
 ```
 
-Note que o script executado no comando anterior é um script em bash. Ele faz 
-pipe do conteúdo de `seed.py` para o shell do Django.
+O seed de demonstração da entrega do projeto popula o banco com dados da UNB e da
+UFMG.
 
 Para apagar os dados do banco de dados você pode usar:
 
@@ -21,16 +27,6 @@ Para apagar os dados do banco de dados você pode usar:
 
 **Execute o comando anterior com cuidado!**. Esse script pula o prompt de 
 confirmação e apaga todos os dados diretamente.
-
-## Seed de Demonstação
-
-O seed de demonstração da entrega do projeto pode ser carregado executando o seguinte comando:
-
-```sh
-./scripts/seed_demo.sh
-```
-
-Esse comando também deve ser executado dentro do container da api (mec-energia-api).
 
 ## Usuários
 
