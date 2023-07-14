@@ -191,3 +191,14 @@ class EnergyBill(models.Model):
             return None
         except Exception as error:
             raise Exception('Get Energy Bill: ' + str(error))
+        
+    def check_energy_bill_month_year(consumer_unit_id, date):
+        has_already_energy_bill = EnergyBill.objects.filter(
+            consumer_unit=consumer_unit_id,
+            date__year=date.year, 
+            date__month=date.month).exists()
+        
+        if has_already_energy_bill:
+            return True
+        else:
+            return False

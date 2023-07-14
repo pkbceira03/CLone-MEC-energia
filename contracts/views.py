@@ -5,6 +5,7 @@ from rest_framework.request import Request
 from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from django.core.exceptions import ObjectDoesNotExist
+from datetime import datetime
 
 from . import models
 from . import serializers
@@ -136,6 +137,20 @@ class ContractViewSet(viewsets.ModelViewSet):
 class EnergyBillViewSet(viewsets.ModelViewSet):
     queryset = models.EnergyBill.objects.all()
     serializer_class = serializers.EnergyBillSerializer
+    
+    def create(self, request, *args, **kwargs):
+        consumer_unit_id = request.data.get('consumer_unit')
+        date_str = request.data.get('date')
+
+        try:
+            date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        except ValueError:
+            return Response('Invalid date, try this format: "yyyy-mm-dd".', status=status.HTTP_400_BAD_REQUEST)
+
+        if models.EnergyBill.check_energy_bill_month_year(consumer_unit_id, date):
+            return Response('There is already an energy bill this month and year for this consumer unit.', status=status.HTTP_400_BAD_REQUEST)
+
+        return super().create(request, *args, **kwargs)
 
     @swagger_auto_schema(responses={200: serializers.EnergyBillListSerializerForDocs(many=True)},
                         query_serializer=serializers.EnergyBillListParamsSerializer)
