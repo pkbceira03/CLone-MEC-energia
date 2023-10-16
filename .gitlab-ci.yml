@@ -1,0 +1,21 @@
+stages:
+- build
+- test
+
+build-api:
+  image: docker:20.10.16-dind
+  services:
+    - docker:20.10.16-dind
+  stage: build
+  script:
+    - docker build -t mec-energia-api .
+
+test-api:
+  stage: test
+  image: python:3.10.5
+  before_script:
+    - pip install -r requirements.txt
+  script:
+    - pytest
+  only:
+    - merge_requests
