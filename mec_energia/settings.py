@@ -12,6 +12,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('ENVIRONMENT') != 'production'
+TEST = os.getenv('ENVIRONMENT') == 'test'
 
 ALLOWED_HOSTS = ['*']
 
@@ -125,17 +126,25 @@ POSTGRES_DB = os.getenv('POSTGRES_DB')
 POSTGRES_PORT = os.getenv('POSTGRES_PORT')
 POSTGRES_HOST = os.getenv('POSTGRES_HOST')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': POSTGRES_DB,
-        'USER': POSTGRES_USER,
-        'PASSWORD': POSTGRES_PASSWORD,
-        'HOST': POSTGRES_HOST,
-        'PORT': POSTGRES_PORT,
+if TEST:
+    # Override database with in memory database for tests.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:'
+        }
     }
-}
-
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': POSTGRES_DB,
+            'USER': POSTGRES_USER,
+            'PASSWORD': POSTGRES_PASSWORD,
+            'HOST': POSTGRES_HOST,
+            'PORT': POSTGRES_PORT,
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -209,6 +218,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-if os.getenv('ENVIRONMENT') == 'test':
+if TEST:
     del REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES']
     del REST_FRAMEWORK['DEFAULT_PARSER_CLASSES']
+    SOUTH_TESTS_MIGRATE = False
