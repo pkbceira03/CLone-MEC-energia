@@ -61,7 +61,7 @@ class TestTariff:
 
         assert status.HTTP_204_NO_CONTENT == response.status_code
     
-    @pytest.mark.skip
+    @pytest.mark.skip(reason="Contains errors")
     def test_consumer_units_count_by_distributor(self):
         self.consumer_unit_test_1_dict = dicts_test_utils.consumer_unit_dict_1
         self.consumer_unit_test_2_dict = dicts_test_utils.consumer_unit_dict_2
@@ -96,6 +96,6 @@ class TestTariff:
         # assert 1 == neoenergia['consumer_units']
         # assert 2 == ceb['consumer_units']
     
-    @pytest.mark.skip
+    @pytest.mark.skip(reason="Not implemented")
     def test_zero_consumer_units_count_by_distributor(self):
         ...
