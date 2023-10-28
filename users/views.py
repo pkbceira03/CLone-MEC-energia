@@ -5,7 +5,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from drf_yasg.utils import swagger_auto_schema
-
 from universities.models import ConsumerUnit
 
 from .models import CustomUser, UniversityUser

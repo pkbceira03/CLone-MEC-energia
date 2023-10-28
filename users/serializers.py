@@ -10,7 +10,7 @@ from .models import University
 class CustomUserSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'url', 'first_name', 'last_name',
+        fields = ['id', 'url', 'first_name', 'last_name', 'password',
                   'email', 'type', 'created_on']
 
         
@@ -20,7 +20,7 @@ class UniversityUserSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = UniversityUser
-        fields = ['id', 'url', 'first_name', 'last_name',
+        fields = ['id', 'url', 'first_name', 'last_name', 'password',
                   'email', 'type', 'created_on', 'university']
 
 
@@ -36,7 +36,7 @@ class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
 
     class Meta:
         model = UniversityUser
-        fields = ['id', 'url', 'first_name', 'last_name',
+        fields = ['id', 'url', 'first_name', 'last_name', 'password',
                   'email', 'type', 'university', 'favorite_consumer_units']
 
 class FavoriteConsumerUnitActionSerializer(Serializer):
