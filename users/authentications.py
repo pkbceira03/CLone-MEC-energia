@@ -31,7 +31,7 @@ class Authentication(ObtainAuthToken):
             user = serializer.validated_data['user']
             token, _ = Token.objects.get_or_create(user=user)
         except Exception as error:
-            return Response({'datail': f'Unable to log in with provided credentials: {str(error)}'}, status.HTTP_401_UNAUTHORIZED)
+            return Response({'detail': f'Unable to log in with provided credentials: {str(error)}'}, status.HTTP_401_UNAUTHORIZED)
 
         try:
             UserType.is_valid_user_type(user.type)
