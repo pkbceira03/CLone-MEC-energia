@@ -12,6 +12,8 @@ class CustomUserSerializer(HyperlinkedModelSerializer):
         model = CustomUser
         fields = ['id', 'url', 'first_name', 'last_name', 'password',
                   'email', 'type', 'created_on']
+        extra_kwargs = {'password': {'write_only': True}}
+
 
         
 class UniversityUserSerializer(HyperlinkedModelSerializer):
@@ -22,6 +24,7 @@ class UniversityUserSerializer(HyperlinkedModelSerializer):
         model = UniversityUser
         fields = ['id', 'url', 'first_name', 'last_name', 'password',
                   'email', 'type', 'created_on', 'university']
+        extra_kwargs = {'password': {'write_only': True}}
 
 
 class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
@@ -38,6 +41,8 @@ class RetrieveUniversityUserSerializer(HyperlinkedModelSerializer):
         model = UniversityUser
         fields = ['id', 'url', 'first_name', 'last_name', 'password',
                   'email', 'type', 'university', 'favorite_consumer_units']
+        extra_kwargs = {'password': {'write_only': True}}
+        
 
 class FavoriteConsumerUnitActionSerializer(Serializer):
     action = serializers.ChoiceField(allow_blank=False, choices=['remove', 'add'])
