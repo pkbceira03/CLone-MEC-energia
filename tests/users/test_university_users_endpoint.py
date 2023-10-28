@@ -24,18 +24,12 @@ class TestUsersEndpoint:
 
         self.university = create_objects_test_utils.create_test_university(self.university_dict)
         self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
-
+        self.super_user_dict = dicts_test_utils.super_user_dict_1
+        self.super_user = create_objects_test_utils.create_test_super_user(self.super_user_dict)
         self.client = APIClient()
         self.client.login(
-            email = self.user_dict['email'], 
-            password = self.user_dict['password'])
-        """ self.client = APIClient()
-        self.university = University(name='UnB', cnpj='00038174000143')
-        self.university.save()
-
-        self.user = UniversityUser.objects.create(
-            email=EMAIL, password=PASSWORD, university=self.university)
-        self.client.login(email=EMAIL, password=PASSWORD) """
+            email = self.super_user_dict['email'], 
+            password = self.super_user_dict['password'])
 
         self.consumer_units = []
         for i in range(3):
@@ -70,16 +64,11 @@ class TestUsersEndpoint:
 
         assert status.HTTP_201_CREATED == response.status_code
 
-        json_response_create_user = json.loads(response.content)
-        created_user = UniversityUser.objects.get(id = json_response_create_user['id'])
-
         response_login_user = self.client.post(TOKEN_ENDPOINT, {
-                                "username": created_user.email,
+                                "username": university_user_dict['email'],
                                 "password": university_user_dict['password']
                             })
         
-        logged_user = json.loads(response_login_user.content)
-
         assert status.HTTP_200_OK == response_login_user.status_code
 
     """ 

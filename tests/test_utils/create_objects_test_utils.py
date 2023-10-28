@@ -118,3 +118,15 @@ def create_test_university_user(dict: dict, university: University) -> Universit
         university = university)
 
     return university_user
+
+def create_test_university_admin_user(dict: dict, university: University) -> UniversityUser:
+    university_admin_user = UniversityUser.objects.create(
+        first_name = dict['first_name'],
+        last_name = dict['last_name'],
+        email = dict['email'],
+        password = dict['password'],
+        university = university,
+        type = CustomUser.university_admin_user_type
+    )
+
+    return university_admin_user
