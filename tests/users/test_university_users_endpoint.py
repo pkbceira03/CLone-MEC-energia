@@ -24,22 +24,17 @@ class TestUsersEndpoint:
 
         self.university = create_objects_test_utils.create_test_university(self.university_dict)
         self.user = create_objects_test_utils.create_test_university_user(self.user_dict, self.university)
-
+        self.super_user_dict = dicts_test_utils.super_user_dict_1
+        self.super_user = create_objects_test_utils.create_test_super_user(self.super_user_dict)
         self.client = APIClient()
         self.client.login(
-            email = self.user_dict['email'], 
-            password = self.user_dict['password'])
-        """ self.client = APIClient()
-        self.university = University(name='UnB', cnpj='00038174000143')
-        self.university.save()
-
-        self.user = UniversityUser.objects.create(
-            email=EMAIL, password=PASSWORD, university=self.university)
-        self.client.login(email=EMAIL, password=PASSWORD) """
+            email = self.super_user_dict['email'], 
+            password = self.super_user_dict['password'])
 
         self.consumer_units = []
         for i in range(3):
             self.consumer_units.append(ConsumerUnit(
+                id=i+1,
                 name=f'UC {i+1}',
                 code=f'{i+1}',
                 university=self.university,
@@ -61,7 +56,6 @@ class TestUsersEndpoint:
 
         assert status.HTTP_200_OK == response.status_code
         
-    @pytest.mark.skip(reason="Failing test. Status code assertion failing.")
     def test_endpoint_create_university_user(self):
         university_user_dict = dicts_test_utils.university_user_dict_2
         university_user_dict['university'] = self.university.id
@@ -70,16 +64,11 @@ class TestUsersEndpoint:
 
         assert status.HTTP_201_CREATED == response.status_code
 
-        json_response_create_user = json.loads(response.content)
-        created_user = UniversityUser.objects.get(id = json_response_create_user['id'])
-
         response_login_user = self.client.post(TOKEN_ENDPOINT, {
-                                "username": created_user.email,
+                                "username": university_user_dict['email'],
                                 "password": university_user_dict['password']
                             })
         
-        logged_user = json.loads(response_login_user.content)
-
         assert status.HTTP_200_OK == response_login_user.status_code
 
     """ 
@@ -117,10 +106,9 @@ class TestUsersEndpoint:
 
         assert 0 == favorite_consumer_units.count()
 
-    @pytest.mark.skip(reason="Failing test. Field 'consumer_unit_id' is being passed as None.")
     def test_add_consumer_unit_to_favorite(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
-
+        print(self.consumer_units[0].id)
         response = self._add_to_favorite_request(endpoint, self.consumer_units[0].id)
 
         assert status.HTTP_200_OK == response.status_code
@@ -130,7 +118,6 @@ class TestUsersEndpoint:
 
         assert 1 == favorite_consumer_units.count()
             
-    @pytest.mark.skip(reason="Failing test. Field 'consumer_unit_id' is being passed as None.")
     def test_add_second_consumer_unit_to_favorite(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
@@ -142,7 +129,6 @@ class TestUsersEndpoint:
 
         assert 2 == favorite_consumer_units.count()
 
-    @pytest.mark.skip(reason="Failing test. Field 'consumer_unit_id' is being passed as None.")
     def test_remove_second_consumer_unit_from_favorite(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
@@ -194,7 +180,6 @@ class TestUsersEndpoint:
         assert 'This field is required' in error['consumer_unit_id'][0]
         assert 'This field is required' in error['action'][0]
             
-    @pytest.mark.skip(reason="Failing test. Field 'consumer_unit_id' is being passed as None.")
     def test_reject_request_with_wrong_action_value(self):
         endpoint = f'{ENDPOINT_USER_UNIVERSITY}{self.user.id}/favorite-consumer-units/'
 
@@ -206,6 +191,15 @@ class TestUsersEndpoint:
 
         assert status.HTTP_400_BAD_REQUEST == response.status_code
         assert '"wrong action" is not a valid choice' in error['action'][0]
+
+    def test_if_password_is_not_appearing_when_listing_users(self):
+        response = self.client.get(f'{ENDPOINT}')
+
+        assert 'password' not in response.content.decode('utf-8')
+
+        response = self.client.get(f'{ENDPOINT_USER_UNIVERSITY}')
+
+        assert 'password' not in response.content.decode('utf-8')
             
     def _add_to_favorite_request(self, endpoint: str, consumer_unit_id: str):
         return self.client.post(endpoint, 

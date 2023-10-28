@@ -18,7 +18,7 @@ university_dict_2 = {
 
 consumer_unit_dict_1 = {
     'name': 'Darcy Ribeiro',
-    'code': '000000000',
+    'code': '000000001',
     'is_active': True,
 }
 
@@ -134,7 +134,7 @@ super_user_dict_1 = {
     "first_name": "super",
     "last_name": "admin",
     "email": "admin@admin.com",
-    "password": "12345",
+    "password": "admin",
     "type": "super_user"
 }
 
@@ -143,7 +143,7 @@ university_user_dict_1 = {
     "last_name": "Schwarzenegger",
     "email": "arnold@user.com",
     "password": "12345",
-    "type": "university_user"
+    "type": "university_admin"
 }
 
 university_user_dict_2 = {
