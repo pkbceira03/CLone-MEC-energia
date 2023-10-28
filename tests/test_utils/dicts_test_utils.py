@@ -18,7 +18,7 @@ university_dict_2 = {
 
 consumer_unit_dict_1 = {
     'name': 'Darcy Ribeiro',
-    'code': '000000000',
+    'code': '000000001',
     'is_active': True,
 }
 

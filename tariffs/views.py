@@ -144,7 +144,11 @@ class TariffViewSet(ViewSet):
 
     def _handle_integrity_error(self, error: IntegrityError):
         error_message = str(error)
-        if 'duplicate key value violates unique constraint' in error_message:
+        # Importante essas duas verificações pois em ambientes de testes, o banco roda em sqlite e a mensagem de exceção é diferente
+        if 'UNIQUE constraint failed:' in error_message:
+            formatted_error = f'There is already a tariff with given (subgroup, distributor, flag)=-'
+            return Response({'errors': [formatted_error]}, status=status.HTTP_403_FORBIDDEN)
+        elif 'duplicate key value violates unique constraint' in error_message:
             duplicate_key = re.search('\)=(\(.*\))', error_message).groups(0)[0]
             formatted_error = f'There is already a tariff with given (subgroup, distributor, flag)={duplicate_key}'
             return Response({'errors': [formatted_error]}, status=status.HTTP_403_FORBIDDEN)
