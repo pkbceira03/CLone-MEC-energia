@@ -178,6 +178,11 @@ class EnergyBill(models.Model):
         blank=True,
     )
 
+    anotacoes = models.TextField( # Novo campo de anotações
+        null=True,
+        blank=True,
+    )
+
     @classmethod
     def get_energy_bill(cls, consumer_unit_id, month, year):
         try:
